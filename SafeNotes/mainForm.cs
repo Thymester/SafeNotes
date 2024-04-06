@@ -1,10 +1,9 @@
-using MaterialSkin;
+﻿using MaterialSkin;
 using MaterialSkin.Controls;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq.Expressions;
 using System.Windows.Forms;
 
 namespace SafeNotes

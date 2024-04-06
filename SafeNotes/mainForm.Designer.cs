@@ -30,9 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Account");
             this.tabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.loginPage = new System.Windows.Forms.TabPage();
             this.passwordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
@@ -78,6 +78,7 @@
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
             this.checkTimer = new System.Windows.Forms.Timer(this.components);
             this.labelVisibilityTimer = new System.Windows.Forms.Timer(this.components);
+            this.editEntryButton = new MaterialSkin.Controls.MaterialButton();
             this.tabControl.SuspendLayout();
             this.loginPage.SuspendLayout();
             this.journalEntryPage.SuspendLayout();
@@ -378,7 +379,7 @@
             this.saveNameButton.Depth = 0;
             this.saveNameButton.HighEmphasis = true;
             this.saveNameButton.Icon = null;
-            this.saveNameButton.Location = new System.Drawing.Point(163, 396);
+            this.saveNameButton.Location = new System.Drawing.Point(160, 396);
             this.saveNameButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.saveNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.saveNameButton.Name = "saveNameButton";
@@ -399,7 +400,7 @@
             this.changeNameButton.Depth = 0;
             this.changeNameButton.HighEmphasis = true;
             this.changeNameButton.Icon = null;
-            this.changeNameButton.Location = new System.Drawing.Point(163, 396);
+            this.changeNameButton.Location = new System.Drawing.Point(160, 396);
             this.changeNameButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.changeNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.changeNameButton.Name = "changeNameButton";
@@ -422,7 +423,7 @@
             this.yourNameBox.Font = new System.Drawing.Font("Roboto", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.yourNameBox.Hint = "Your name...";
             this.yourNameBox.LeadingIcon = null;
-            this.yourNameBox.Location = new System.Drawing.Point(6, 396);
+            this.yourNameBox.Location = new System.Drawing.Point(3, 396);
             this.yourNameBox.MaxLength = 50;
             this.yourNameBox.MouseState = MaterialSkin.MouseState.OUT;
             this.yourNameBox.Multiline = false;
@@ -676,6 +677,7 @@
             // journalEntriesPage
             // 
             this.journalEntriesPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.journalEntriesPage.Controls.Add(this.editEntryButton);
             this.journalEntriesPage.Controls.Add(this.deleteEntriesButton);
             this.journalEntriesPage.Controls.Add(this.entriesListBox);
             this.journalEntriesPage.Controls.Add(this.tabSelect3);
@@ -734,6 +736,7 @@
             this.entriesListBox.UseCompatibleStateImageBehavior = false;
             this.entriesListBox.View = System.Windows.Forms.View.Details;
             this.entriesListBox.Visible = false;
+            this.entriesListBox.SelectedIndexChanged += new System.EventHandler(this.entriesListBox_SelectedIndexChanged);
             this.entriesListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.entriesListBox_MouseDoubleClick);
             // 
             // dateCol
@@ -795,16 +798,16 @@
             this.leftMenuNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.leftMenuNav.NodeHeight = 36;
             this.leftMenuNav.NodeIsShowSplitLine = true;
-            treeNode1.Name = "themeSetPage";
-            treeNode1.Text = "Theme";
-            treeNode2.Name = "generalSetPage";
-            treeNode2.Text = "General";
-            treeNode3.Name = "accountSetPage";
-            treeNode3.Text = "Account";
+            treeNode10.Name = "themeSetPage";
+            treeNode10.Text = "Theme";
+            treeNode11.Name = "generalSetPage";
+            treeNode11.Text = "General";
+            treeNode12.Name = "accountSetPage";
+            treeNode12.Text = "Account";
             this.leftMenuNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3});
+            treeNode10,
+            treeNode11,
+            treeNode12});
             this.leftMenuNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.leftMenuNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.leftMenuNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
@@ -921,6 +924,30 @@
             this.labelVisibilityTimer.Interval = 3000;
             this.labelVisibilityTimer.Tick += new System.EventHandler(this.labelVisibilityTimer_Tick);
             // 
+            // editEntryButton
+            // 
+            this.editEntryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.editEntryButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.editEntryButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.editEntryButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.editEntryButton.Depth = 0;
+            this.editEntryButton.HighEmphasis = true;
+            this.editEntryButton.Icon = null;
+            this.editEntryButton.Location = new System.Drawing.Point(13, 383);
+            this.editEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.editEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.editEntryButton.Name = "editEntryButton";
+            this.editEntryButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.editEntryButton.Size = new System.Drawing.Size(102, 36);
+            this.editEntryButton.TabIndex = 4;
+            this.editEntryButton.Text = "Edit entry";
+            this.toolTips.SetToolTip(this.editEntryButton, "Deletes all entries");
+            this.editEntryButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.editEntryButton.UseAccentColor = false;
+            this.editEntryButton.UseVisualStyleBackColor = true;
+            this.editEntryButton.Visible = false;
+            this.editEntryButton.Click += new System.EventHandler(this.editEntryButton_Click);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -997,6 +1024,7 @@
         private MaterialSkin.Controls.MaterialLabel charsInNotepad;
         private MaterialSkin.Controls.MaterialLabel columnInNotepad;
         private MaterialSkin.Controls.MaterialLabel notepadTitle;
+        private MaterialSkin.Controls.MaterialButton editEntryButton;
     }
 }
 
