@@ -6,16 +6,17 @@ SafeNotes is a secure and easy-to-use notes application designed to keep your th
 
 1. **Password Verification**: Users are required to log in with a password to access their notes, ensuring privacy and security.
 2. **Password Generator**: Easily create strong and unique passwords with the built-in password generator.
-3. **Password Manager Detection**: Detects if a password manager is installed, providing an additional layer of security. (NOTE: ProtonPass only works if you relocate the folder into your "Program Files (x86)" folder)
-4. **Journal with Entry Saving**: Keep track of your thoughts, ideas, and experiences with the journal feature, and save entries securely.
-5. **Custom User Names**: Personalize your SafeNotes experience by setting your own user name.
-6. **Notepad with File Saving and Opening**: Use the notepad feature to jot down quick notes, and save and open files as needed.
-7. **Journal Entries**: Organize your thoughts with journal entries, applying dates by default for easy reference.
-8. **Entry Editing**: Edit your journal entries for accuracy and clarity, ensuring your notes are always up to date.
-9. **Dark Mode by Default**: Protect your eyes and reduce screen glare with the default dark mode interface.
-10. **Light Mode**: Switch to light mode for a different visual experience, catering to your preferences.
-11. **Reset Account Info/Password**: Easily reset your account information or password if needed, ensuring continued access to your notes.
-12. **Reset Login Status**: Reset your login status to ensure security if you suspect unauthorized access to your account.
+3. **Password Manager Detection**: Detects if a password manager is installed, providing an additional layer of security.
+**(NOTE: ProtonPass only works if you relocate the folder into your "Program Files (x86)" folder)**
+5. **Journal with Entry Saving**: Keep track of your thoughts, ideas, and experiences with the journal feature, and save entries securely.
+6. **Custom User Names**: Personalize your SafeNotes experience by setting your own user name.
+7. **Notepad with File Saving and Opening**: Use the notepad feature to jot down quick notes, and save and open files as needed.
+8. **Journal Entries**: Organize your thoughts with journal entries, applying dates by default for easy reference.
+9. **Entry Editing**: Edit your journal entries for accuracy and clarity, ensuring your notes are always up to date.
+10. **Dark Mode by Default**: Protect your eyes and reduce screen glare with the default dark mode interface.
+11. **Light Mode**: Switch to light mode for a different visual experience, catering to your preferences.
+12. **Reset Account Info/Password**: Easily reset your account information or password if needed, ensuring continued access to your notes.
+13. **Reset Login Status**: Reset your login status to ensure security if you suspect unauthorized access to your account.
 
 ## Usage
 
