@@ -1,29 +1,34 @@
 # SafeNotes
-A notes application which requires users to log in to access their notes. There is no encryption; however, the app overrides the entries file when you close the app, and it remains overwritten until the user logins with the password which they set.
 
-# Features
-1: Password verification
+SafeNotes is a secure and easy-to-use notes application designed to keep your thoughts and information safe. With features like password verification, journaling, notepad functionalities, and dark mode, SafeNotes offers a comprehensive solution for organizing your notes securely.
 
-2: Password generator
+## Features
 
-3: Password Manager detection (only if downloaded to default file path)
+1. **Password Verification**: Users are required to log in with a password to access their notes, ensuring privacy and security.
+2. **Password Generator**: Easily create strong and unique passwords with the built-in password generator.
+3. **Password Manager Detection**: Detects if a password manager is installed, providing an additional layer of security.
+4. **Journal with Entry Saving**: Keep track of your thoughts, ideas, and experiences with the journal feature, and save entries securely.
+5. **Custom User Names**: Personalize your SafeNotes experience by setting your own user name.
+6. **Notepad with File Saving and Opening**: Use the notepad feature to jot down quick notes, and save and open files as needed.
+7. **Journal Entries**: Organize your thoughts with journal entries, applying dates by default for easy reference.
+8. **Entry Editing**: Edit your journal entries for accuracy and clarity, ensuring your notes are always up to date.
+9. **Dark Mode by Default**: Protect your eyes and reduce screen glare with the default dark mode interface.
+10. **Light Mode**: Switch to light mode for a different visual experience, catering to your preferences.
+11. **Reset Account Info/Password**: Easily reset your account information or password if needed, ensuring continued access to your notes.
+12. **Reset Login Status**: Reset your login status to ensure security if you suspect unauthorized access to your account.
 
-4: Journal w/ Entry saving
+## Usage
 
-5: Users can set their names
+1. **Login**: Enter your password to access your notes.
+2. **Journal**: Record your thoughts, ideas, and experiences in the journal.
+3. **Notepad**: Use the notepad for quick notes and file saving.
+4. **Settings**: Customize your SafeNotes experience, including dark or light mode preferences.
+5. **Password Management**: Update your password or reset account information as needed.
 
-6: Notepad w/ File saving and opening
+## Contributing
 
-7: Journal entries
+We welcome contributions from the community to improve SafeNotes. If you have any suggestions, bug reports, or feature requests, please feel free to open an issue or submit a pull request on GitHub.
 
-8: Entry deleting but not editing for now
+## License
 
-9: Dark mode by default
-
-10: Light mode
-
-11: Apply dates to entries by default
-
-12: Resetting of account info/password
-
-13: Resetting of login status
+SafeNotes is licensed under the [Apache License 2.0](LICENSE).
