@@ -1,10 +1,12 @@
-﻿using MaterialSkin;
+using MaterialSkin;
 using MaterialSkin.Controls;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.Linq.Expressions;
 using System.Windows.Forms;
- 
+
 namespace SafeNotes
 {
     public partial class mainForm : MaterialForm
@@ -95,69 +97,83 @@ namespace SafeNotes
 
         private void saveEntryButton_Click(object sender, EventArgs e)
         {
-            // If applyHourCheckbox and applyDateBox are checked, save the text in the contentsColumn of the entriesListBox with the current date and time in the dateColumn
-            // If the contents of the journalEntryBox is empty, show a message box with the text "You cannot save an empty entry"
-            if (applyDateCheckbox.Checked == true)
+            if (saveEntryButton.Text == "Save Edit")
             {
-                if (string.IsNullOrWhiteSpace(journalEntryBox.Text))
+                editEntryButton.Size = new Size(107, 36);
+                // Ensure that an item is selected
+                if (entriesListBox.SelectedItems.Count > 0)
                 {
-                    MessageBox.Show("You cannot save an empty entry", "Empty entry", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    // Modify the text of the selected item in the entriesListBox
+                    string editedText = journalEntryBox.Text;
+                    if (applyDateCheckbox.Checked)
+                    {
+                        // Add the new date and time to the edited text
+                        editedText = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + editedText;
+                    }
+                    entriesListBox.SelectedItems[0].Text = editedText;
+
+                    // Reset button text to "Save Entry" after editing
+                    saveEntryButton.Text = "Save Entry";
+
+                    // Clear the journal entry box
+                    journalEntryBox.Text = "";
+
+                    // Show the editEntryButton again
+                    editEntryButton.Show();
+
+                    // Update the entries count label and save entries to file
+                    UpdateEntriesCountAndSaveToFile();
+
+                    // Programmatically switch to the "Journal Entries" tab
+                    tabControl.SelectedTab = journalEntriesPage;
+
+                    // Enable the tabControl
+                    tabSelect2.Enabled = true;
+                }
+            }
+            else
+            {
+                // Add new entry
+                string newEntryText = journalEntryBox.Text;
+                if (applyDateCheckbox.Checked)
+                {
+                    // Add the new date and time to the new entry text
+                    newEntryText = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + newEntryText;
+                }
+
+                // Add the new entry to the entriesListBox
+                entriesListBox.Items.Add(newEntryText);
+
+                // Clear the journal entry box
+                journalEntryBox.Text = "";
+
+                // Update the entries count label and save entries to file
+                UpdateEntriesCountAndSaveToFile();
+                
+                if (entriesListBox.Items.Count > 1)
+                {
+                    deleteEntriesButton.Enabled = true;
                 }
                 else
                 {
-                    entriesListBox.Items.Add(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + journalEntryBox.Text);
-                    journalEntryBox.Text = "";
-                    // Now save this entry to a txt file in the location of the applications .exe
-                    string[] entries = new string[entriesListBox.Items.Count];
-                    for (int i = 0; i < entriesListBox.Items.Count; i++)
-                    {
-                        // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                        entries[i] = entriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
-                        // Show the amount of entries in the entriesListBox to the savedEntriesCount label
-                        savedEntriesCount.Text = "Saved entries: " + entriesListBox.Items.Count.ToString();
-                    }
-                    System.IO.File.WriteAllLines("entries.txt", entries);
-                    // if there is more than one entry in the entriesListBox, show the deleteEntriesButton
-                    if (entriesListBox.Items.Count > 1)
-                    {
-                        deleteEntriesButton.Visible = true;
-                    }
-                    // Add the entry to the entryStats chart based on the day it was saved
-                    //entryStats.Series["Entries"].Points.Add(DateTime.Now.ToString("dd/MM/yyyy"), entriesListBox.Items.Count);
-
-                    // Create a notification using the notiPopup, which uses Tulpep. Notify the user that the entry has been saved and close the notification after 2 seconds
-                    Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
-                    notiPopup.TitleText = "SafeNotes";
-                    notiPopup.ContentText = "Entry saved";
-                    notiPopup.Popup();
+                    deleteEntriesButton.Enabled = false;
                 }
             }
-            else if (applyDateCheckbox.Checked == false)
+        }
+
+        private void UpdateEntriesCountAndSaveToFile()
+        {
+            // Update the savedEntriesCount label
+            savedEntriesCount.Text = "Saved entries: " + entriesListBox.Items.Count.ToString();
+
+            // Now save all entries to a txt file in the location of the application's .exe
+            string[] entries = new string[entriesListBox.Items.Count];
+            for (int i = 0; i < entriesListBox.Items.Count; i++)
             {
-                if (string.IsNullOrWhiteSpace(journalEntryBox.Text))
-                {
-                    MessageBox.Show("You cannot save an empty entry", "Empty entry", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                }
-                else
-                {
-                    entriesListBox.Items.Add(journalEntryBox.Text);
-                    journalEntryBox.Text = "";
-                    // Now save this entry to a txt file in the location of the applications .exe
-                    string[] entries = new string[entriesListBox.Items.Count];
-                    for (int i = 0; i < entriesListBox.Items.Count; i++)
-                    {
-                        // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                        entries[i] = entriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
-                    }
-                    System.IO.File.WriteAllLines("entries.txt", entries);
-
-                    // Create a notification using the notiPopup, which uses Tulpep. Notify the user that the entry has been saved and close the notification after 2 seconds
-                    Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
-                    notiPopup.TitleText = "SafeNotes";
-                    notiPopup.ContentText = "Entry saved";
-                    notiPopup.Popup();
-                }
+                // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
+                entries[i] = entriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
             }
+            System.IO.File.WriteAllLines("entries.txt", entries);
         }
 
         private void saveNameButton_Click(object sender, EventArgs e)
@@ -546,65 +562,88 @@ namespace SafeNotes
         {
             if (string.IsNullOrWhiteSpace(passwordGenBox.Text))
             {
-                // Send a error to the user saying there is no password in the passwordGenBox
+                // Send an error to the user saying there is no password in the passwordGenBox
                 MessageBox.Show("There is no password that has been generated, please generate a password first.", "No Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            // Check if the user has Bitwarden, KeePass, 1Password, LastPass, ProtonPass, or NordPass installed, if one of them are, ask if they want to save their password to their password manager
-            if (File.Exists("C:\\Program Files\\Bitwarden\\Bitwarden.exe") || File.Exists("C:\\Program Files (x86)\\Bitwarden\\Bitwarden.exe") || File.Exists("C:\\Program Files\\KeePass Password Safe 2\\KeePass.exe") || File.Exists("C:\\Program Files (x86)\\KeePass Password Safe 2\\KeePass.exe") || File.Exists("C:\\Program Files\\1Password\\1Password.exe") || File.Exists("C:\\Program Files (x86)\\1Password\\1Password.exe") || File.Exists("C:\\Program Files\\LastPass\\LastPass.exe") || File.Exists("C:\\Program Files (x86)\\LastPass\\LastPass.exe"))
+            // Check if any of the supported password managers are installed
+            string[] supportedManagers = { "Bitwarden", "KeePass Password Safe 2", "1Password", "LastPass", "ProtonPass", "NordPass" };
+            string managerToOpen = null;
+            foreach (string manager in supportedManagers)
             {
-                DialogResult savePassword = MessageBox.Show("Do you want to save your password to your password manager?", "Save Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                string path = FindManagerPath(manager);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    managerToOpen = manager;
+                    break;
+                }
+            }
+
+            if (managerToOpen != null)
+            {
+                DialogResult savePassword = MessageBox.Show("Do you want to save your password to " + managerToOpen + "?", "Save Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (savePassword == DialogResult.Yes)
                 {
-                    // If the user has Bitwarden installed, save the password to Bitwarden
-                    if (File.Exists("C:\\Program Files\\Bitwarden\\Bitwarden.exe") || File.Exists("C:\\Program Files (x86)\\Bitwarden\\Bitwarden.exe"))
+                    string managerPath = FindManagerPath(managerToOpen);
+                    if (managerPath != null)
                     {
-                        Process.Start("C:\\Program Files\\Bitwarden\\Bitwarden.exe", " --username " + userPassword.Text + " --password " + userConfirmPassword.Text);
-                        // Paste the password into the userPassword and userConfirmPassword textboxes
-                        userPassword.Text = passwordGenBox.Text;
-                        userConfirmPassword.Text = passwordGenBox.Text;
-                    }
-                    // If the user has KeePass installed, save the password to KeePass
-                    else if (File.Exists("C:\\Program Files\\KeePass Password Safe 2\\KeePass.exe") || File.Exists("C:\\Program Files (x86)\\KeePass Password Safe 2\\KeePass.exe"))
-                    {
-                        Process.Start("C:\\Program Files\\KeePass Password Safe 2\\KeePass.exe", "\" -user=\"" + userPassword.Text + "\" -pw=\"" + userConfirmPassword.Text + "\"");
-                        // Paste the password into the userPassword and userConfirmPassword textboxes
-                        userPassword.Text = passwordGenBox.Text;
-                        userConfirmPassword.Text = passwordGenBox.Text;
-                    }
-                    // If the user has 1Password installed, save the password to 1Password
-                    else if (File.Exists("C:\\Program Files\\1Password\\1Password.exe") || File.Exists("C:\\Program Files (x86)\\1Password\\1Password.exe"))
-                    {
-                        Process.Start("C:\\Program Files\\1Password\\1Password.exe", " --username " + userPassword.Text + " --password " + userConfirmPassword.Text);
-                        // Paste the password into the userPassword and userConfirmPassword textboxes
-                        userPassword.Text = passwordGenBox.Text;
-                        userConfirmPassword.Text = passwordGenBox.Text;
-                    }
-                    // If the user has LastPass installed, save the password to LastPass
-                    else if (File.Exists("C:\\Program Files\\LastPass\\LastPass.exe") || File.Exists("C:\\Program Files (x86)\\LastPass\\LastPass.exe"))
-                    {
-                        Process.Start("C:\\Program Files\\LastPass\\LastPass.exe", " --username " + userPassword.Text + " --password " + userConfirmPassword.Text);
-                        // Paste the password into the userPassword and userConfirmPassword textboxes
-                        userPassword.Text = passwordGenBox.Text;
-                        userConfirmPassword.Text = passwordGenBox.Text;
-                    }
-                    // If the user has ProtonPass installed, save the password to ProtonPass
-                    else if (File.Exists("C:\\Program Files\\ProtonPass\\ProtonPass.exe") || File.Exists("C:\\Program Files (x86)\\ProtonPass\\ProtonPass.exe"))
-                    {
-                        Process.Start("C:\\Program Files\\ProtonPass\\ProtonPass.exe", " --username " + userPassword.Text + " --password " + userConfirmPassword.Text);
-                        // Paste the password into the userPassword and userConfirmPassword textboxes
-                        userPassword.Text = passwordGenBox.Text;
-                        userConfirmPassword.Text = passwordGenBox.Text;
-                    }
-                    // If the user has NordPass installed, save the password to NordPass
-                    else if (File.Exists("C:\\Program Files\\NordPass\\NordPass.exe") || File.Exists("C:\\Program Files (x86)\\NordPass\\NordPass.exe"))
-                    {
-                        Process.Start("C:\\Program Files\\NordPass\\NordPass.exe", " --username " + userPassword.Text + " --password " + userConfirmPassword.Text);
-                        // Paste the password into the userPassword and userConfirmPassword textboxes
-                        userPassword.Text = passwordGenBox.Text;
-                        userConfirmPassword.Text = passwordGenBox.Text;
+                        string args = GetManagerArgs(managerToOpen);
+                        if (!string.IsNullOrEmpty(args))
+                        {
+                            Process.Start(managerPath, args);
+                            // Paste the password into the userPassword and userConfirmPassword textboxes
+                            userPassword.Text = passwordGenBox.Text;
+                            userConfirmPassword.Text = passwordGenBox.Text;
+                            Clipboard.SetText(passwordGenBox.Text);
+                        }
                     }
                 }
+            }
+            else
+            {
+                MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your password!", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                userPassword.Text = passwordGenBox.Text;
+                userConfirmPassword.Text = passwordGenBox.Text;
+            }
+        }
+
+        private string FindManagerPath(string managerName)
+        {
+            string[] paths = {
+            "C:\\Program Files\\" + managerName + "\\" + managerName + ".exe",
+            "C:\\Program Files (x86)\\" + managerName + "\\" + managerName + ".exe"
+            };
+
+            foreach (string path in paths)
+            {
+                if (File.Exists(path))
+                {
+                    return path;
+                }
+            }
+
+            return null;
+        }
+
+        private string GetManagerArgs(string managerName)
+        {
+            switch (managerName)
+            {
+                case "Bitwarden":
+                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                case "KeePass Password Safe 2":
+                    return "\" -user=\"" + userPassword.Text + "\" -pw=\"" + userConfirmPassword.Text + "\"";
+                case "1Password":
+                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                case "LastPass":
+                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                case "ProtonPass":
+                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                case "NordPass":
+                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                default:
+                    return null;
             }
         }
 
@@ -614,6 +653,10 @@ namespace SafeNotes
             if (entriesListBox.Items.Count <= 1)
             {
                 deleteEntriesButton.Visible = false;
+            }
+            else
+            {
+                deleteEntriesButton.Visible = true;
             }
 
             // Check if the user has a password set, if they do, make the passwordGenBox, regenPassButton and usePassButton invisible
@@ -731,20 +774,31 @@ namespace SafeNotes
             // If the user clicks the open button, open the file from the location they chose
             if (!string.IsNullOrWhiteSpace(openNotepad.FileName))
             {
-                // If the file is more than 32767 characters, do not open it and tell the user it is too big
-                if (File.ReadAllText(openNotepad.FileName).Length > 32767)
+                try
                 {
-                    MessageBox.Show("The file you are trying to open is too big, please open a file that is less than 32768 characters.", "File Too Big", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    notepadTitle.Visible = false;
+                    string fileContent = File.ReadAllText(openNotepad.FileName);
+
+                    // If the file is more than 32767 characters, do not open it and tell the user it is too big
+                    if (fileContent.Length > 32767)
+                    {
+                        MessageBox.Show("The file you are trying to open is too big, please open a file that is 32767 characters or less.", "File Too Big", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        notepadTitle.Visible = false;
+                    }
+                    else
+                    {
+                        notepadTextBox.Text = fileContent;
+                    }
+
+                    // If the file is empty, tell the user they cannot open an empty file
+                    if (string.IsNullOrWhiteSpace(notepadTextBox.Text))
+                    {
+                        MessageBox.Show("You cannot open an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        notepadTitle.Visible = false;
+                    }
                 }
-                else
+                catch (IOException ex)
                 {
-                    notepadTextBox.Text = File.ReadAllText(openNotepad.FileName);
-                }
-                // If the file is empty, tell the user they cannot open an empty file
-                if (string.IsNullOrWhiteSpace(notepadTextBox.Text))
-                {
-                    MessageBox.Show("You cannot open an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"An error occurred while trying to open the file: {ex.Message}", "Error Opening File", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     notepadTitle.Visible = false;
                 }
             }
@@ -852,6 +906,53 @@ namespace SafeNotes
         {
             // Unfocus from everything and focus to the notepadPage
             notepadPage.Focus();
+        }
+
+        private void editEntryButton_Click(object sender, EventArgs e)
+        {
+            // Ensure that an item is selected
+            if (entriesListBox.SelectedItems.Count > 0)
+            {
+                // Programmatically switch to the "Journal" tab
+                tabControl.SelectedTab = journalEntryPage;
+
+                // Get the selected item
+                ListViewItem selectedItem = entriesListBox.SelectedItems[0];
+
+                // Populate journalEntryBox with the text of the selected entry (without date and time)
+                string selectedText = selectedItem.Text;
+                int index = selectedText.IndexOf(" - ");
+                if (index != -1)
+                {
+                    journalEntryBox.Text = selectedText.Substring(index + 3);
+                }
+
+                // Set focus to the journalEntryBox
+                journalEntryBox.Focus();
+
+                // Hide the editEntryButton
+                editEntryButton.Hide();
+
+                // Disable the tabControl
+                tabSelect2.Enabled = false;
+
+                // Change the button text to indicate editing
+                saveEntryButton.Text = "Save Edit";
+                editEntryButton.Size = new Size(107, 36);
+
+                // Notify the user that they are editing an entry
+                Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                notiPopup.TitleText = "SafeNotes";
+                notiPopup.ContentText = "Editing entry...";
+                notiPopup.Popup();
+            }
+        }
+
+        private void entriesListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Enable the editEntryButton if an item is selected in the entriesListBox
+            editEntryButton.Enabled = entriesListBox.SelectedItems.Count > 0;
+            editEntryButton.Visible = entriesListBox.SelectedItems.Count > 0; // Show the button if an item is selected
         }
     }
 }
