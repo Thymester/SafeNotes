@@ -4,22 +4,22 @@ using System.IO;
 
 namespace SafeNotes
 {
-    public partial class mainForm : MaterialSkin.Controls.MaterialForm
+    public partial class MainForm : MaterialSkin.Controls.MaterialForm
     {
         private void UpdateEntriesCountAndSaveToFile()
         {
             // Update the savedEntriesCount label
-            savedEntriesCount.Text = "Saved entries: " + entriesListBox.Items.Count.ToString();
+            SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
 
             string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string filePath = Path.Combine(exeDirectory, "entries.txt");
 
             // Now save all entries to a txt file in the location of the application's .exe
-            string[] entries = new string[entriesListBox.Items.Count];
-            for (int i = 0; i < entriesListBox.Items.Count; i++)
+            string[] entries = new string[EntriesListBox.Items.Count];
+            for (int i = 0; i < EntriesListBox.Items.Count; i++)
             {
                 // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                entries[i] = entriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
             }
             System.IO.File.WriteAllLines(filePath, entries);
         }
@@ -47,17 +47,17 @@ namespace SafeNotes
             switch (managerName)
             {
                 case "Bitwarden":
-                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 case "KeePass Password Safe 2":
-                    return "\" -user=\"" + userPassword.Text + "\" -pw=\"" + userConfirmPassword.Text + "\"";
+                    return "\" -user=\"" + UserPassword.Text + "\" -pw=\"" + UserConfirmPassword.Text + "\"";
                 case "1Password":
-                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 case "LastPass":
-                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 case "ProtonPass":
-                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 case "NordPass":
-                    return "--username " + userPassword.Text + " --password " + userConfirmPassword.Text;
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 default:
                     return null;
             }
