@@ -30,9 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Account");
             this.tabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.loginPage = new System.Windows.Forms.TabPage();
             this.passwordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
@@ -62,6 +62,7 @@
             this.materialTabSelector1 = new MaterialSkin.Controls.MaterialTabSelector();
             this.notepadTextBox = new MaterialSkin.Controls.MaterialMultiLineTextBox2();
             this.journalEntriesPage = new System.Windows.Forms.TabPage();
+            this.editEntryButton = new MaterialSkin.Controls.MaterialButton();
             this.deleteEntriesButton = new MaterialSkin.Controls.MaterialButton();
             this.entriesListBox = new MaterialSkin.Controls.MaterialListView();
             this.dateCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -78,7 +79,6 @@
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
             this.checkTimer = new System.Windows.Forms.Timer(this.components);
             this.labelVisibilityTimer = new System.Windows.Forms.Timer(this.components);
-            this.editEntryButton = new MaterialSkin.Controls.MaterialButton();
             this.tabControl.SuspendLayout();
             this.loginPage.SuspendLayout();
             this.journalEntryPage.SuspendLayout();
@@ -147,6 +147,7 @@
             this.passwordLengthSlider.Size = new System.Drawing.Size(351, 40);
             this.passwordLengthSlider.TabIndex = 7;
             this.passwordLengthSlider.Text = "Password Length";
+            this.toolTips.SetToolTip(this.passwordLengthSlider, "Changes the amount of characters generated for password.");
             this.passwordLengthSlider.Value = 16;
             this.passwordLengthSlider.Visible = false;
             // 
@@ -314,7 +315,7 @@
             this.userPassword.CharacterCasing = System.Windows.Forms.CharacterCasing.Normal;
             this.userPassword.Depth = 0;
             this.userPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.userPassword.HelperText = "Journal password, used for logging into the app.";
+            this.userPassword.HelperText = "Journal password, used for securing Journal Entries.";
             this.userPassword.HideSelection = true;
             this.userPassword.Hint = "Password...";
             this.userPassword.LeadingIcon = null;
@@ -487,7 +488,6 @@
             this.journalEntryBox.TabStop = false;
             this.journalEntryBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.journalEntryBox.UseSystemPasswordChar = false;
-            this.journalEntryBox.TextChanged += new System.EventHandler(this.journalEntryBox_TextChanged);
             // 
             // tabSelect2
             // 
@@ -687,6 +687,30 @@
             this.journalEntriesPage.TabIndex = 2;
             this.journalEntriesPage.Text = "Journal Entries";
             // 
+            // editEntryButton
+            // 
+            this.editEntryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.editEntryButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.editEntryButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.editEntryButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.editEntryButton.Depth = 0;
+            this.editEntryButton.HighEmphasis = true;
+            this.editEntryButton.Icon = null;
+            this.editEntryButton.Location = new System.Drawing.Point(4, 396);
+            this.editEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.editEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.editEntryButton.Name = "editEntryButton";
+            this.editEntryButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.editEntryButton.Size = new System.Drawing.Size(102, 36);
+            this.editEntryButton.TabIndex = 4;
+            this.editEntryButton.Text = "Edit entry";
+            this.toolTips.SetToolTip(this.editEntryButton, "Edits the selected entry.");
+            this.editEntryButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.editEntryButton.UseAccentColor = false;
+            this.editEntryButton.UseVisualStyleBackColor = true;
+            this.editEntryButton.Visible = false;
+            this.editEntryButton.Click += new System.EventHandler(this.editEntryButton_Click);
+            // 
             // deleteEntriesButton
             // 
             this.deleteEntriesButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -696,7 +720,7 @@
             this.deleteEntriesButton.Depth = 0;
             this.deleteEntriesButton.HighEmphasis = true;
             this.deleteEntriesButton.Icon = null;
-            this.deleteEntriesButton.Location = new System.Drawing.Point(686, 383);
+            this.deleteEntriesButton.Location = new System.Drawing.Point(696, 396);
             this.deleteEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.deleteEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.deleteEntriesButton.Name = "deleteEntriesButton";
@@ -704,7 +728,7 @@
             this.deleteEntriesButton.Size = new System.Drawing.Size(136, 36);
             this.deleteEntriesButton.TabIndex = 3;
             this.deleteEntriesButton.Text = "Delete entries";
-            this.toolTips.SetToolTip(this.deleteEntriesButton, "Deletes all entries");
+            this.toolTips.SetToolTip(this.deleteEntriesButton, "Deletes all entered entries");
             this.deleteEntriesButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.deleteEntriesButton.UseAccentColor = false;
             this.deleteEntriesButton.UseVisualStyleBackColor = true;
@@ -731,7 +755,7 @@
             this.entriesListBox.MouseState = MaterialSkin.MouseState.OUT;
             this.entriesListBox.Name = "entriesListBox";
             this.entriesListBox.OwnerDraw = true;
-            this.entriesListBox.Size = new System.Drawing.Size(830, 397);
+            this.entriesListBox.Size = new System.Drawing.Size(830, 354);
             this.entriesListBox.TabIndex = 2;
             this.entriesListBox.UseCompatibleStateImageBehavior = false;
             this.entriesListBox.View = System.Windows.Forms.View.Details;
@@ -798,16 +822,16 @@
             this.leftMenuNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.leftMenuNav.NodeHeight = 36;
             this.leftMenuNav.NodeIsShowSplitLine = true;
-            treeNode10.Name = "themeSetPage";
-            treeNode10.Text = "Theme";
-            treeNode11.Name = "generalSetPage";
-            treeNode11.Text = "General";
-            treeNode12.Name = "accountSetPage";
-            treeNode12.Text = "Account";
+            treeNode1.Name = "themeSetPage";
+            treeNode1.Text = "Theme";
+            treeNode2.Name = "generalSetPage";
+            treeNode2.Text = "General";
+            treeNode3.Name = "accountSetPage";
+            treeNode3.Text = "Account";
             this.leftMenuNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode10,
-            treeNode11,
-            treeNode12});
+            treeNode1,
+            treeNode2,
+            treeNode3});
             this.leftMenuNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.leftMenuNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.leftMenuNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
@@ -824,7 +848,7 @@
             // 
             this.resetAccountCheckbox.AutoSize = true;
             this.resetAccountCheckbox.Depth = 0;
-            this.resetAccountCheckbox.Location = new System.Drawing.Point(91, 33);
+            this.resetAccountCheckbox.Location = new System.Drawing.Point(93, 33);
             this.resetAccountCheckbox.Margin = new System.Windows.Forms.Padding(0);
             this.resetAccountCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.resetAccountCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
@@ -834,6 +858,7 @@
             this.resetAccountCheckbox.Size = new System.Drawing.Size(198, 37);
             this.resetAccountCheckbox.TabIndex = 16;
             this.resetAccountCheckbox.Text = "Reset account on close";
+            this.toolTips.SetToolTip(this.resetAccountCheckbox, "Wipes all account data when you close SafeNotes.");
             this.resetAccountCheckbox.UseVisualStyleBackColor = true;
             this.resetAccountCheckbox.Visible = false;
             // 
@@ -852,6 +877,7 @@
             this.resetLoginStatusButton.Size = new System.Drawing.Size(170, 36);
             this.resetLoginStatusButton.TabIndex = 15;
             this.resetLoginStatusButton.Text = "Reset login status";
+            this.toolTips.SetToolTip(this.resetLoginStatusButton, "Logs you out of SafeNotes.");
             this.resetLoginStatusButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.resetLoginStatusButton.UseAccentColor = false;
             this.resetLoginStatusButton.UseVisualStyleBackColor = true;
@@ -872,6 +898,7 @@
             this.applyDateCheckbox.Size = new System.Drawing.Size(167, 37);
             this.applyDateCheckbox.TabIndex = 14;
             this.applyDateCheckbox.Text = "Apply date to entry";
+            this.toolTips.SetToolTip(this.applyDateCheckbox, "Applies the date the entry was made in the Entries tab.");
             this.applyDateCheckbox.UseVisualStyleBackColor = true;
             this.applyDateCheckbox.Visible = false;
             this.applyDateCheckbox.CheckedChanged += new System.EventHandler(this.applyDateCheckbox_CheckedChanged);
@@ -880,7 +907,7 @@
             // 
             this.lightModeCheckbox.AutoSize = true;
             this.lightModeCheckbox.Depth = 0;
-            this.lightModeCheckbox.Location = new System.Drawing.Point(91, 33);
+            this.lightModeCheckbox.Location = new System.Drawing.Point(93, 33);
             this.lightModeCheckbox.Margin = new System.Windows.Forms.Padding(0);
             this.lightModeCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.lightModeCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
@@ -890,6 +917,7 @@
             this.lightModeCheckbox.Size = new System.Drawing.Size(115, 37);
             this.lightModeCheckbox.TabIndex = 12;
             this.lightModeCheckbox.Text = "Light Mode";
+            this.toolTips.SetToolTip(this.lightModeCheckbox, "Burns your eyes...");
             this.lightModeCheckbox.UseVisualStyleBackColor = true;
             this.lightModeCheckbox.Visible = false;
             this.lightModeCheckbox.CheckedChanged += new System.EventHandler(this.materialCheckbox_CheckedChanged);
@@ -923,30 +951,6 @@
             // 
             this.labelVisibilityTimer.Interval = 3000;
             this.labelVisibilityTimer.Tick += new System.EventHandler(this.labelVisibilityTimer_Tick);
-            // 
-            // editEntryButton
-            // 
-            this.editEntryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.editEntryButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.editEntryButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.editEntryButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            this.editEntryButton.Depth = 0;
-            this.editEntryButton.HighEmphasis = true;
-            this.editEntryButton.Icon = null;
-            this.editEntryButton.Location = new System.Drawing.Point(13, 383);
-            this.editEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.editEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
-            this.editEntryButton.Name = "editEntryButton";
-            this.editEntryButton.NoAccentTextColor = System.Drawing.Color.Empty;
-            this.editEntryButton.Size = new System.Drawing.Size(102, 36);
-            this.editEntryButton.TabIndex = 4;
-            this.editEntryButton.Text = "Edit entry";
-            this.toolTips.SetToolTip(this.editEntryButton, "Deletes all entries");
-            this.editEntryButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            this.editEntryButton.UseAccentColor = false;
-            this.editEntryButton.UseVisualStyleBackColor = true;
-            this.editEntryButton.Visible = false;
-            this.editEntryButton.Click += new System.EventHandler(this.editEntryButton_Click);
             // 
             // mainForm
             // 
