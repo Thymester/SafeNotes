@@ -46,7 +46,6 @@
             this.userPassword = new MaterialSkin.Controls.MaterialTextBox2();
             this.journalEntryPage = new System.Windows.Forms.TabPage();
             this.savedEntriesCount = new MaterialSkin.Controls.MaterialLabel();
-            this.saveNameButton = new MaterialSkin.Controls.MaterialButton();
             this.changeNameButton = new MaterialSkin.Controls.MaterialButton();
             this.yourNameBox = new MaterialSkin.Controls.MaterialTextBox();
             this.saveEntryButton = new MaterialSkin.Controls.MaterialButton();
@@ -65,8 +64,8 @@
             this.editEntryButton = new MaterialSkin.Controls.MaterialButton();
             this.deleteEntriesButton = new MaterialSkin.Controls.MaterialButton();
             this.entriesListBox = new MaterialSkin.Controls.MaterialListView();
-            this.dateCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.contentsCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.dateCol = new System.Windows.Forms.ColumnHeader();
+            this.contentsCol = new System.Windows.Forms.ColumnHeader();
             this.tabSelect3 = new MaterialSkin.Controls.MaterialTabSelector();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.leftMenuNav = new Mook.UI.Windows.Forms.LeftMenuNav();
@@ -344,7 +343,6 @@
             // 
             this.journalEntryPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.journalEntryPage.Controls.Add(this.savedEntriesCount);
-            this.journalEntryPage.Controls.Add(this.saveNameButton);
             this.journalEntryPage.Controls.Add(this.changeNameButton);
             this.journalEntryPage.Controls.Add(this.yourNameBox);
             this.journalEntryPage.Controls.Add(this.saveEntryButton);
@@ -372,27 +370,6 @@
             this.savedEntriesCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.savedEntriesCount.Click += new System.EventHandler(this.savedEntriesCount_Click);
             // 
-            // saveNameButton
-            // 
-            this.saveNameButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.saveNameButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.saveNameButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
-            this.saveNameButton.Depth = 0;
-            this.saveNameButton.HighEmphasis = true;
-            this.saveNameButton.Icon = null;
-            this.saveNameButton.Location = new System.Drawing.Point(160, 396);
-            this.saveNameButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.saveNameButton.MouseState = MaterialSkin.MouseState.HOVER;
-            this.saveNameButton.Name = "saveNameButton";
-            this.saveNameButton.NoAccentTextColor = System.Drawing.Color.Empty;
-            this.saveNameButton.Size = new System.Drawing.Size(103, 36);
-            this.saveNameButton.TabIndex = 7;
-            this.saveNameButton.Text = "Save name";
-            this.saveNameButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
-            this.saveNameButton.UseAccentColor = false;
-            this.saveNameButton.UseVisualStyleBackColor = true;
-            this.saveNameButton.Click += new System.EventHandler(this.saveNameButton_Click);
-            // 
             // changeNameButton
             // 
             this.changeNameButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -406,13 +383,12 @@
             this.changeNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.changeNameButton.Name = "changeNameButton";
             this.changeNameButton.NoAccentTextColor = System.Drawing.Color.Empty;
-            this.changeNameButton.Size = new System.Drawing.Size(125, 36);
+            this.changeNameButton.Size = new System.Drawing.Size(103, 36);
             this.changeNameButton.TabIndex = 6;
-            this.changeNameButton.Text = "Change name";
+            this.changeNameButton.Text = "Save name";
             this.changeNameButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.changeNameButton.UseAccentColor = false;
             this.changeNameButton.UseVisualStyleBackColor = true;
-            this.changeNameButton.Visible = false;
             this.changeNameButton.Click += new System.EventHandler(this.changeNameButton_Click);
             // 
             // yourNameBox
@@ -488,6 +464,7 @@
             this.journalEntryBox.TabStop = false;
             this.journalEntryBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.journalEntryBox.UseSystemPasswordChar = false;
+            this.journalEntryBox.TextChanged += new System.EventHandler(this.journalEntryBox_TextChanged);
             // 
             // tabSelect2
             // 
@@ -991,7 +968,6 @@
         private MaterialSkin.Controls.MaterialMultiLineTextBox2 journalEntryBox;
         private MaterialSkin.Controls.MaterialButton saveEntryButton;
         private MaterialSkin.Controls.MaterialButton changeNameButton;
-        private MaterialSkin.Controls.MaterialButton saveNameButton;
         private System.Windows.Forms.ColumnHeader dateCol;
         private System.Windows.Forms.ColumnHeader contentsCol;
         private System.Windows.Forms.NotifyIcon trayIcon;
