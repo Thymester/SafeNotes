@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SafeNotes
@@ -13,7 +12,6 @@ namespace SafeNotes
     {
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            // Initialize EventHandler class and check for updates
             var updater = new EventHandlerClass();
             await updater.CheckForUpdatesAsync();
 
@@ -23,24 +21,17 @@ namespace SafeNotes
                 RegenPassButton.Visible = true;
             }
 
-            // If yourNameBox is empty, allow the user to change their name
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.setYourName))
             {
                 YourNameBox.ReadOnly = false;
             }
             else
             {
-                // If yourNameBox is not empty, disable the ability to change their name
                 YourNameBox.ReadOnly = true;
             }
 
-            // Change the title of the form
-            this.Text = "SafeNotes";
+            this.Text = "SafeNotes - v" + Application.ProductVersion;
 
-            // Add the build version of the application to the title
-            this.Text += " - v" + Application.ProductVersion;
-
-            // Load the settings of the form
             JournalEntryBox.Text = Properties.Settings.Default.setEntryText;
             YourNameBox.Text = Properties.Settings.Default.setYourName;
             NotepadTextBox.Text = Properties.Settings.Default.notepadSaveText;
@@ -49,8 +40,7 @@ namespace SafeNotes
             Properties.Settings.Default.setEntriesShow = Properties.Settings.Default.setEntriesHide;
             Properties.Settings.Default.firstTimeOpened = Properties.Settings.Default.firstTimeOpened;
 
-            // If user is not logged in disable all the tabSelect components
-            if (Properties.Settings.Default.setIsUserLoggedIn == false)
+            if (!Properties.Settings.Default.setIsUserLoggedIn)
             {
                 LoginTabSelector.Visible = false;
             }
@@ -59,7 +49,6 @@ namespace SafeNotes
             {
                 UserLoginButton.Text = "Login";
                 UserConfirmPassword.Visible = false;
-                // Move the userPassword location to 300, 150
                 UserPassword.Location = new System.Drawing.Point(300, 150);
             }
         }
@@ -234,33 +223,37 @@ namespace SafeNotes
                 }
             }
 
-            // Save the text in the entries.txt file and then hide the text in the file with *'s
-            string[] entries = new string[EntriesListBox.Items.Count];
-            for (int i = 0; i < EntriesListBox.Items.Count; i++)
+            if (EntriesListBox.Items.Count != 0)
             {
-                // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                // Save the text in the entries.txt file and then hide the text in the file with *'s
+                string[] entries = new string[EntriesListBox.Items.Count];
+                for (int i = 0; i < EntriesListBox.Items.Count; i++)
+                {
+                    // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
+                    entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                }
+                File.WriteAllLines("entries.txt", entries);
+                // Save the text in the entries.txt file in the setEntriesHide setting
+                Properties.Settings.Default.setEntriesHide = File.ReadAllText("entries.txt");
+                Properties.Settings.Default.Save();
+                string[] lines = File.ReadAllLines("entries.txt");
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    lines[i] = lines[i].Replace(lines[i], "******** - Please refrain from editing this file as any changes made may result in the loss of your saved entries.");
+                }
+                File.WriteAllLines("entries.txt", lines);
             }
-            System.IO.File.WriteAllLines("entries.txt", entries);
-            // Save the text in the entries.txt file in the setEntriesHide setting
-            Properties.Settings.Default.setEntriesHide = System.IO.File.ReadAllText("entries.txt");
-            Properties.Settings.Default.Save();
-            string[] lines = System.IO.File.ReadAllLines("entries.txt");
-            for (int i = 0; i < lines.Length; i++)
-            {
-                lines[i] = lines[i].Replace(lines[i], "******** - Please refrain from editing this file as any changes made may result in the loss of your saved entries.");
-            }
-            System.IO.File.WriteAllLines("entries.txt", lines);
 
             // If the resetAccountCheckbox is checked, reset the setUserPassword and setYourName settings
             if (ResetAccountCheckbox.Checked == true)
             {
                 Properties.Settings.Default.setUserPassword = "";
                 Properties.Settings.Default.setYourName = "";
+                Properties.Settings.Default.setIsUserLoggedIn = false;
+                Properties.Settings.Default.firstTimeOpened = true;
 
                 // Delete the entries.txt file
-                System.IO.File.Delete("entries.txt");
-
+                File.Delete("entries.txt");
                 Properties.Settings.Default.Save();
             }
         }
@@ -271,13 +264,17 @@ namespace SafeNotes
             Properties.Settings.Default.setIsUserLoggedIn = false;
             Properties.Settings.Default.Save();
 
-            // Delete the entries.txt file if it is empty or if there are no entries in the entriesListBox but the file exists
-            const string filename = "entries.txt";
-            if (File.Exists(filename))
+            // Only delete the file if the user is logged in and there are no entries in the entriesListBox
+            if (Properties.Settings.Default.setIsUserLoggedIn == true && EntriesListBox.Items.Count == 0)
             {
-                if (new FileInfo(filename).Length == 0)
+                // Delete the entries.txt file if it is empty or if there are no entries in the entriesListBox but the file exists
+                const string filename = "entries.txt";
+                if (File.Exists("entries.txt"))
                 {
-                    File.Delete(filename);
+                    if (new FileInfo(filename).Length == 0)
+                    {
+                        File.Delete("entries.txt");
+                    }
                 }
             }
         }
@@ -300,7 +297,7 @@ namespace SafeNotes
                         // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
                         entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
                     }
-                    System.IO.File.WriteAllLines("entries.txt", entries);
+                    File.WriteAllLines("entries.txt", entries);
 
                     // Create a notification using the notiPopup, which uses Tulpep. Notify the user that the entry has been saved and close the notification after 2 seconds
                     Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
@@ -528,7 +525,11 @@ namespace SafeNotes
                     // Upodate the savedEntriesCount label
                     SavedEntriesCount.Text = "Saved Entries: " + EntriesListBox.Items.Count;
                     // Delete the entries.txt file
-                    File.Delete("entries.txt");
+                    if (Properties.Settings.Default.setIsUserLoggedIn == true)
+                    {
+                        // Delete the entries.txt file
+                        File.Delete("entries.txt");
+                    }
 
                     // Show a notification that the entries have been deleted
                     Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();

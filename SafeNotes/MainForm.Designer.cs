@@ -30,9 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Account");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
             this.PasswordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
@@ -468,6 +468,8 @@
             // 
             // JournalTabSelector
             // 
+            this.JournalTabSelector.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.JournalTabSelector.BaseTabControl = this.TabControl;
             this.JournalTabSelector.CharacterCasing = MaterialSkin.Controls.MaterialTabSelector.CustomCharacterCasing.Normal;
             this.JournalTabSelector.Depth = 0;
@@ -798,16 +800,16 @@
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode1.Name = "themeSetPage";
-            treeNode1.Text = "Theme";
-            treeNode2.Name = "generalSetPage";
-            treeNode2.Text = "General";
-            treeNode3.Name = "accountSetPage";
-            treeNode3.Text = "Account";
+            treeNode4.Name = "themeSetPage";
+            treeNode4.Text = "Theme";
+            treeNode5.Name = "generalSetPage";
+            treeNode5.Text = "General";
+            treeNode6.Name = "accountSetPage";
+            treeNode6.Text = "Account";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3});
+            treeNode4,
+            treeNode5,
+            treeNode6});
             this.LeftSettingsNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
