@@ -258,27 +258,6 @@ namespace SafeNotes
             }
         }
 
-        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            // Change the setIsUserLoggedIn setting to false
-            Properties.Settings.Default.setIsUserLoggedIn = false;
-            Properties.Settings.Default.Save();
-
-            // Only delete the file if the user is logged in and there are no entries in the entriesListBox
-            if (Properties.Settings.Default.setIsUserLoggedIn == true && EntriesListBox.Items.Count == 0)
-            {
-                // Delete the entries.txt file if it is empty or if there are no entries in the entriesListBox but the file exists
-                const string filename = "entries.txt";
-                if (File.Exists("entries.txt"))
-                {
-                    if (new FileInfo(filename).Length == 0)
-                    {
-                        File.Delete("entries.txt");
-                    }
-                }
-            }
-        }
-
         private void EntriesListBox_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             // When the user double clicks on an entry in the entriesListBox, show a message box asking if the user wants to delete the entry
