@@ -10,7 +10,7 @@ public class EventHandlerClass
 {
     public async Task CheckForUpdatesAsync()
     {
-        string repo = "Thymester/SafeNotes"; // GitHub repo
+        string repo = "Thymester/SafeNotes";
         string currentVersion = Application.ProductVersion;
 
         // Normalize the current version (remove "v" if exists)

@@ -12,8 +12,20 @@ namespace SafeNotes
     {
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            var updater = new EventHandlerClass();
-            await updater.CheckForUpdatesAsync();
+            this.Text = "SafeNotes - v" + Application.ProductVersion;
+            LoginTabSelector.Visible = false;
+
+            if (!Properties.Settings.Default.setIsUserLoggedIn)
+            {
+                LoginTabSelector.Visible = false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
+            {
+                UserLoginButton.Text = "Login";
+                UserConfirmPassword.Visible = false;
+                UserPassword.Location = new System.Drawing.Point(300, 150);
+            }
 
             if (UserLoginButton.Text == "Register")
             {
@@ -30,7 +42,8 @@ namespace SafeNotes
                 YourNameBox.ReadOnly = true;
             }
 
-            this.Text = "SafeNotes - v" + Application.ProductVersion;
+            var updater = new EventHandlerClass();
+            await updater.CheckForUpdatesAsync();
 
             JournalEntryBox.Text = Properties.Settings.Default.setEntryText;
             YourNameBox.Text = Properties.Settings.Default.setYourName;
@@ -39,18 +52,6 @@ namespace SafeNotes
             ApplyDateCheckbox.Checked = Properties.Settings.Default.setSaveDate;
             Properties.Settings.Default.setEntriesShow = Properties.Settings.Default.setEntriesHide;
             Properties.Settings.Default.firstTimeOpened = Properties.Settings.Default.firstTimeOpened;
-
-            if (!Properties.Settings.Default.setIsUserLoggedIn)
-            {
-                LoginTabSelector.Visible = false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
-            {
-                UserLoginButton.Text = "Login";
-                UserConfirmPassword.Visible = false;
-                UserPassword.Location = new System.Drawing.Point(300, 150);
-            }
         }
 
         private void SaveEntryButton_Click(object sender, EventArgs e)
@@ -201,6 +202,12 @@ namespace SafeNotes
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // If entries.txt exist and the file has no text in it, delete it
+            if (File.Exists("entries.txt") && EntriesListBox.Items.Count == 0)
+            {
+                File.Delete("entries.txt");
+            }
+
             if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text))
             {
                 // Show a message box asking the user if they want to save their notepad before closing the application
