@@ -203,7 +203,7 @@ namespace SafeNotes
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // If entries.txt exist and the file has no text in it, delete it
-            if (File.Exists("entries.txt") && EntriesListBox.Items.Count == 0)
+            if (File.Exists("entries.txt") && EntriesListBox.Items.Count == 0 && Properties.Settings.Default.setIsUserLoggedIn == true)
             {
                 File.Delete("entries.txt");
             }
