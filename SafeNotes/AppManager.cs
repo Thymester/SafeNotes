@@ -202,6 +202,21 @@ namespace SafeNotes
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (Properties.Settings.Default.setIsUserLoggedIn == true)
+            {
+                Properties.Settings.Default.setIsUserLoggedIn = false;
+                Properties.Settings.Default.Save();
+
+                // Create notification telling the user they logged out.
+                Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                notiPopup.TitleText = "SafeNotes";
+                notiPopup.ContentText = "You have logged out.";
+                notiPopup.Popup();
+
+                // Delay for 2 seconds before closing the application
+                System.Threading.Thread.Sleep(2000);
+            }
+
             // If entries.txt exist and the file has no text in it, delete it
             if (File.Exists("entries.txt") && EntriesListBox.Items.Count == 0 && Properties.Settings.Default.setIsUserLoggedIn == true)
             {
