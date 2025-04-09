@@ -30,7 +30,3 @@ SafeNotes is a secure and easy-to-use notes application designed to keep your th
 ## Contributing
 
 We welcome contributions from the community to improve SafeNotes. If you have any suggestions, bug reports, or feature requests, please feel free to open an issue or submit a pull request on GitHub.
-
-## License
-
-SafeNotes is licensed under the [Apache License 2.0](LICENSE).
