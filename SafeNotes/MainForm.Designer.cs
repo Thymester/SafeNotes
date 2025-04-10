@@ -30,9 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Account");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
             this.PasswordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
@@ -45,6 +45,7 @@
             this.UserConfirmPassword = new MaterialSkin.Controls.MaterialTextBox2();
             this.UserPassword = new MaterialSkin.Controls.MaterialTextBox2();
             this.JournalEntryPage = new System.Windows.Forms.TabPage();
+            this.DecryptionStatusLabel = new MaterialSkin.Controls.MaterialLabel();
             this.SavedEntriesCount = new MaterialSkin.Controls.MaterialLabel();
             this.ChangeNameButton = new MaterialSkin.Controls.MaterialButton();
             this.YourNameBox = new MaterialSkin.Controls.MaterialTextBox();
@@ -78,6 +79,7 @@
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.CheckTimer = new System.Windows.Forms.Timer(this.components);
             this.LabelVisibilityTimer = new System.Windows.Forms.Timer(this.components);
+            this.materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             this.TabControl.SuspendLayout();
             this.LoginPage.SuspendLayout();
             this.JournalEntryPage.SuspendLayout();
@@ -106,6 +108,7 @@
             // LoginPage
             // 
             this.LoginPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.LoginPage.Controls.Add(this.materialLabel1);
             this.LoginPage.Controls.Add(this.PasswordCopiedLabel);
             this.LoginPage.Controls.Add(this.PasswordLengthSlider);
             this.LoginPage.Controls.Add(this.UsePassButton);
@@ -342,6 +345,7 @@
             // JournalEntryPage
             // 
             this.JournalEntryPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.JournalEntryPage.Controls.Add(this.DecryptionStatusLabel);
             this.JournalEntryPage.Controls.Add(this.SavedEntriesCount);
             this.JournalEntryPage.Controls.Add(this.ChangeNameButton);
             this.JournalEntryPage.Controls.Add(this.YourNameBox);
@@ -355,6 +359,18 @@
             this.JournalEntryPage.TabIndex = 0;
             this.JournalEntryPage.Text = "Journal";
             this.JournalEntryPage.Click += new System.EventHandler(this.JournalEntryPage_Click);
+            // 
+            // DecryptionStatusLabel
+            // 
+            this.DecryptionStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.DecryptionStatusLabel.Depth = 0;
+            this.DecryptionStatusLabel.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.DecryptionStatusLabel.Location = new System.Drawing.Point(270, 405);
+            this.DecryptionStatusLabel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.DecryptionStatusLabel.Name = "DecryptionStatusLabel";
+            this.DecryptionStatusLabel.Size = new System.Drawing.Size(170, 19);
+            this.DecryptionStatusLabel.TabIndex = 9;
+            this.DecryptionStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // SavedEntriesCount
             // 
@@ -800,16 +816,16 @@
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode4.Name = "themeSetPage";
-            treeNode4.Text = "Theme";
-            treeNode5.Name = "generalSetPage";
-            treeNode5.Text = "General";
-            treeNode6.Name = "accountSetPage";
-            treeNode6.Text = "Account";
+            treeNode10.Name = "themeSetPage";
+            treeNode10.Text = "Theme";
+            treeNode11.Name = "generalSetPage";
+            treeNode11.Text = "General";
+            treeNode12.Name = "accountSetPage";
+            treeNode12.Text = "Account";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode4,
-            treeNode5,
-            treeNode6});
+            treeNode10,
+            treeNode11,
+            treeNode12});
             this.LeftSettingsNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
@@ -898,7 +914,7 @@
             this.ToolTips.SetToolTip(this.LightModeCheckbox, "Burns your eyes...");
             this.LightModeCheckbox.UseVisualStyleBackColor = true;
             this.LightModeCheckbox.Visible = false;
-            this.LightModeCheckbox.CheckedChanged += new System.EventHandler(this.MaterialCheckbox_CheckedChanged);
+            this.LightModeCheckbox.CheckedChanged += new System.EventHandler(this.LightModeCheckbox_CheckedChanged);
             // 
             // SettingsTabSelector
             // 
@@ -930,6 +946,18 @@
             this.LabelVisibilityTimer.Interval = 3000;
             this.LabelVisibilityTimer.Tick += new System.EventHandler(this.LabelVisibilityTimer_Tick);
             // 
+            // materialLabel1
+            // 
+            this.materialLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.materialLabel1.Depth = 0;
+            this.materialLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.materialLabel1.Location = new System.Drawing.Point(300, 54);
+            this.materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabel1.Name = "materialLabel1";
+            this.materialLabel1.Size = new System.Drawing.Size(251, 19);
+            this.materialLabel1.TabIndex = 11;
+            this.materialLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -940,7 +968,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SafeNotes";
+            this.Text = "Je ne sais pas...";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.TabControl.ResumeLayout(false);
@@ -1005,6 +1033,8 @@
         private MaterialSkin.Controls.MaterialLabel ColumnInNotepad;
         private MaterialSkin.Controls.MaterialLabel NotepadTitle;
         private MaterialSkin.Controls.MaterialButton EditEntryButton;
+        private MaterialSkin.Controls.MaterialLabel DecryptionStatusLabel;
+        private MaterialSkin.Controls.MaterialLabel materialLabel1;
     }
 }
 

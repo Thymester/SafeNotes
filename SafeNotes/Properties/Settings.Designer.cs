@@ -178,5 +178,17 @@ namespace SafeNotes.Properties {
                 this["setContrastTheme"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string setSaltedDecryptionKey {
+            get {
+                return ((string)(this["setSaltedDecryptionKey"]));
+            }
+            set {
+                this["setSaltedDecryptionKey"] = value;
+            }
+        }
     }
 }

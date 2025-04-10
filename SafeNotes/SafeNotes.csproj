@@ -131,6 +131,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomConfig.cs" />
     <Compile Include="EntriesListBox.cs" />
     <Compile Include="AppManager.cs">
       <SubType>Form</SubType>

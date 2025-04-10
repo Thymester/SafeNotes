@@ -8,6 +8,7 @@ using System;
 
 public class EventHandlerClass
 {
+
     public async Task CheckForUpdatesAsync()
     {
         string repo = "Thymester/SafeNotes";
@@ -30,12 +31,9 @@ public class EventHandlerClass
                 Version latestVersion = new Version(latestVersionString);
 
                 // Compare version numbers using the Version class
-                if (latestVersion > currentAppVersion)  // If the latest version is newer
+                if (latestVersion > currentAppVersion)
                 {
                     var asset = release["assets"]?[0]?["browser_download_url"]?.ToString();
-
-                    // Debug: Show the asset URL for checking
-                    MessageBox.Show($"Found update: {latestVersion}\nDownload URL: {asset}", "Update URL", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // Ensure that the asset is an .exe file
                     if (asset != null && asset.EndsWith(".exe"))
@@ -70,14 +68,14 @@ public class EventHandlerClass
 
                             // Write the batch file for replacing the old version
                             File.WriteAllText(batFilePath, $@"
-@echo off
-echo Update starting >> ""{logPath}""
-timeout /t 2 /nobreak > nul
-del /f /q ""{currentExePath}"" >> ""{logPath}"" 2>&1
-move /y ""{tempExePath}"" ""{currentExePath}"" >> ""{logPath}"" 2>&1
-start ""SafeNotes"" ""{currentExePath}""
-echo Update complete >> ""{logPath}""
-");
+                        @echo off
+                        echo Update starting >> ""{logPath}""
+                        timeout /t 2 /nobreak > nul
+                        del /f /q ""{currentExePath}"" >> ""{logPath}"" 2>&1
+                        move /y ""{tempExePath}"" ""{currentExePath}"" >> ""{logPath}"" 2>&1
+                        start ""SafeNotes"" ""{currentExePath}""
+                        echo Update complete >> ""{logPath}""
+                        ");
 
                             // Launch the batch file to replace the app
                             Process.Start(new ProcessStartInfo
