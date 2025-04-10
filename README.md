@@ -1,6 +1,8 @@
 # SafeNotes
 
-SafeNotes is a secure and easy-to-use notes application designed to keep your thoughts and information safe. With features like password verification, journaling, notepad functionalities, and dark mode, SafeNotes offers a comprehensive solution for organizing your notes securely.
+SafeNotes is an encrypted and user-friendly note-taking application designed to keep your personal notes and journal entries safe and organized. With SafeNotes, you can easily create, edit, and manage your notes, all while ensuring your data is protected through robust AES-256 encryption and password hashing. The app features a sleek and intuitive interface built with MaterialSkin, offering light and dark themes to suit your preferences.
+
+SafeNotes is perfect for anyone looking to keep their notes and journal entries secure and organized. Download SafeNotes today and experience the peace of mind of knowing your personal information is safe.
 
 ## Features
 
