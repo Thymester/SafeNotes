@@ -22,6 +22,11 @@ namespace SafeNotes
                 LoginTabSelector.Visible = false;
             }
 
+            if (Properties.Settings.Default.setYourName != null)
+            {
+                ChangeNameButton.Text = "Change name";
+            }
+
             if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
             {
                 UserLoginButton.Text = "Login";
