@@ -6,20 +6,21 @@ SafeNotes is perfect for anyone looking to keep their notes and journal entries 
 
 ## Features
 
-1. **Automatic Version Controls**: The application automatically checks for updates with every launch. It will then prompt you to update if you are out of date with every launch, and I understand that can be unpleasant, but our goal is for people to update to the newest versions, so that was intended.
-2. **Password Verification**: Users must log in with a password to access their notes, ensuring privacy and security.
-3. **Password Generator**: Easily create strong and unique passwords with the built-in password generator.
-4. **Password Manager Detection**: Detects if a password manager is installed, providing an additional layer of security.
+1. **Automatic Version Control**: SafeNotes automatically checks for updates with every launch. It will then prompt you to update if you are out of date with every launch, and I understand that can be unpleasant, but our goal is for people to update to the newest versions, so that was intended.
+2. **Encryption and Hashing:** SafeNotes will encrypt entries on closure and decrypt entries when the user logs into SafeNotes. All of this secured behind password authentication which is protected via hashing so nothing is ever stored in plain text.
+3. **Password Verification**: Users must log in with a password to access their notes, ensuring privacy and security.
+4. **Password Generator**: Easily create strong and unique passwords with the built-in password generator.
+5. **Password Manager Detection**: Detects if a password manager is installed, providing an additional layer of security.
 **(NOTE: ProtonPass only works if you relocate the folder into your "Program Files (x86)" folder)**
-5. **Journal with Entry Saving**: Keep track of your thoughts, ideas, and experiences with the journal feature, and save entries securely.
-6. **Custom User Names**: Personalize your SafeNotes experience by setting your own user name.
-7. **Notepad with File Saving and Opening**: Use the notepad feature to jot down quick notes, and save and open files as needed.
-8. **Journal Entries**: Organize your thoughts with journal entries, applying dates by default for easy reference.
-9. **Entry Editing**: Edit your journal entries for accuracy and clarity, ensuring your notes are always up to date.
-10. **Dark Mode by Default**: Protect your eyes and reduce screen glare with the default dark mode interface.
-11. **Light Mode**: Switch to light mode for a different visual experience, catering to your preferences.
-12. **Reset Account Info/Password**: Easily reset your account information or password if needed, ensuring continued access to your notes.
-13. **Reset Login Status**: Reset your login status to ensure security if you suspect unauthorized access to your account.
+6. **Journal with Entry Saving**: Keep track of your thoughts, ideas, and experiences with the journal feature, and save entries securely.
+7. **Custom User Names**: Personalize your SafeNotes experience by setting your own user name.
+8. **Notepad with File Saving and Opening**: Use the notepad feature to jot down quick notes, and save and open files as needed.
+9. **Journal Entries**: Organize your thoughts with journal entries, applying dates by default for easy reference.
+10. **Entry Editing**: Edit your journal entries for accuracy and clarity, ensuring your notes are always up to date.
+11. **Dark Mode by Default**: Protect your eyes and reduce screen glare with the default dark mode interface.
+12. **Light Mode**: Switch to light mode for a different visual experience, catering to your preferences.
+13. **Reset Account Info/Password**: Easily reset your account information or password if needed, ensuring continued access to your notes.
+14. **Reset Login Status**: Reset your login status to ensure security if you suspect unauthorized access to your account.
 
 ## Usage
 
