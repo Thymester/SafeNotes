@@ -382,11 +382,6 @@ namespace SafeNotes
                 string hashedInputPassword = HashPassword(UserPassword.Text);
                 if (hashedInputPassword == Properties.Settings.Default.setUserPassword)
                 {
-                    if (Properties.Settings.Default.setYourName != null)
-                    {
-                        ChangeNameButton.Text = "Change name";
-                    }
-
                     // Show that the user is logged in and make the entriesListBox visible
                     Properties.Settings.Default.setIsUserLoggedIn = true;
                     EntriesListBox.Visible = true;

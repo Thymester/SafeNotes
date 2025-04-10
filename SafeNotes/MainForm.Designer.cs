@@ -30,9 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode21 = new System.Windows.Forms.TreeNode("Account");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
             this.PasswordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
@@ -365,7 +365,7 @@
             this.DecryptionStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.DecryptionStatusLabel.Depth = 0;
             this.DecryptionStatusLabel.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.DecryptionStatusLabel.Location = new System.Drawing.Point(270, 405);
+            this.DecryptionStatusLabel.Location = new System.Drawing.Point(291, 405);
             this.DecryptionStatusLabel.MouseState = MaterialSkin.MouseState.HOVER;
             this.DecryptionStatusLabel.Name = "DecryptionStatusLabel";
             this.DecryptionStatusLabel.Size = new System.Drawing.Size(170, 19);
@@ -399,7 +399,7 @@
             this.ChangeNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ChangeNameButton.Name = "ChangeNameButton";
             this.ChangeNameButton.NoAccentTextColor = System.Drawing.Color.Empty;
-            this.ChangeNameButton.Size = new System.Drawing.Size(103, 36);
+            this.ChangeNameButton.Size = new System.Drawing.Size(125, 36);
             this.ChangeNameButton.TabIndex = 6;
             this.ChangeNameButton.Text = "Save name";
             this.ChangeNameButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -816,16 +816,16 @@
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode10.Name = "themeSetPage";
-            treeNode10.Text = "Theme";
-            treeNode11.Name = "generalSetPage";
-            treeNode11.Text = "General";
-            treeNode12.Name = "accountSetPage";
-            treeNode12.Text = "Account";
+            treeNode19.Name = "themeSetPage";
+            treeNode19.Text = "Theme";
+            treeNode20.Name = "generalSetPage";
+            treeNode20.Text = "General";
+            treeNode21.Name = "accountSetPage";
+            treeNode21.Text = "Account";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode10,
-            treeNode11,
-            treeNode12});
+            treeNode19,
+            treeNode20,
+            treeNode21});
             this.LeftSettingsNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
