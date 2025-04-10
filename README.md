@@ -11,7 +11,6 @@ SafeNotes is perfect for anyone looking to keep their notes and journal entries 
 3. **Password Verification**: Users must log in with a password to access their notes, ensuring privacy and security.
 4. **Password Generator**: Easily create strong and unique passwords with the built-in password generator.
 5. **Password Manager Detection**: Detects if a password manager is installed, providing an additional layer of security.
-**(NOTE: ProtonPass only works if you relocate the folder into your "Program Files (x86)" folder)**
 6. **Journal with Entry Saving**: Keep track of your thoughts, ideas, and experiences with the journal feature, and save entries securely.
 7. **Custom User Names**: Personalize your SafeNotes experience by setting your own user name.
 8. **Notepad with File Saving and Opening**: Use the notepad feature to jot down quick notes, and save and open files as needed.
