@@ -332,23 +332,42 @@ namespace SafeNotes
 
         private void EntriesListBox_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            // When the user double clicks on an entry in the entriesListBox, show a message box asking if the user wants to delete the entry
             if (EntriesListBox.SelectedItems.Count > 0)
             {
                 if (MessageBox.Show("Are you sure you want to delete this entry?", "SafeNotes", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
+                    if (EntriesListBox.Items.Count == 1)
+                    {
+                        Properties.Settings.Default.setEntriesHide = "";
+                        Properties.Settings.Default.setEntriesShow = "";
+                        Properties.Settings.Default.Save();
+
+                        System.IO.File.Delete("entries.txt");
+                    }
+
                     // Remove the selected item from the entriesListBox
                     EntriesListBox.Items.Remove(EntriesListBox.SelectedItems[0]);
-                    // Now save this entry to a txt file in the location of the applications .exe
-                    string[] entries = new string[EntriesListBox.Items.Count];
+
                     // Update the savedEntriesCount label
                     SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
+
+                    // Save the remaining entries to the entries.txt file and update the setEntriesShow setting
+                    string[] entries = new string[EntriesListBox.Items.Count];
                     for (int i = 0; i < EntriesListBox.Items.Count; i++)
                     {
                         // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
                         entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
                     }
                     File.WriteAllLines("entries.txt", entries);
+
+                    // Encrypt entries before saving to the setEntriesShow setting
+                    string[] encryptedEntries = new string[entries.Length];
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        encryptedEntries[i] = EncryptString(entries[i], ConvertToUnsecureString(securePassword));
+                    }
+                    Properties.Settings.Default.setEntriesShow = string.Join(Environment.NewLine, encryptedEntries);
+                    Properties.Settings.Default.Save();
 
                     Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                     notiPopup.TitleText = "SafeNotes";
