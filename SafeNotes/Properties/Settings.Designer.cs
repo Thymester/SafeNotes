@@ -97,18 +97,6 @@ namespace SafeNotes.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string setUserPassword {
-            get {
-                return ((string)(this["setUserPassword"]));
-            }
-            set {
-                this["setUserPassword"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool setIsUserLoggedIn {
             get {
@@ -182,12 +170,24 @@ namespace SafeNotes.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string setSaltedDecryptionKey {
+        public string setUserPassword {
             get {
-                return ((string)(this["setSaltedDecryptionKey"]));
+                return ((string)(this["setUserPassword"]));
             }
             set {
-                this["setSaltedDecryptionKey"] = value;
+                this["setUserPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string someEncryptedKey {
+            get {
+                return ((string)(this["someEncryptedKey"]));
+            }
+            set {
+                this["someEncryptedKey"] = value;
             }
         }
     }

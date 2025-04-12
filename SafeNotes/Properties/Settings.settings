@@ -20,9 +20,6 @@
     <Setting Name="setLanguage" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="setUserPassword" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="setIsUserLoggedIn" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -41,7 +38,10 @@
     <Setting Name="setContrastTheme" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="setSaltedDecryptionKey" Type="System.String" Scope="User">
+    <Setting Name="setUserPassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="someEncryptedKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

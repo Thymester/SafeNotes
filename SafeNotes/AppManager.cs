@@ -6,7 +6,8 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Security.Cryptography;
-using System.Text;
+using System.Security;
+using System.Runtime.InteropServices;
 
 namespace SafeNotes
 {
@@ -20,11 +21,6 @@ namespace SafeNotes
             if (!Properties.Settings.Default.setIsUserLoggedIn)
             {
                 LoginTabSelector.Visible = false;
-            }
-
-            if (Properties.Settings.Default.setYourName != null)
-            {
-                ChangeNameButton.Text = "Change name";
             }
 
             if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
@@ -43,10 +39,12 @@ namespace SafeNotes
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.setYourName))
             {
                 YourNameBox.ReadOnly = false;
+                ChangeNameButton.Text = "Save name";
             }
             else
             {
                 YourNameBox.ReadOnly = true;
+                ChangeNameButton.Text = "Change name";
             }
 
             var updater = new EventHandlerClass();
@@ -62,6 +60,133 @@ namespace SafeNotes
         }
         
         private const int MaxEntries = 100;
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Check if decryption is in progress
+            if (DecryptionStatusLabel.Text == "Decrypting...")
+            {
+                // Cancel the closing event
+                e.Cancel = true;
+                MessageBox.Show("Please wait until the decryption process is complete.", "Decryption in Progress", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Ensure the JournalEntryPage is selected before closing and encrypting
+            if (TabControl.SelectedTab != JournalEntryPage)
+            {
+                TabControl.SelectedTab = JournalEntryPage;
+                Application.DoEvents(); // Ensure the tab change is processed
+            }
+
+            // Show the decryption status label with encryption message
+            DecryptionStatusLabel.Text = "Encrypting files...";
+            DecryptionStatusLabel.Visible = true;
+            Application.DoEvents(); // Ensure the label is updated immediately
+
+            if (File.Exists("entries.txt") && Properties.Settings.Default.setEntriesShow == null && Properties.Settings.Default.setEntriesShow == null)
+            {
+                File.Delete("entries.txt");
+            }
+
+            if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text))
+            {
+                // If NotepadTextBox.Text is not empty, ask user if they want to save the notepad
+                DialogResult dialogResult = MessageBox.Show("Do you want to save your notepad before closing the application?", "Save notepad", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    SaveNotepadButton.PerformClick();
+                    NotepadTextBox.Text = null;
+                    Application.Exit();
+                }
+                if (dialogResult == DialogResult.No)
+                {
+                    NotepadTextBox.Text = null;
+                    Application.Exit();
+                }
+            }
+
+            if (EntriesListBox.Items.Count != 0)
+            {
+                // Save the text in the entries.txt file and then hide the text in the file with *'s
+                string[] entries = new string[EntriesListBox.Items.Count];
+                for (int i = 0; i < EntriesListBox.Items.Count; i++)
+                {
+                    // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
+                    string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                    entries[i] = EncryptString(entryText, ConvertToUnsecureString(securePassword));
+                }
+                File.WriteAllLines("entries.txt", entries);
+                // Save the text in the entries.txt file in the setEntriesHide setting
+                Properties.Settings.Default.setEntriesHide = File.ReadAllText("entries.txt");
+                Properties.Settings.Default.Save();
+                string[] lines = File.ReadAllLines("entries.txt");
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    lines[i] = lines[i].Replace(lines[i], "******** - Please refrain from editing this file as any changes made may result in the loss of your saved entries.");
+                }
+                File.WriteAllLines("entries.txt", lines);
+            }
+
+            if (ResetAccountCheckbox.Checked == true)
+            {
+                // Clear the password fields
+                UserPassword.Text = string.Empty;
+                UserConfirmPassword.Text = string.Empty;
+
+                // Reset the relevant settings
+                Properties.Settings.Default.setUserPassword = string.Empty;
+                Properties.Settings.Default.setEntriesHide = string.Empty;
+                Properties.Settings.Default.setEntriesShow = string.Empty;
+                Properties.Settings.Default.setYourName = string.Empty;
+                Properties.Settings.Default.setEntryText = string.Empty;
+                Properties.Settings.Default.notepadSaveText = string.Empty;
+                Properties.Settings.Default.setSaveDate = true;
+                Properties.Settings.Default.firstTimeOpened = true;
+                Properties.Settings.Default.setIsUserLoggedIn = false;
+                Properties.Settings.Default.setLightMode = false;
+
+                // Delete the entries.txt file
+                string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string filePath = Path.Combine(exeDirectory, "entries.txt");
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                // Save the settings
+                Properties.Settings.Default.Save();
+
+                // Clear in-memory password
+                securePassword?.Dispose();
+                securePassword = null;
+
+                // Update the UI elements
+                UserLoginButton.Text = "Register";
+                UserConfirmPassword.Visible = true;
+                UserPassword.Location = new System.Drawing.Point(300, 100);
+                PasswordGenBox.Visible = true;
+                RegenPassButton.Visible = true;
+                UsePassButton.Visible = true;
+                PasswordLengthSlider.Visible = true;
+            }
+
+            // Clear in-memory password
+            ClearInMemoryPassword();
+
+            // Hide the decryption status label after encryption is done
+            DecryptionStatusLabel.Visible = false;
+        }
+
+        private void ClearInMemoryPassword()
+        {
+            // Clear any in-memory references to the password
+            securePassword?.Dispose();
+            securePassword = null;
+        }
+
+        private SecureString securePassword;
 
         private void SaveEntryButton_Click(object sender, EventArgs e)
         {
@@ -205,87 +330,6 @@ namespace SafeNotes
             }
         }
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            // Ensure the JournalEntryPage is selected before closing and encrypting
-            if (TabControl.SelectedTab != JournalEntryPage)
-            {
-                TabControl.SelectedTab = JournalEntryPage;
-                Application.DoEvents(); // Ensure the tab change is processed
-            }
-
-            // Show the decryption status label with encryption message
-            DecryptionStatusLabel.Text = "Encrypting files...";
-            DecryptionStatusLabel.Visible = true;
-            Application.DoEvents(); // Ensure the label is updated immediately
-
-            if (File.Exists("entries.txt") && Properties.Settings.Default.setEntriesShow == null && Properties.Settings.Default.setEntriesShow == null)
-            {
-                File.Delete("entries.txt");
-            }
-
-            if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text))
-            {
-                // If NotepadTextBox.Text is not empty, ask user if they want to save the notepad
-                DialogResult dialogResult = MessageBox.Show("Do you want to save your notepad before closing the application?", "Save notepad", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    e.Cancel = true;
-                    SaveNotepadButton.PerformClick();
-                    NotepadTextBox.Text = null;
-                    Application.Exit();
-                }
-                if (dialogResult == DialogResult.No)
-                {
-                    NotepadTextBox.Text = null;
-                    Application.Exit();
-                }
-            }
-
-            if (EntriesListBox.Items.Count != 0)
-            {
-                // Save the text in the entries.txt file and then hide the text in the file with *'s
-                string[] entries = new string[EntriesListBox.Items.Count];
-                for (int i = 0; i < EntriesListBox.Items.Count; i++)
-                {
-                    // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                    string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
-                    entries[i] = EncryptString(entryText, Properties.Settings.Default.setSaltedDecryptionKey);
-                }
-                File.WriteAllLines("entries.txt", entries);
-                // Save the text in the entries.txt file in the setEntriesHide setting
-                Properties.Settings.Default.setEntriesHide = File.ReadAllText("entries.txt");
-                Properties.Settings.Default.Save();
-                string[] lines = File.ReadAllLines("entries.txt");
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    lines[i] = lines[i].Replace(lines[i], "******** - Please refrain from editing this file as any changes made may result in the loss of your saved entries.");
-                }
-                File.WriteAllLines("entries.txt", lines);
-            }
-
-            if (ResetAccountCheckbox.Checked == true)
-            {
-                Properties.Settings.Default.setUserPassword = "";
-                Properties.Settings.Default.setEntriesHide = "";
-                Properties.Settings.Default.setEntriesShow = "";
-                Properties.Settings.Default.setYourName = "";
-                Properties.Settings.Default.setEntryText = "";
-                Properties.Settings.Default.notepadSaveText = "";
-                Properties.Settings.Default.setSaltedDecryptionKey = "";
-                Properties.Settings.Default.setSaveDate = true;
-                Properties.Settings.Default.firstTimeOpened = true;
-                Properties.Settings.Default.setIsUserLoggedIn = false;
-                Properties.Settings.Default.setLightMode = false;
-                // Delete the entries.txt file
-                File.Delete("entries.txt");
-                Properties.Settings.Default.Save();
-            }
-
-            // Hide the decryption status label after encryption is done
-            DecryptionStatusLabel.Visible = false;
-        }
-
         private void EntriesListBox_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             // When the user double clicks on an entry in the entriesListBox, show a message box asking if the user wants to delete the entry
@@ -368,31 +412,49 @@ namespace SafeNotes
             {
                 MessageBox.Show("Please enter a password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            // If the userLoginButton.Text is "Register", apply the text in userPassword to the setPassword setting as long as userPassword and userConfirmPassword match
-            else if (UserLoginButton.Text == "Register" && string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
+            else if (UserLoginButton.Text == "Register")
             {
                 if (UserPassword.Text == UserConfirmPassword.Text)
                 {
                     string hashedPassword = HashPassword(UserPassword.Text);
                     Properties.Settings.Default.setUserPassword = hashedPassword;
-                    Properties.Settings.Default.setSaltedDecryptionKey = HashPassword(hashedPassword + "SaltValue");
+
+                    // Generate a unique salt and store it in setSaltedDecryptionKey
+                    byte[] salt = new byte[16];
+                    using (var rng = new RNGCryptoServiceProvider())
+                    {
+                        rng.GetBytes(salt);
+                    }
+
+                    Properties.Settings.Default.firstTimeOpened = false;
                     Properties.Settings.Default.Save();
                     UserConfirmPassword.Visible = false;
                     UserLoginButton.Text = "Login";
                     UserPassword.Location = new System.Drawing.Point(300, 150);
                 }
-            }
-            else if (UserLoginButton.Text == "Login" && !string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
-            {
-                string hashedInputPassword = HashPassword(UserPassword.Text);
-                if (hashedInputPassword == Properties.Settings.Default.setUserPassword)
+                else
                 {
+                    MessageBox.Show("The passwords do not match.", "Mismatched passwords", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else if (UserLoginButton.Text == "Login")
+            {
+                string storedHash = Properties.Settings.Default.setUserPassword;
+                if (VerifyPassword(UserPassword.Text, storedHash))
+                {
+                    // Use the entered password for decryption
+                    securePassword = ConvertToSecureString(UserPassword.Text);
+
                     // Show that the user is logged in and make the entriesListBox visible
                     Properties.Settings.Default.setIsUserLoggedIn = true;
                     EntriesListBox.Visible = true;
                     UserLoginButton.Enabled = false;
                     LoginTabSelector.Enabled = true;
                     TabControl.TabPages.Remove(LoginPage);
+
+                    Properties.Settings.Default.firstTimeOpened = false;
+                    Properties.Settings.Default.Save();
+
                     // If the entries.txt file exists, load the entries into the entriesListBox from the setEntriesShow setting
                     if (File.Exists("entries.txt"))
                     {
@@ -404,7 +466,7 @@ namespace SafeNotes
                         {
                             try
                             {
-                                string decryptedText = DecryptString(entry, Properties.Settings.Default.setSaltedDecryptionKey);
+                                string decryptedText = DecryptString(entry, ConvertToUnsecureString(securePassword));
                                 EntriesListBox.Items.Add(decryptedText);
                             }
                             catch (Exception ex)
@@ -417,39 +479,30 @@ namespace SafeNotes
                     {
                         DeleteEntriesButton.Visible = true;
                     }
-                }
-                else if (UserPassword.Text == Properties.Settings.Default.setUserPassword)
-                {
-                    // Hash the plain text password and save it
-                    Properties.Settings.Default.setUserPassword = HashPassword(UserPassword.Text);
-                    Properties.Settings.Default.Save();
-                    MessageBox.Show("Password has been hashed for security.", "Password Hashed", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    UserLoginButton.PerformClick(); // Retry login with hashed password
+
+                    // Update the savedEntriesCount label
+                    SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
+                    // Update the charsInNotepad label
+                    CharsInNotepad.Text = "Characters: " + NotepadTextBox.Text.Length.ToString();
+
+                    // Update the columnInNotepad label, if the notepadTextBox.Text is empty, set the columnInNotepad label to 0
+                    if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
+                    {
+                        ColumnInNotepad.Text = "Columns: 0";
+                    }
+                    else
+                    {
+                        // Update the columnInNotepad label
+                        ColumnInNotepad.Text = "Columns: " + NotepadTextBox.Text.Split('\n').Length.ToString();
+                    }
+
+                    // Clear the password from the TextBox
+                    UserPassword.Text = string.Empty;
                 }
                 else
                 {
                     MessageBox.Show("The password does not match the record on file...", "Password Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                // Update the savedEntriesCount label
-                SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
-                // Update the charsInNotepad label
-                CharsInNotepad.Text = "Characters: " + NotepadTextBox.Text.Length.ToString();
-
-                // Update the columnInNotepad label, if the notepadTextBox.Text is empty, set the columnInNotepad label to 0
-                if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
-                {
-                    ColumnInNotepad.Text = "Columns: 0";
-                }
-                else
-                {
-                    // Update the columnInNotepad label
-                    ColumnInNotepad.Text = "Columns: " + NotepadTextBox.Text.Split('\n').Length.ToString();
-                }
-            }
-            // If the userConfirmPassword is not the same as the userPassword, show a message box
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword) && UserPassword.Text != UserConfirmPassword.Text)
-            {
-                MessageBox.Show("The passwords do not match.", "Mismatched passwords", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -930,35 +983,55 @@ namespace SafeNotes
             EditEntryButton.Enabled = EntriesListBox.SelectedItems.Count > 0;
             EditEntryButton.Visible = EntriesListBox.SelectedItems.Count > 0;
         }
+
         private string HashPassword(string password)
         {
-            using (SHA256 sha256 = SHA256.Create())
+            // Generate a random salt
+            byte[] salt = new byte[16];
+            using (var rng = new RNGCryptoServiceProvider())
             {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
+                rng.GetBytes(salt);
+            }
+
+            using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, salt, 10000)) // 10,000 iterations
+            {
+                byte[] hash = keyDerivationFunction.GetBytes(32); // 256-bit hash
+                byte[] hashBytes = new byte[48]; // 16 byte salt & a 32 byte hash
+                Array.Copy(salt, 0, hashBytes, 0, 16);
+                Array.Copy(hash, 0, hashBytes, 16, 32);
+                return Convert.ToBase64String(hashBytes);
             }
         }
-        private string EncryptString(string plainText, string saltedDecryptionKey)
+
+        private string DeriveKey(string password, byte[] salt, byte[] iv)
+        {
+            // Combine salt and IV
+            byte[] saltAndIv = new byte[salt.Length + iv.Length];
+            Array.Copy(salt, 0, saltAndIv, 0, salt.Length);
+            Array.Copy(iv, 0, saltAndIv, salt.Length, iv.Length);
+
+            using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, saltAndIv, 10000)) // 10,000 iterations
+            {
+                return Convert.ToBase64String(keyDerivationFunction.GetBytes(32)); // AES-256 requires a 32-byte key
+            }
+        }
+
+        private string EncryptString(string plainText, string password)
         {
             try
             {
                 using (Aes aes = Aes.Create())
                 {
-                    // Generate a unique salt for this encryption
+                    // Generate a random salt
                     byte[] salt = new byte[16];
                     using (var rng = new RNGCryptoServiceProvider())
                     {
                         rng.GetBytes(salt);
                     }
 
-                    var key = new Rfc2898DeriveBytes(saltedDecryptionKey, salt, 10000);
-                    aes.Key = key.GetBytes(32); // AES-256 requires a 32-byte key
                     aes.GenerateIV(); // Generate a random IV
+                    var key = DeriveKey(password, salt, aes.IV);
+                    aes.Key = Convert.FromBase64String(key);
 
                     ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
@@ -991,7 +1064,7 @@ namespace SafeNotes
             }
         }
 
-        private string DecryptString(string cipherText, string saltedDecryptionKey)
+        private string DecryptString(string cipherText, string password)
         {
             try
             {
@@ -1014,8 +1087,8 @@ namespace SafeNotes
                     Array.Copy(fullCipher, salt.Length, iv, 0, iv.Length);
                     Array.Copy(fullCipher, salt.Length + iv.Length, cipherBytes, 0, cipherBytes.Length);
 
-                    var key = new Rfc2898DeriveBytes(saltedDecryptionKey, salt, 10000);
-                    aes.Key = key.GetBytes(32); // AES 32bit
+                    var key = DeriveKey(password, salt, iv);
+                    aes.Key = Convert.FromBase64String(key);
                     aes.IV = iv;
 
                     ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
@@ -1053,6 +1126,51 @@ namespace SafeNotes
                 DecryptionStatusLabel.Visible = false;
                 return null;
             }
+        }
+
+        private string ConvertToUnsecureString(SecureString secureString)
+        {
+            IntPtr unmanagedString = IntPtr.Zero;
+            try
+            {
+                unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+                return Marshal.PtrToStringUni(unmanagedString);
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+            }
+        }
+
+        private SecureString ConvertToSecureString(string password)
+        {
+            SecureString secureString = new SecureString();
+            foreach (char c in password)
+            {
+                secureString.AppendChar(c);
+            }
+            secureString.MakeReadOnly();
+            return secureString;
+        }
+
+        private bool VerifyPassword(string enteredPassword, string storedHash)
+        {
+            byte[] hashBytes = Convert.FromBase64String(storedHash);
+            byte[] salt = new byte[16];
+            Array.Copy(hashBytes, 0, salt, 0, 16);
+
+            using (var keyDerivationFunction = new Rfc2898DeriveBytes(enteredPassword, salt, 10000)) // 10,000 iterations
+            {
+                byte[] hash = keyDerivationFunction.GetBytes(32);
+                for (int i = 0; i < 32; i++)
+                {
+                    if (hashBytes[i + 16] != hash[i])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }
