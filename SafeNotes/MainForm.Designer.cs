@@ -30,11 +30,13 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode21 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Entries");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
+            this.materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             this.PasswordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
             this.PasswordLengthSlider = new MaterialSkin.Controls.MaterialSlider();
             this.UsePassButton = new MaterialSkin.Controls.MaterialButton();
@@ -69,6 +71,8 @@
             this.ContentsCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntriesTabSelector = new MaterialSkin.Controls.MaterialTabSelector();
             this.SettingsPage = new System.Windows.Forms.TabPage();
+            this.ImportEntriesButton = new MaterialSkin.Controls.MaterialButton();
+            this.ExportEntriesButton = new MaterialSkin.Controls.MaterialButton();
             this.LeftSettingsNav = new Mook.UI.Windows.Forms.LeftMenuNav();
             this.ResetAccountCheckbox = new MaterialSkin.Controls.MaterialCheckbox();
             this.ResetLoginStatusButton = new MaterialSkin.Controls.MaterialButton();
@@ -79,7 +83,6 @@
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.CheckTimer = new System.Windows.Forms.Timer(this.components);
             this.LabelVisibilityTimer = new System.Windows.Forms.Timer(this.components);
-            this.materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             this.TabControl.SuspendLayout();
             this.LoginPage.SuspendLayout();
             this.JournalEntryPage.SuspendLayout();
@@ -123,6 +126,18 @@
             this.LoginPage.Size = new System.Drawing.Size(836, 438);
             this.LoginPage.TabIndex = 4;
             this.LoginPage.Text = "Login";
+            // 
+            // materialLabel1
+            // 
+            this.materialLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.materialLabel1.Depth = 0;
+            this.materialLabel1.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.materialLabel1.Location = new System.Drawing.Point(300, 54);
+            this.materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabel1.Name = "materialLabel1";
+            this.materialLabel1.Size = new System.Drawing.Size(251, 19);
+            this.materialLabel1.TabIndex = 11;
+            this.materialLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // PasswordCopiedLabel
             // 
@@ -399,7 +414,7 @@
             this.ChangeNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ChangeNameButton.Name = "ChangeNameButton";
             this.ChangeNameButton.NoAccentTextColor = System.Drawing.Color.Empty;
-            this.ChangeNameButton.Size = new System.Drawing.Size(125, 36);
+            this.ChangeNameButton.Size = new System.Drawing.Size(103, 36);
             this.ChangeNameButton.TabIndex = 6;
             this.ChangeNameButton.Text = "Save name";
             this.ChangeNameButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
@@ -784,6 +799,8 @@
             // SettingsPage
             // 
             this.SettingsPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.SettingsPage.Controls.Add(this.ImportEntriesButton);
+            this.SettingsPage.Controls.Add(this.ExportEntriesButton);
             this.SettingsPage.Controls.Add(this.LeftSettingsNav);
             this.SettingsPage.Controls.Add(this.ResetAccountCheckbox);
             this.SettingsPage.Controls.Add(this.ResetLoginStatusButton);
@@ -797,6 +814,50 @@
             this.SettingsPage.TabIndex = 3;
             this.SettingsPage.Text = "Settings";
             this.SettingsPage.Click += new System.EventHandler(this.SettingsPage_Click);
+            // 
+            // ImportEntriesButton
+            // 
+            this.ImportEntriesButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ImportEntriesButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.ImportEntriesButton.Depth = 0;
+            this.ImportEntriesButton.HighEmphasis = true;
+            this.ImportEntriesButton.Icon = null;
+            this.ImportEntriesButton.Location = new System.Drawing.Point(93, 76);
+            this.ImportEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.ImportEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.ImportEntriesButton.Name = "ImportEntriesButton";
+            this.ImportEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.ImportEntriesButton.Size = new System.Drawing.Size(138, 36);
+            this.ImportEntriesButton.TabIndex = 19;
+            this.ImportEntriesButton.Text = "Import entries";
+            this.ToolTips.SetToolTip(this.ImportEntriesButton, "Import journal entries.");
+            this.ImportEntriesButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.ImportEntriesButton.UseAccentColor = false;
+            this.ImportEntriesButton.UseVisualStyleBackColor = true;
+            this.ImportEntriesButton.Visible = false;
+            this.ImportEntriesButton.Click += new System.EventHandler(this.ImportEntriesButton_Click);
+            // 
+            // ExportEntriesButton
+            // 
+            this.ExportEntriesButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ExportEntriesButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.ExportEntriesButton.Depth = 0;
+            this.ExportEntriesButton.HighEmphasis = true;
+            this.ExportEntriesButton.Icon = null;
+            this.ExportEntriesButton.Location = new System.Drawing.Point(93, 36);
+            this.ExportEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.ExportEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.ExportEntriesButton.Name = "ExportEntriesButton";
+            this.ExportEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.ExportEntriesButton.Size = new System.Drawing.Size(139, 36);
+            this.ExportEntriesButton.TabIndex = 18;
+            this.ExportEntriesButton.Text = "Export entries";
+            this.ToolTips.SetToolTip(this.ExportEntriesButton, "Export your journal entries.");
+            this.ExportEntriesButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.ExportEntriesButton.UseAccentColor = false;
+            this.ExportEntriesButton.UseVisualStyleBackColor = true;
+            this.ExportEntriesButton.Visible = false;
+            this.ExportEntriesButton.Click += new System.EventHandler(this.ExportEntriesButton_Click);
             // 
             // LeftSettingsNav
             // 
@@ -816,16 +877,19 @@
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode19.Name = "themeSetPage";
-            treeNode19.Text = "Theme";
-            treeNode20.Name = "generalSetPage";
-            treeNode20.Text = "General";
-            treeNode21.Name = "accountSetPage";
-            treeNode21.Text = "Account";
+            treeNode13.Name = "themeSetPage";
+            treeNode13.Text = "Theme";
+            treeNode14.Name = "generalSetPage";
+            treeNode14.Text = "General";
+            treeNode15.Name = "accountSetPage";
+            treeNode15.Text = "Account";
+            treeNode16.Name = "Node0";
+            treeNode16.Text = "Entries";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode19,
-            treeNode20,
-            treeNode21});
+            treeNode13,
+            treeNode14,
+            treeNode15,
+            treeNode16});
             this.LeftSettingsNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
@@ -946,18 +1010,6 @@
             this.LabelVisibilityTimer.Interval = 3000;
             this.LabelVisibilityTimer.Tick += new System.EventHandler(this.LabelVisibilityTimer_Tick);
             // 
-            // materialLabel1
-            // 
-            this.materialLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.materialLabel1.Depth = 0;
-            this.materialLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.materialLabel1.Location = new System.Drawing.Point(300, 54);
-            this.materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
-            this.materialLabel1.Name = "materialLabel1";
-            this.materialLabel1.Size = new System.Drawing.Size(251, 19);
-            this.materialLabel1.TabIndex = 11;
-            this.materialLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1035,6 +1087,8 @@
         private MaterialSkin.Controls.MaterialButton EditEntryButton;
         private MaterialSkin.Controls.MaterialLabel DecryptionStatusLabel;
         private MaterialSkin.Controls.MaterialLabel materialLabel1;
+        private MaterialSkin.Controls.MaterialButton ImportEntriesButton;
+        private MaterialSkin.Controls.MaterialButton ExportEntriesButton;
     }
 }
 

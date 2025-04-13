@@ -8,35 +8,52 @@ using System.Windows.Forms;
 using System.Security.Cryptography;
 using System.Security;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace SafeNotes
 {
     public partial class MainForm : MaterialSkin.Controls.MaterialForm
     {
+        private AppSettings _settings;
+
         private async void MainForm_Load(object sender, EventArgs e)
         {
+            _settings = SettingsManager.LoadSettings();
+
+            NotepadTitle.Text = null;
+
             this.Text = "SafeNotes - v" + Application.ProductVersion;
             LoginTabSelector.Visible = false;
 
-            if (!Properties.Settings.Default.setIsUserLoggedIn)
+            if (!_settings.IsUserLoggedIn)
             {
                 LoginTabSelector.Visible = false;
             }
 
-            if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
+            if (string.IsNullOrWhiteSpace(_settings.UserPassword))
+            {
+                _settings.UserPassword = string.Empty;
+                SettingsManager.SaveSettings(_settings);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_settings.UserPassword))
             {
                 UserLoginButton.Text = "Login";
                 UserConfirmPassword.Visible = false;
                 UserPassword.Location = new System.Drawing.Point(300, 150);
             }
-
-            if (UserLoginButton.Text == "Register")
+            else
             {
+                UserLoginButton.Text = "Register";
+                UserConfirmPassword.Visible = true;
+                UserPassword.Location = new System.Drawing.Point(300, 100);
                 PasswordGenBox.Visible = true;
                 RegenPassButton.Visible = true;
+                UsePassButton.Visible = true;
+                PasswordLengthSlider.Visible = true;
             }
 
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.setYourName))
+            if (string.IsNullOrWhiteSpace(_settings.YourName))
             {
                 YourNameBox.ReadOnly = false;
                 ChangeNameButton.Text = "Save name";
@@ -47,141 +64,185 @@ namespace SafeNotes
                 ChangeNameButton.Text = "Change name";
             }
 
-            var updater = new EventHandlerClass();
+            var updater = new EventHandlerClass(_settings);
             await updater.CheckForUpdatesAsync();
 
-            JournalEntryBox.Text = Properties.Settings.Default.setEntryText;
-            YourNameBox.Text = Properties.Settings.Default.setYourName;
-            NotepadTextBox.Text = Properties.Settings.Default.notepadSaveText;
-            LightModeCheckbox.Checked = Properties.Settings.Default.setLightMode;
-            ApplyDateCheckbox.Checked = Properties.Settings.Default.setSaveDate;
-            Properties.Settings.Default.setEntriesShow = Properties.Settings.Default.setEntriesHide;
-            Properties.Settings.Default.firstTimeOpened = Properties.Settings.Default.firstTimeOpened;
+            JournalEntryBox.Text = _settings.EntryText;
+            YourNameBox.Text = _settings.YourName;
+            NotepadTextBox.Text = _settings.NotepadSaveText;
+            LightModeCheckbox.Checked = _settings.LightMode;
+            ApplyDateCheckbox.Checked = _settings.SaveDate;
         }
-        
+
         private const int MaxEntries = 100;
+
+        private bool shouldExit = false;
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // Check if decryption is in progress
-            if (DecryptionStatusLabel.Text == "Decrypting...")
-            {
-                // Cancel the closing event
-                e.Cancel = true;
-                MessageBox.Show("Please wait until the decryption process is complete.", "Decryption in Progress", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            _settings.EntryText = JournalEntryBox.Text;
+            _settings.YourName = YourNameBox.Text;
+            _settings.NotepadSaveText = NotepadTextBox.Text;
+            _settings.LightMode = LightModeCheckbox.Checked;
+            _settings.SaveDate = ApplyDateCheckbox.Checked;
 
-            // Ensure the JournalEntryPage is selected before closing and encrypting
-            if (TabControl.SelectedTab != JournalEntryPage)
+            try
             {
-                TabControl.SelectedTab = JournalEntryPage;
-                Application.DoEvents(); // Ensure the tab change is processed
-            }
+                SaveEntries();
 
-            // Show the decryption status label with encryption message
-            DecryptionStatusLabel.Text = "Encrypting files...";
-            DecryptionStatusLabel.Visible = true;
-            Application.DoEvents(); // Ensure the label is updated immediately
-
-            if (File.Exists("entries.txt") && Properties.Settings.Default.setEntriesShow == null && Properties.Settings.Default.setEntriesShow == null)
-            {
-                File.Delete("entries.txt");
-            }
-
-            if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text))
-            {
-                // If NotepadTextBox.Text is not empty, ask user if they want to save the notepad
-                DialogResult dialogResult = MessageBox.Show("Do you want to save your notepad before closing the application?", "Save notepad", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dialogResult == DialogResult.Yes)
+                // Check if decryption is in progress
+                if (DecryptionStatusLabel.Text == "Decrypting...")
                 {
                     e.Cancel = true;
-                    SaveNotepadButton.PerformClick();
-                    NotepadTextBox.Text = null;
-                    Application.Exit();
+                    MessageBox.Show("Please wait until the decryption process is complete.", "Decryption in Progress", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
-                if (dialogResult == DialogResult.No)
-                {
-                    NotepadTextBox.Text = null;
-                    Application.Exit();
-                }
-            }
 
-            if (EntriesListBox.Items.Count != 0)
+                // Ensure the JournalEntryPage is selected before closing and encrypting
+                if (TabControl.SelectedTab != JournalEntryPage)
+                {
+                    TabControl.SelectedTab = JournalEntryPage;
+                    Application.DoEvents();
+                }
+
+                // Show the decryption status label with encryption message
+                DecryptionStatusLabel.Text = "Encrypting files...";
+                DecryptionStatusLabel.Visible = true;
+                Application.DoEvents();
+
+                if (File.Exists("entries.txt") && string.IsNullOrWhiteSpace(_settings.Entries))
+                {
+                    File.Delete("entries.txt");
+                }
+
+                if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text) && !shouldExit)
+                {
+                    if (!string.IsNullOrWhiteSpace(NotepadTitle.Text) && NotepadTitle.Text != null)
+                    {
+                        DialogResult dialogResult = MessageBox.Show("Do you want to save your notepad before closing the application?", "Save notepad", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            e.Cancel = true;
+                            // Ask the user where to save the notepad file before closing the application
+                            SaveFileDialog saveFileDialog = new SaveFileDialog();
+                            saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                            saveFileDialog.Title = "Save your notepad file";
+                            string fileName = NotepadTitle.Text.Replace("Opened File: ", "");
+                            if (!fileName.EndsWith(".txt"))
+                            {
+                                fileName += ".txt";
+                            }
+                            saveFileDialog.FileName = fileName;
+                            saveFileDialog.DefaultExt = ".txt";
+                            // I want initial directory to be the desktop
+                            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                            {
+                                File.WriteAllText(saveFileDialog.FileName, NotepadTextBox.Text);
+                                NotepadTextBox.Text = null;
+                                shouldExit = true;
+                                Close();
+                            }
+                            else
+                            {
+                                // User canceled the save operation, clear the notepad and close the application
+                                NotepadTextBox.Text = null;
+                                shouldExit = true;
+                                Close();
+                            }
+                            return;
+                        }
+                        if (dialogResult == DialogResult.No)
+                        {
+                            NotepadTextBox.Text = null;
+                            shouldExit = true;
+                            Close();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        NotepadTextBox.Text = null;
+                    }
+                }
+
+                if (EntriesListBox.Items.Count != 0)
+                {
+                    string[] entries = new string[EntriesListBox.Items.Count];
+                    for (int i = 0; i < EntriesListBox.Items.Count; i++)
+                    {
+                        string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                        entries[i] = EncryptString(entryText, ConvertToUnsecureString(securePassword));
+                    }
+                    File.WriteAllLines("entries.txt", entries);
+                    _settings.Entries = File.ReadAllText("entries.txt");
+                    SettingsManager.SaveSettings(_settings);
+                    string[] lines = File.ReadAllLines("entries.txt");
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        lines[i] = lines[i].Replace(lines[i], "******** - Please refrain from editing this file as any changes made may result in the loss of your saved entries.");
+                    }
+                    File.WriteAllLines("entries.txt", lines);
+                }
+
+                if (ResetAccountCheckbox.Checked == true)
+                {
+                    UserPassword.Text = string.Empty;
+                    UserConfirmPassword.Text = string.Empty;
+
+                    _settings.UserPassword = string.Empty;
+                    _settings.Entries = string.Empty;
+                    _settings.YourName = string.Empty;
+                    _settings.EntryText = string.Empty;
+                    _settings.NotepadSaveText = string.Empty;
+                    _settings.SaveDate = true;
+                    _settings.FirstTimeOpened = true;
+                    _settings.IsUserLoggedIn = false;
+                    _settings.LightMode = false;
+
+                    string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    string filePath = Path.Combine(exeDirectory, "entries.txt");
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+
+                    SettingsManager.SaveSettings(_settings);
+
+                    securePassword?.Dispose();
+                    securePassword = null;
+
+                    UserLoginButton.Text = "Register";
+                    UserConfirmPassword.Visible = true;
+                    UserPassword.Location = new System.Drawing.Point(300, 100);
+                    PasswordGenBox.Visible = true;
+                    RegenPassButton.Visible = true;
+                    UsePassButton.Visible = true;
+                    PasswordLengthSlider.Visible = true;
+                }
+
+                // Check if the application is actually exiting
+                if (e.CloseReason == CloseReason.UserClosing || e.CloseReason == CloseReason.WindowsShutDown)
+                {
+                    // Set the logged-in setting to false
+                    _settings.IsUserLoggedIn = false;
+                    SettingsManager.SaveSettings(_settings);
+
+                    // Clear the password from memory
+                    ClearInMemoryPassword();
+                }
+
+                DecryptionStatusLabel.Visible = false;
+            }
+            catch (Exception ex)
             {
-                // Save the text in the entries.txt file and then hide the text in the file with *'s
-                string[] entries = new string[EntriesListBox.Items.Count];
-                for (int i = 0; i < EntriesListBox.Items.Count; i++)
-                {
-                    // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                    string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
-                    entries[i] = EncryptString(entryText, ConvertToUnsecureString(securePassword));
-                }
-                File.WriteAllLines("entries.txt", entries);
-                // Save the text in the entries.txt file in the setEntriesHide setting
-                Properties.Settings.Default.setEntriesHide = File.ReadAllText("entries.txt");
-                Properties.Settings.Default.Save();
-                string[] lines = File.ReadAllLines("entries.txt");
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    lines[i] = lines[i].Replace(lines[i], "******** - Please refrain from editing this file as any changes made may result in the loss of your saved entries.");
-                }
-                File.WriteAllLines("entries.txt", lines);
+                MessageBox.Show($"An error occurred while closing the application: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            if (ResetAccountCheckbox.Checked == true)
-            {
-                // Clear the password fields
-                UserPassword.Text = string.Empty;
-                UserConfirmPassword.Text = string.Empty;
-
-                // Reset the relevant settings
-                Properties.Settings.Default.setUserPassword = string.Empty;
-                Properties.Settings.Default.setEntriesHide = string.Empty;
-                Properties.Settings.Default.setEntriesShow = string.Empty;
-                Properties.Settings.Default.setYourName = string.Empty;
-                Properties.Settings.Default.setEntryText = string.Empty;
-                Properties.Settings.Default.notepadSaveText = string.Empty;
-                Properties.Settings.Default.setSaveDate = true;
-                Properties.Settings.Default.firstTimeOpened = true;
-                Properties.Settings.Default.setIsUserLoggedIn = false;
-                Properties.Settings.Default.setLightMode = false;
-
-                // Delete the entries.txt file
-                string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                string filePath = Path.Combine(exeDirectory, "entries.txt");
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
-
-                // Save the settings
-                Properties.Settings.Default.Save();
-
-                // Clear in-memory password
-                securePassword?.Dispose();
-                securePassword = null;
-
-                // Update the UI elements
-                UserLoginButton.Text = "Register";
-                UserConfirmPassword.Visible = true;
-                UserPassword.Location = new System.Drawing.Point(300, 100);
-                PasswordGenBox.Visible = true;
-                RegenPassButton.Visible = true;
-                UsePassButton.Visible = true;
-                PasswordLengthSlider.Visible = true;
-            }
-
-            // Clear in-memory password
-            ClearInMemoryPassword();
-
-            // Hide the decryption status label after encryption is done
-            DecryptionStatusLabel.Visible = false;
         }
 
         private void ClearInMemoryPassword()
         {
-            // Clear any in-memory references to the password
             securePassword?.Dispose();
             securePassword = null;
         }
@@ -196,84 +257,94 @@ namespace SafeNotes
                 return;
             }
 
-            if (SaveEntryButton.Text == "Save Edit")
+            try
             {
-                if (JournalEntryBox.Text != "")
+                if (SaveEntryButton.Text == "Save Edit")
                 {
-                    EditEntryButton.Size = new Size(107, 36);
-                    // Ensure that an item is selected
-                    if (EntriesListBox.SelectedItems.Count > 0)
+                    if (!string.IsNullOrWhiteSpace(JournalEntryBox.Text))
                     {
-                        // Modify the text of the selected item in the entriesListBox
-                        string editedText = JournalEntryBox.Text;
-                        if (ApplyDateCheckbox.Checked)
+                        EditEntryButton.Size = new Size(107, 36);
+                        // Ensure that an item is selected
+                        if (EntriesListBox.SelectedItems.Count > 0)
                         {
-                            // Add the new date and time to the edited text
-                            editedText = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + editedText;
+                            // Modify the text of the selected item in the entriesListBox
+                            string editedText = JournalEntryBox.Text;
+                            if (ApplyDateCheckbox.Checked)
+                            {
+                                // Add the new date and time to the edited text
+                                editedText = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + editedText;
 
-                            // Show a notification that the entry has been edited
-                            Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
-                            notiPopup.TitleText = "SafeNotes";
-                            notiPopup.ContentText = "Entry edited";
-                            notiPopup.Popup();
+                                // Show a notification that the entry has been edited
+                                Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                                notiPopup.TitleText = "SafeNotes";
+                                notiPopup.ContentText = "Entry edited";
+                                notiPopup.Popup();
+                            }
+
+                            EntriesListBox.SelectedItems[0].Text = editedText;
+                            // Reset button text to "Save Entry" after editing
+                            SaveEntryButton.Text = "Save Entry";
+                            // Clear the journal entry box
+                            JournalEntryBox.Text = "";
+                            // Show the editEntryButton again
+                            EditEntryButton.Show();
+                            // Update the entries count label and save entries to file
+                            UpdateEntriesCountAndSaveToFile();
+                            // Programmatically switch to the "Journal Entries" tab
+                            TabControl.SelectedTab = JournalEntriesPage;
+                            // Enable the tabControl
+                            JournalTabSelector.Enabled = true;
                         }
-
-                        EntriesListBox.SelectedItems[0].Text = editedText;
-                        // Reset button text to "Save Entry" after editing
-                        SaveEntryButton.Text = "Save Entry";
-                        // Clear the journal entry box
-                        JournalEntryBox.Text = "";
-                        // Show the editEntryButton again
-                        EditEntryButton.Show();
-                        // Update the entries count label and save entries to file
-                        UpdateEntriesCountAndSaveToFile();
-                        // Programmatically switch to the "Journal Entries" tab
-                        TabControl.SelectedTab = JournalEntriesPage;
-                        // Enable the tabControl
-                        JournalTabSelector.Enabled = true;
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("You cannot save an empty entry.", "Empty Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
-            if (DecryptionStatusLabel.Text != "Decrypting..." && SaveEntryButton.Text == "Save Entry")
-            {
-                if (JournalEntryBox.Text != "")
-                {
-                    // Add new entry
-                    string newEntryText = JournalEntryBox.Text;
-                    if (ApplyDateCheckbox.Checked)
-                    {
-                        newEntryText = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + newEntryText;
-
-                        Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
-                        notiPopup.TitleText = "SafeNotes";
-                        notiPopup.ContentText = "Entry added";
-                        notiPopup.Popup();
-                    }
-
-                    // Add the new entry to the entriesListBox
-                    EntriesListBox.Items.Add(newEntryText);
-                    // Clear the journal entry box
-                    JournalEntryBox.Text = "";
-                    // Update the entries count label and save entries to file
-                    UpdateEntriesCountAndSaveToFile();
-
-                    if (EntriesListBox.Items.Count > 1)
-                    {
-                        DeleteEntriesButton.Enabled = true;
                     }
                     else
                     {
-                        DeleteEntriesButton.Enabled = false;
+                        MessageBox.Show("You cannot save an empty entry.", "Empty Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
-                else
+                else if (DecryptionStatusLabel.Text != "Decrypting..." && SaveEntryButton.Text == "Save Entry")
                 {
-                    MessageBox.Show("You cannot save an empty entry.", "Empty Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    if (!string.IsNullOrWhiteSpace(JournalEntryBox.Text))
+                    {
+                        // Add new entry
+                        string newEntryText = JournalEntryBox.Text;
+                        if (ApplyDateCheckbox.Checked)
+                        {
+                            newEntryText = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + newEntryText;
+
+                            Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                            notiPopup.TitleText = "SafeNotes";
+                            notiPopup.ContentText = "Entry added";
+                            notiPopup.Popup();
+                        }
+
+                        // Add the new entry to the entriesListBox
+                        EntriesListBox.Items.Add(newEntryText);
+                        // Clear the journal entry box
+                        JournalEntryBox.Text = "";
+                        // Update the entries count label and save entries to file
+                        UpdateEntriesCountAndSaveToFile();
+
+                        if (EntriesListBox.Items.Count > 1)
+                        {
+                            DeleteEntriesButton.Enabled = true;
+                        }
+                        else
+                        {
+                            DeleteEntriesButton.Enabled = false;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("You cannot save an empty entry.", "Empty Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
+
+                // Save entries using the new SaveEntries method
+                SaveEntries();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while saving the entry: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -281,22 +352,19 @@ namespace SafeNotes
         {
             if (ChangeNameButton.Text == "Save name")
             {
-                // If the contents of the yourNameBox is empty, show a message box with the text "You cannot save an empty name"
                 if (string.IsNullOrWhiteSpace(YourNameBox.Text))
                 {
                     MessageBox.Show("You can not save an empty name.", "Empty name", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                 }
                 else
                 {
-                    // Save the text in the yourNameBox to setYourName setting when the name is saved
                     YourNameBox.ReadOnly = true;
                     ChangeNameButton.Text = "Change name";
+                    _settings.YourName = YourNameBox.Text;
+                    SettingsManager.SaveSettings(_settings);
                     ChangeNameButton.Visible = false;
                     ChangeNameButton.Visible = true;
-                    Properties.Settings.Default.setYourName = YourNameBox.Text;
-                    Properties.Settings.Default.Save();
 
-                    // Show a notification that the name has been saved
                     Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                     notiPopup.TitleText = "SafeNotes";
                     notiPopup.ContentText = "Name saved";
@@ -308,10 +376,10 @@ namespace SafeNotes
                 YourNameBox.Text = "";
                 YourNameBox.ReadOnly = false;
                 ChangeNameButton.Text = "Save name";
+                _settings.YourName = YourNameBox.Text;
+                SettingsManager.SaveSettings(_settings);
                 ChangeNameButton.Visible = false;
                 ChangeNameButton.Visible = true;
-                Properties.Settings.Default.setYourName = YourNameBox.Text;
-                Properties.Settings.Default.Save();
             }
         }
 
@@ -338,36 +406,37 @@ namespace SafeNotes
                 {
                     if (EntriesListBox.Items.Count == 1)
                     {
-                        Properties.Settings.Default.setEntriesHide = "";
-                        Properties.Settings.Default.setEntriesShow = "";
-                        Properties.Settings.Default.Save();
+                        // Remove the selected item from the entriesListBox
+                        EntriesListBox.Items.Remove(EntriesListBox.SelectedItems[0]);
+                        // Update the savedEntriesCount label
+                        SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
 
                         System.IO.File.Delete("entries.txt");
                     }
-
-                    // Remove the selected item from the entriesListBox
-                    EntriesListBox.Items.Remove(EntriesListBox.SelectedItems[0]);
-
-                    // Update the savedEntriesCount label
-                    SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
-
-                    // Save the remaining entries to the entries.txt file and update the setEntriesShow setting
-                    string[] entries = new string[EntriesListBox.Items.Count];
-                    for (int i = 0; i < EntriesListBox.Items.Count; i++)
+                    else if (EntriesListBox.Items.Count >= 2)
                     {
-                        // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
-                        entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
-                    }
-                    File.WriteAllLines("entries.txt", entries);
+                        // Remove the selected item from the entriesListBox
+                        EntriesListBox.Items.Remove(EntriesListBox.SelectedItems[0]);
 
-                    // Encrypt entries before saving to the setEntriesShow setting
-                    string[] encryptedEntries = new string[entries.Length];
-                    for (int i = 0; i < entries.Length; i++)
-                    {
-                        encryptedEntries[i] = EncryptString(entries[i], ConvertToUnsecureString(securePassword));
+                        // Update the savedEntriesCount label
+                        SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
+
+                        // Save the remaining entries to the entries.txt file and update the setEntriesShow setting
+                        string[] entries = new string[EntriesListBox.Items.Count];
+                        for (int i = 0; i < EntriesListBox.Items.Count; i++)
+                        {
+                            // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
+                            entries[i] = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                        }
+                        File.WriteAllLines("entries.txt", entries);
+
+                        // Encrypt entries before saving to the setEntriesShow setting
+                        string[] encryptedEntries = new string[entries.Length];
+                        for (int i = 0; i < entries.Length; i++)
+                        {
+                            encryptedEntries[i] = EncryptString(entries[i], ConvertToUnsecureString(securePassword));
+                        }
                     }
-                    Properties.Settings.Default.setEntriesShow = string.Join(Environment.NewLine, encryptedEntries);
-                    Properties.Settings.Default.Save();
 
                     Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                     notiPopup.TitleText = "SafeNotes";
@@ -379,37 +448,24 @@ namespace SafeNotes
 
         private void LightModeCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            // If lightModeCheckbox is checked, save the value to setLightMode setting. When the value is saved, change the form and all the modules to light mode
-            if (LightModeCheckbox.Checked == true)
+            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            if (LightModeCheckbox.Checked)
             {
-                var materialSkinManager = MaterialSkinManager.Instance;
-                materialSkinManager.AddFormToManage(this);
                 materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
-                Properties.Settings.Default.setLightMode = true;
-                Properties.Settings.Default.Save();
+                _settings.LightMode = true;
             }
-            else if (LightModeCheckbox.Checked == false)
+            else
             {
-                var materialSkinManager = MaterialSkinManager.Instance;
-                materialSkinManager.AddFormToManage(this);
                 materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
-                Properties.Settings.Default.setLightMode = false;
-                Properties.Settings.Default.Save();
+                _settings.LightMode = false;
             }
+            SettingsManager.SaveSettings(_settings);
         }
 
         private void ApplyDateCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            if (ApplyDateCheckbox.Checked == true)
-            {
-                Properties.Settings.Default.setSaveDate = true;
-                Properties.Settings.Default.Save();
-            }
-            else
-            {
-                Properties.Settings.Default.setSaveDate = false;
-                Properties.Settings.Default.Save();
-            }
+            
         }
 
         private void SettingsPage_Click(object sender, EventArgs e)
@@ -420,8 +476,6 @@ namespace SafeNotes
 
         private void ResetLoginStatusButton_Click(object sender, EventArgs e)
         {
-            // Reload the application and reset the login status
-            Properties.Settings.Default.setIsUserLoggedIn = false;
             Application.Restart();
         }
 
@@ -436,7 +490,7 @@ namespace SafeNotes
                 if (UserPassword.Text == UserConfirmPassword.Text)
                 {
                     string hashedPassword = HashPassword(UserPassword.Text);
-                    Properties.Settings.Default.setUserPassword = hashedPassword;
+                    _settings.UserPassword = hashedPassword;
 
                     // Generate a unique salt and store it in setSaltedDecryptionKey
                     byte[] salt = new byte[16];
@@ -445,8 +499,8 @@ namespace SafeNotes
                         rng.GetBytes(salt);
                     }
 
-                    Properties.Settings.Default.firstTimeOpened = false;
-                    Properties.Settings.Default.Save();
+                    _settings.FirstTimeOpened = false;
+                    SettingsManager.SaveSettings(_settings);
                     UserConfirmPassword.Visible = false;
                     UserLoginButton.Text = "Login";
                     UserPassword.Location = new System.Drawing.Point(300, 150);
@@ -458,39 +512,40 @@ namespace SafeNotes
             }
             else if (UserLoginButton.Text == "Login")
             {
-                string storedHash = Properties.Settings.Default.setUserPassword;
+                string storedHash = _settings.UserPassword;
                 if (VerifyPassword(UserPassword.Text, storedHash))
                 {
                     // Use the entered password for decryption
                     securePassword = ConvertToSecureString(UserPassword.Text);
 
                     // Show that the user is logged in and make the entriesListBox visible
-                    Properties.Settings.Default.setIsUserLoggedIn = true;
+                    _settings.IsUserLoggedIn = true;
                     EntriesListBox.Visible = true;
                     UserLoginButton.Enabled = false;
                     LoginTabSelector.Enabled = true;
                     TabControl.TabPages.Remove(LoginPage);
 
-                    Properties.Settings.Default.firstTimeOpened = false;
-                    Properties.Settings.Default.Save();
+                    _settings.FirstTimeOpened = false;
+                    SettingsManager.SaveSettings(_settings);
 
                     // If the entries.txt file exists, load the entries into the entriesListBox from the setEntriesShow setting
                     if (File.Exists("entries.txt"))
                     {
                         // Load text from setEntriesShow setting into the entries.txt file and then load the entries from the entries.txt file into the entriesListBox
-                        File.WriteAllText("entries.txt", Properties.Settings.Default.setEntriesShow);
+                        File.WriteAllText("entries.txt", _settings.Entries);
                         // Add the entries from the entries.txt file to the entriesListBox
                         string[] entries = File.ReadAllLines("entries.txt");
                         foreach (string entry in entries)
                         {
-                            try
+                            string decryptedText = DecryptString(entry, ConvertToUnsecureString(securePassword));
+                            if (decryptedText != null)
                             {
-                                string decryptedText = DecryptString(entry, ConvertToUnsecureString(securePassword));
                                 EntriesListBox.Items.Add(decryptedText);
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show($"Error decrypting entry: {ex.Message}", "Decryption Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                // Remove the invalid entry from the file
+                                File.WriteAllLines("entries.txt", entries.Where(entryText => entryText != entry).ToArray());
                             }
                         }
                     }
@@ -568,6 +623,8 @@ namespace SafeNotes
                 ApplyDateCheckbox.Visible = false;
                 ResetAccountCheckbox.Visible = false;
                 ResetLoginStatusButton.Visible = false;
+                ImportEntriesButton.Visible = false;
+                ExportEntriesButton.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[1])
             {
@@ -576,6 +633,8 @@ namespace SafeNotes
                 LightModeCheckbox.Visible = false;
                 ResetAccountCheckbox.Visible = false;
                 ResetLoginStatusButton.Visible = false;
+                ImportEntriesButton.Visible = false;
+                ExportEntriesButton.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[2])
             {
@@ -584,6 +643,82 @@ namespace SafeNotes
 
                 ApplyDateCheckbox.Visible = false;
                 LightModeCheckbox.Visible = false;
+                ImportEntriesButton.Visible = false;
+                ExportEntriesButton.Visible = false;
+            }
+            else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3])
+            {
+                ImportEntriesButton.Visible = true;
+                ExportEntriesButton.Visible = true;
+
+                ResetAccountCheckbox.Visible = false;
+                ResetLoginStatusButton.Visible = false;
+                ApplyDateCheckbox.Visible = false;
+                LightModeCheckbox.Visible = false;
+            }
+        }
+
+        private void ExportEntriesButton_Click(object sender, System.EventArgs e)
+        {
+            MessageBox.Show("To import the after exporting the entries, you need to have the same password used to log into SafeNotes during this export process to import the exported entries.", "Password Mismatch Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            // Export the entries to a file.
+            // Also ask the user where to export it to.
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog.Title = "Select a location to export entries to";
+            saveFileDialog.FileName = "entries.txt";
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            string filePath = saveFileDialog.FileName;
+            string[] entries = new string[EntriesListBox.Items.Count];
+            for (int i = 0; i < EntriesListBox.Items.Count; i++)
+            {
+                // Do not include "ListViewItem:" in the txt file, instead say Entry # and the number of the entry
+                string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                entries[i] = EncryptString(entryText, ConvertToUnsecureString(securePassword));
+            }
+            // Save the entries to the file
+            File.WriteAllLines(filePath, entries);
+
+            Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+            notiPopup.TitleText = "SafeNotes";
+            notiPopup.ContentText = "Entries exported";
+            notiPopup.Popup();
+        }
+
+        private bool decryptionErrorOccurred = false;
+
+        private void ImportEntriesButton_Click(object sender, System.EventArgs e)
+        {
+            MessageBox.Show("To import the entries, you must have the same password that was used to log into SafeNotes during the initial export process. If the password does not match, the entries cannot be decrypted and will not be imported.", "Password Mismatch Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            // Import the entries from a file
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog.Title = "Select a file to import entries from";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string[] lines = File.ReadAllLines(openFileDialog.FileName);
+                decryptionErrorOccurred = false; // Reset the flag before starting the import process
+
+                foreach (string line in lines)
+                {
+                    // Decrypt the entry and add it to the entriesListBox
+                    string decryptedText = DecryptString(line, ConvertToUnsecureString(securePassword));
+                    if (decryptedText != null)
+                    {
+                        // Do not include "Your Entries:" in the entriesListBox if it is present
+                        if (decryptedText.Contains("Your Entries:"))
+                        {
+                            decryptedText = decryptedText.Replace("Your Entries:", "");
+                        }
+                        EntriesListBox.Items.Add(decryptedText);
+                    }
+                }
+                // Update the savedEntriesCount label
+                SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
             }
         }
 
@@ -598,12 +733,10 @@ namespace SafeNotes
                 {
                     EntriesListBox.Items.Clear();
                     // Save the entries to the setEntriesShow setting
-                    Properties.Settings.Default.setEntriesShow = "";
-                    Properties.Settings.Default.Save();
                     // Upodate the savedEntriesCount label
                     SavedEntriesCount.Text = "Saved Entries: " + EntriesListBox.Items.Count;
 
-                    if (Properties.Settings.Default.setIsUserLoggedIn == true)
+                    if (_settings.IsUserLoggedIn == true)
                     {
                         File.Delete("entries.txt");
                     }
@@ -631,7 +764,7 @@ namespace SafeNotes
             // Generate a random password and set it to the passwordGenBox for the user
             string password = "";
             Random random = new Random();
-            // Generate the passworrd length according to the value in the passwordLengthSlider
+            // Generate the password length according to the value in the passwordLengthSlider
             for (int i = 0; i < PasswordLengthSlider.Value; i++)
             {
                 password += (char)random.Next(33, 126);
@@ -706,7 +839,7 @@ namespace SafeNotes
             }
 
             // Check if the user has a password set, if they do, make the passwordGenBox, regenPassButton and usePassButton invisible
-            if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.setUserPassword))
+            if (!string.IsNullOrWhiteSpace(_settings.UserPassword))
             {
                 PasswordGenBox.Visible = false;
                 RegenPassButton.Visible = false;
@@ -717,6 +850,7 @@ namespace SafeNotes
             {
                 PasswordGenBox.Visible = true;
                 RegenPassButton.Visible = true;
+                UsePassButton.Visible = true;
                 PasswordLengthSlider.Visible = true;
             }
         }
@@ -740,7 +874,7 @@ namespace SafeNotes
 
         private void NotepadTextBox_TextChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.notepadSaveText = NotepadTextBox.Text;
+            _settings.NotepadSaveText = NotepadTextBox.Text;
             // If the notepadTextBox text changes, change the charsInNotepad label to equal the amount of text in the notepadTextBox
             CharsInNotepad.Text = "Characters: " + NotepadTextBox.Text.Length.ToString();
 
@@ -769,7 +903,7 @@ namespace SafeNotes
         private void SaveNotepadButton_Click(object sender, EventArgs e)
         {
             // If the notepadSaveText is empty, tell the user they cannot save an empty file
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.notepadSaveText))
+            if (string.IsNullOrWhiteSpace(_settings.NotepadSaveText))
             {
                 MessageBox.Show("You cannot save an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -783,7 +917,7 @@ namespace SafeNotes
                 // If the user clicks the save button, save the file to the location they chose
                 if (!string.IsNullOrWhiteSpace(saveNotepad.FileName))
                 {
-                    File.WriteAllText(saveNotepad.FileName, Properties.Settings.Default.notepadSaveText);
+                    File.WriteAllText(saveNotepad.FileName, _settings.NotepadSaveText);
                     if (NotepadTitle.Visible == true)
                     {
                         NotepadTitle.Text = "Notepad saved...";
@@ -812,8 +946,8 @@ namespace SafeNotes
 
         private void OpenFileButton_Click(object sender, EventArgs e)
         {
-            // Ask the user where they want to open the file from
             OpenFileDialog openNotepad = new OpenFileDialog();
+            openNotepad.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openNotepad.Filter = "Text File (*.txt)|*.txt";
             openNotepad.Title = "Open Notepad";
             openNotepad.ShowDialog();
@@ -942,7 +1076,7 @@ namespace SafeNotes
                 // If the user clicks the save button, save the file to the location they chose
                 if (!string.IsNullOrWhiteSpace(newNotepad.FileName))
                 {
-                    File.WriteAllText(newNotepad.FileName, Properties.Settings.Default.notepadSaveText);
+                    File.WriteAllText(newNotepad.FileName, _settings.NotepadSaveText);
                 }
             }
 
@@ -957,7 +1091,7 @@ namespace SafeNotes
                 // If the user clicks the save button, save the file to the location they chose
                 if (!string.IsNullOrWhiteSpace(saveNotepad.FileName))
                 {
-                    File.WriteAllText(saveNotepad.FileName, Properties.Settings.Default.notepadSaveText);
+                    File.WriteAllText(saveNotepad.FileName, _settings.NotepadSaveText);
                 }
             }
         }
@@ -1012,7 +1146,7 @@ namespace SafeNotes
                 rng.GetBytes(salt);
             }
 
-            using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, salt, 10000)) // 10,000 iterations
+            using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, salt, 10000, HashAlgorithmName.SHA256)) // 10,000 iterations
             {
                 byte[] hash = keyDerivationFunction.GetBytes(32); // 256-bit hash
                 byte[] hashBytes = new byte[48]; // 16 byte salt & a 32 byte hash
@@ -1029,7 +1163,7 @@ namespace SafeNotes
             Array.Copy(salt, 0, saltAndIv, 0, salt.Length);
             Array.Copy(iv, 0, saltAndIv, salt.Length, iv.Length);
 
-            using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, saltAndIv, 10000)) // 10,000 iterations
+            using (var keyDerivationFunction = new Rfc2898DeriveBytes(password, saltAndIv, 10000, HashAlgorithmName.SHA256)) // 10,000 iterations
             {
                 return Convert.ToBase64String(keyDerivationFunction.GetBytes(32)); // AES-256 requires a 32-byte key
             }
@@ -1085,6 +1219,11 @@ namespace SafeNotes
 
         private string DecryptString(string cipherText, string password)
         {
+            if (string.IsNullOrWhiteSpace(cipherText) || string.IsNullOrWhiteSpace(password))
+            {
+                return null;
+            }
+
             try
             {
                 // Show the decryption status label
@@ -1178,7 +1317,7 @@ namespace SafeNotes
             byte[] salt = new byte[16];
             Array.Copy(hashBytes, 0, salt, 0, 16);
 
-            using (var keyDerivationFunction = new Rfc2898DeriveBytes(enteredPassword, salt, 10000)) // 10,000 iterations
+            using (var keyDerivationFunction = new Rfc2898DeriveBytes(enteredPassword, salt, 10000, HashAlgorithmName.SHA256)) // 10,000 iterations
             {
                 byte[] hash = keyDerivationFunction.GetBytes(32);
                 for (int i = 0; i < 32; i++)
@@ -1190,6 +1329,25 @@ namespace SafeNotes
                 }
             }
             return true;
+        }
+
+        private void SaveEntries()
+        {
+            if (EntriesListBox.Items.Count != 0)
+            {
+                string[] entries = new string[EntriesListBox.Items.Count];
+                for (int i = 0; i < EntriesListBox.Items.Count; i++)
+                {
+                    string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                    entries[i] = EncryptString(entryText, ConvertToUnsecureString(securePassword));
+                }
+                _settings.Entries = string.Join(Environment.NewLine, entries);
+            }
+            else
+            {
+                _settings.Entries = string.Empty;
+            }
+            SettingsManager.SaveSettings(_settings);
         }
     }
 }

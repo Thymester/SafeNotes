@@ -131,6 +131,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSettings.cs" />
     <Compile Include="CustomConfig.cs" />
     <Compile Include="EntriesListBox.cs" />
     <Compile Include="AppManager.cs">
@@ -148,6 +149,7 @@
     <Compile Include="JournalUtilities.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="SettingsManager.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -58,6 +58,20 @@ namespace SafeNotes
                     return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 case "NordPass":
                     return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "Dashlane":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "Zoho Vault":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "RoboForm":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "Sticky Password":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "Keeper":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "Enpass":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
+                case "Total Password":
+                    return "--username " + UserPassword.Text + " --password " + UserConfirmPassword.Text;
                 default:
                     return null;
             }

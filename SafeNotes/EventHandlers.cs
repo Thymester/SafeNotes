@@ -5,9 +5,39 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class EventHandlerClass
 {
+    private readonly AppSettings _settings;
+
+    public EventHandlerClass(AppSettings settings)
+    {
+        _settings = settings;
+    }
+
+    private List<string> setEntriesShow => _settings.Entries?.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+    private bool HasEntries()
+    {
+        return (setEntriesShow != null && setEntriesShow.Count > 0);
+    }
+
+    private void ExportEntries(string filePath)
+    {
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            if (setEntriesShow != null && setEntriesShow.Count > 0)
+            {
+                writer.WriteLine("Your Entries:");
+                foreach (var entry in setEntriesShow)
+                {
+                    writer.WriteLine(entry);
+                }
+            }
+        }
+    }
 
     public async Task CheckForUpdatesAsync()
     {
@@ -47,6 +77,14 @@ public class EventHandlerClass
 
                         if (result == DialogResult.Yes)
                         {
+                            // Check if there are entries to export
+                            if (HasEntries())
+                            {
+                                string exportFilePath = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "SavedEntries.txt");
+                                ExportEntries(exportFilePath);
+                                MessageBox.Show($"Entries exported to {exportFilePath}\n\nTo prevent data loss during automatic updates, your encrypted entries have been saved to this backup file. You can re-import them later **only if you have the same password** that was set at the time of export.", "Export Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+
                             string tempExePath = Path.Combine(Path.GetTempPath(), "SafeNotes_New.exe");
                             string batFilePath = Path.Combine(Path.GetTempPath(), "SafeNotes_Updater.bat");
                             string currentExePath = Application.ExecutablePath;
