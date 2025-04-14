@@ -106,14 +106,14 @@ public class EventHandlerClass
 
                             // Write the batch file for replacing the old version
                             File.WriteAllText(batFilePath, $@"
-                        @echo off
-                        echo Update starting >> ""{logPath}""
-                        timeout /t 2 /nobreak > nul
-                        del /f /q ""{currentExePath}"" >> ""{logPath}"" 2>&1
-                        move /y ""{tempExePath}"" ""{currentExePath}"" >> ""{logPath}"" 2>&1
-                        start ""SafeNotes"" ""{currentExePath}""
-                        echo Update complete >> ""{logPath}""
-                        ");
+                            @echo off
+                            echo Update starting >> ""{logPath}""
+                            timeout /t 2 /nobreak > nul
+                            del /f /q ""{currentExePath}"" >> ""{logPath}"" 2>&1
+                            move /y ""{tempExePath}"" ""{currentExePath}"" >> ""{logPath}"" 2>&1
+                            start ""SafeNotes"" ""{currentExePath}""
+                            echo Update complete >> ""{logPath}""
+                            ");
 
                             // Launch the batch file to replace the app
                             Process.Start(new ProcessStartInfo

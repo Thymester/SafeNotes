@@ -1,6 +1,7 @@
 ﻿// File: SafeNotes/mainForm.cs
 using MaterialSkin;
 using MaterialSkin.Controls;
+using System.Windows.Forms;
 
 namespace SafeNotes
 {

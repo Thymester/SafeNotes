@@ -30,13 +30,14 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Theme");
-            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Account");
-            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Entries");
+            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Entries");
+            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Theme");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
-            this.materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
+            this.PasswordStrength = new System.Windows.Forms.Label();
+            this.UserPINCodeField = new MaterialSkin.Controls.MaterialTextBox2();
             this.PasswordCopiedLabel = new MaterialSkin.Controls.MaterialLabel();
             this.PasswordLengthSlider = new MaterialSkin.Controls.MaterialSlider();
             this.UsePassButton = new MaterialSkin.Controls.MaterialButton();
@@ -71,6 +72,10 @@
             this.ContentsCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntriesTabSelector = new MaterialSkin.Controls.MaterialTabSelector();
             this.SettingsPage = new System.Windows.Forms.TabPage();
+            this.RequirePinToLogin = new MaterialSkin.Controls.MaterialCheckbox();
+            this.SettingsInfoLabel = new System.Windows.Forms.Label();
+            this.EncryptEntriesButton = new MaterialSkin.Controls.MaterialButton();
+            this.DisableNotificationsCheckbox = new MaterialSkin.Controls.MaterialCheckbox();
             this.ImportEntriesButton = new MaterialSkin.Controls.MaterialButton();
             this.ExportEntriesButton = new MaterialSkin.Controls.MaterialButton();
             this.LeftSettingsNav = new Mook.UI.Windows.Forms.LeftMenuNav();
@@ -111,7 +116,8 @@
             // LoginPage
             // 
             this.LoginPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.LoginPage.Controls.Add(this.materialLabel1);
+            this.LoginPage.Controls.Add(this.PasswordStrength);
+            this.LoginPage.Controls.Add(this.UserPINCodeField);
             this.LoginPage.Controls.Add(this.PasswordCopiedLabel);
             this.LoginPage.Controls.Add(this.PasswordLengthSlider);
             this.LoginPage.Controls.Add(this.UsePassButton);
@@ -127,17 +133,48 @@
             this.LoginPage.TabIndex = 4;
             this.LoginPage.Text = "Login";
             // 
-            // materialLabel1
+            // PasswordStrength
             // 
-            this.materialLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.materialLabel1.Depth = 0;
-            this.materialLabel1.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.materialLabel1.Location = new System.Drawing.Point(300, 54);
-            this.materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
-            this.materialLabel1.Name = "materialLabel1";
-            this.materialLabel1.Size = new System.Drawing.Size(251, 19);
-            this.materialLabel1.TabIndex = 11;
-            this.materialLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.PasswordStrength.AutoSize = true;
+            this.PasswordStrength.Location = new System.Drawing.Point(297, 61);
+            this.PasswordStrength.Name = "PasswordStrength";
+            this.PasswordStrength.Size = new System.Drawing.Size(46, 13);
+            this.PasswordStrength.TabIndex = 13;
+            this.PasswordStrength.Text = "Placebo";
+            // 
+            // UserPINCodeField
+            // 
+            this.UserPINCodeField.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.UserPINCodeField.AnimateReadOnly = false;
+            this.UserPINCodeField.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.UserPINCodeField.CharacterCasing = System.Windows.Forms.CharacterCasing.Normal;
+            this.UserPINCodeField.Depth = 0;
+            this.UserPINCodeField.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.UserPINCodeField.HideSelection = true;
+            this.UserPINCodeField.Hint = "Enter your PIN...";
+            this.UserPINCodeField.LeadingIcon = null;
+            this.UserPINCodeField.Location = new System.Drawing.Point(300, 150);
+            this.UserPINCodeField.MaxLength = 32767;
+            this.UserPINCodeField.MouseState = MaterialSkin.MouseState.OUT;
+            this.UserPINCodeField.Name = "UserPINCodeField";
+            this.UserPINCodeField.PasswordChar = '*';
+            this.UserPINCodeField.PrefixSuffixText = null;
+            this.UserPINCodeField.ReadOnly = false;
+            this.UserPINCodeField.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.UserPINCodeField.SelectedText = "";
+            this.UserPINCodeField.SelectionLength = 0;
+            this.UserPINCodeField.SelectionStart = 0;
+            this.UserPINCodeField.ShortcutsEnabled = true;
+            this.UserPINCodeField.Size = new System.Drawing.Size(251, 48);
+            this.UserPINCodeField.TabIndex = 12;
+            this.UserPINCodeField.TabStop = false;
+            this.UserPINCodeField.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.ToolTips.SetToolTip(this.UserPINCodeField, "Enter a PIN to log into SafeNotes.");
+            this.UserPINCodeField.TrailingIcon = null;
+            this.UserPINCodeField.UseSystemPasswordChar = false;
+            this.UserPINCodeField.Visible = false;
             // 
             // PasswordCopiedLabel
             // 
@@ -248,6 +285,7 @@
             this.PasswordGenBox.UseSystemPasswordChar = false;
             this.PasswordGenBox.Visible = false;
             this.PasswordGenBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PasswordGenBox_MouseDoubleClick);
+            this.PasswordGenBox.TextChanged += new System.EventHandler(this.PasswordGenBox_TextChanged);
             // 
             // UserLoginButton
             // 
@@ -356,6 +394,7 @@
             this.UserPassword.UseSystemPasswordChar = false;
             this.UserPassword.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.UserPassword_KeyPress);
             this.UserPassword.MouseHover += new System.EventHandler(this.UserPassword_MouseHover);
+            this.UserPassword.TextChanged += new System.EventHandler(this.UserPassword_TextChanged);
             // 
             // JournalEntryPage
             // 
@@ -510,7 +549,6 @@
             this.JournalTabSelector.Name = "JournalTabSelector";
             this.JournalTabSelector.Size = new System.Drawing.Size(830, 24);
             this.JournalTabSelector.TabIndex = 0;
-            this.JournalTabSelector.Text = "MaterialTabSelector1";
             // 
             // NotepadPage
             // 
@@ -799,6 +837,10 @@
             // SettingsPage
             // 
             this.SettingsPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.SettingsPage.Controls.Add(this.RequirePinToLogin);
+            this.SettingsPage.Controls.Add(this.SettingsInfoLabel);
+            this.SettingsPage.Controls.Add(this.EncryptEntriesButton);
+            this.SettingsPage.Controls.Add(this.DisableNotificationsCheckbox);
             this.SettingsPage.Controls.Add(this.ImportEntriesButton);
             this.SettingsPage.Controls.Add(this.ExportEntriesButton);
             this.SettingsPage.Controls.Add(this.LeftSettingsNav);
@@ -815,6 +857,75 @@
             this.SettingsPage.Text = "Settings";
             this.SettingsPage.Click += new System.EventHandler(this.SettingsPage_Click);
             // 
+            // RequirePinToLogin
+            // 
+            this.RequirePinToLogin.AutoSize = true;
+            this.RequirePinToLogin.Depth = 0;
+            this.RequirePinToLogin.Location = new System.Drawing.Point(93, 70);
+            this.RequirePinToLogin.Margin = new System.Windows.Forms.Padding(0);
+            this.RequirePinToLogin.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.RequirePinToLogin.MouseState = MaterialSkin.MouseState.HOVER;
+            this.RequirePinToLogin.Name = "RequirePinToLogin";
+            this.RequirePinToLogin.ReadOnly = false;
+            this.RequirePinToLogin.Ripple = true;
+            this.RequirePinToLogin.Size = new System.Drawing.Size(278, 37);
+            this.RequirePinToLogin.TabIndex = 23;
+            this.RequirePinToLogin.Text = "Require PIN to login - Experimental";
+            this.ToolTips.SetToolTip(this.RequirePinToLogin, "You will need a PIN before logging in with your password when logged out.");
+            this.RequirePinToLogin.UseVisualStyleBackColor = true;
+            this.RequirePinToLogin.Visible = false;
+            this.RequirePinToLogin.CheckedChanged += new System.EventHandler(this.RequirePenToLogin_CheckedChanged);
+            // 
+            // SettingsInfoLabel
+            // 
+            this.SettingsInfoLabel.AutoSize = true;
+            this.SettingsInfoLabel.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.SettingsInfoLabel.Location = new System.Drawing.Point(94, 178);
+            this.SettingsInfoLabel.Name = "SettingsInfoLabel";
+            this.SettingsInfoLabel.Size = new System.Drawing.Size(46, 13);
+            this.SettingsInfoLabel.TabIndex = 22;
+            this.SettingsInfoLabel.Text = "Placebo";
+            // 
+            // EncryptEntriesButton
+            // 
+            this.EncryptEntriesButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.EncryptEntriesButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.EncryptEntriesButton.Depth = 0;
+            this.EncryptEntriesButton.HighEmphasis = true;
+            this.EncryptEntriesButton.Icon = null;
+            this.EncryptEntriesButton.Location = new System.Drawing.Point(93, 132);
+            this.EncryptEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.EncryptEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.EncryptEntriesButton.Name = "EncryptEntriesButton";
+            this.EncryptEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.EncryptEntriesButton.Size = new System.Drawing.Size(149, 36);
+            this.EncryptEntriesButton.TabIndex = 21;
+            this.EncryptEntriesButton.Text = "Encrypt entries";
+            this.ToolTips.SetToolTip(this.EncryptEntriesButton, "Encrypts all your entries without logging out. This will activate Lockdown Mode.");
+            this.EncryptEntriesButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.EncryptEntriesButton.UseAccentColor = false;
+            this.EncryptEntriesButton.UseVisualStyleBackColor = true;
+            this.EncryptEntriesButton.Visible = false;
+            this.EncryptEntriesButton.Click += new System.EventHandler(this.EncryptEntriesButton_Click);
+            // 
+            // DisableNotificationsCheckbox
+            // 
+            this.DisableNotificationsCheckbox.AutoSize = true;
+            this.DisableNotificationsCheckbox.Depth = 0;
+            this.DisableNotificationsCheckbox.Location = new System.Drawing.Point(93, 70);
+            this.DisableNotificationsCheckbox.Margin = new System.Windows.Forms.Padding(0);
+            this.DisableNotificationsCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.DisableNotificationsCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
+            this.DisableNotificationsCheckbox.Name = "DisableNotificationsCheckbox";
+            this.DisableNotificationsCheckbox.ReadOnly = false;
+            this.DisableNotificationsCheckbox.Ripple = true;
+            this.DisableNotificationsCheckbox.Size = new System.Drawing.Size(181, 37);
+            this.DisableNotificationsCheckbox.TabIndex = 20;
+            this.DisableNotificationsCheckbox.Text = "Disable notifications";
+            this.ToolTips.SetToolTip(this.DisableNotificationsCheckbox, "Disables all SafeNotes notifications.");
+            this.DisableNotificationsCheckbox.UseVisualStyleBackColor = true;
+            this.DisableNotificationsCheckbox.Visible = false;
+            // 
             // ImportEntriesButton
             // 
             this.ImportEntriesButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -822,7 +933,7 @@
             this.ImportEntriesButton.Depth = 0;
             this.ImportEntriesButton.HighEmphasis = true;
             this.ImportEntriesButton.Icon = null;
-            this.ImportEntriesButton.Location = new System.Drawing.Point(93, 76);
+            this.ImportEntriesButton.Location = new System.Drawing.Point(94, 84);
             this.ImportEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ImportEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ImportEntriesButton.Name = "ImportEntriesButton";
@@ -877,14 +988,14 @@
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode13.Name = "themeSetPage";
-            treeNode13.Text = "Theme";
-            treeNode14.Name = "generalSetPage";
-            treeNode14.Text = "General";
-            treeNode15.Name = "accountSetPage";
-            treeNode15.Text = "Account";
-            treeNode16.Name = "Node0";
-            treeNode16.Text = "Entries";
+            treeNode13.Name = "generalSetPage";
+            treeNode13.Text = "General";
+            treeNode14.Name = "accountSetPage";
+            treeNode14.Text = "Account";
+            treeNode15.Name = "Node0";
+            treeNode15.Text = "Entries";
+            treeNode16.Name = "themeSetPage";
+            treeNode16.Text = "Theme";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode13,
             treeNode14,
@@ -913,12 +1024,13 @@
             this.ResetAccountCheckbox.Name = "ResetAccountCheckbox";
             this.ResetAccountCheckbox.ReadOnly = false;
             this.ResetAccountCheckbox.Ripple = true;
-            this.ResetAccountCheckbox.Size = new System.Drawing.Size(198, 37);
+            this.ResetAccountCheckbox.Size = new System.Drawing.Size(135, 37);
             this.ResetAccountCheckbox.TabIndex = 16;
-            this.ResetAccountCheckbox.Text = "Reset account on close";
+            this.ResetAccountCheckbox.Text = "Reset account";
             this.ToolTips.SetToolTip(this.ResetAccountCheckbox, "Wipes all account data when you close SafeNotes.");
             this.ResetAccountCheckbox.UseVisualStyleBackColor = true;
             this.ResetAccountCheckbox.Visible = false;
+            this.ResetAccountCheckbox.CheckedChanged += new System.EventHandler(this.ResetAccountCheckbox_CheckedChanged);
             // 
             // ResetLoginStatusButton
             // 
@@ -927,7 +1039,7 @@
             this.ResetLoginStatusButton.Depth = 0;
             this.ResetLoginStatusButton.HighEmphasis = true;
             this.ResetLoginStatusButton.Icon = null;
-            this.ResetLoginStatusButton.Location = new System.Drawing.Point(93, 76);
+            this.ResetLoginStatusButton.Location = new System.Drawing.Point(93, 113);
             this.ResetLoginStatusButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ResetLoginStatusButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ResetLoginStatusButton.Name = "ResetLoginStatusButton";
@@ -1065,7 +1177,6 @@
         private MaterialSkin.Controls.MaterialButton UserLoginButton;
         private System.Windows.Forms.ToolTip ToolTips;
         private MaterialSkin.Controls.MaterialCheckbox ResetAccountCheckbox;
-        private Mook.UI.Windows.Forms.LeftMenuNav LeftSettingsNav;
         private System.Windows.Forms.Timer CheckTimer;
         private MaterialSkin.Controls.MaterialButton DeleteEntriesButton;
         private MaterialSkin.Controls.MaterialTextBox2 PasswordGenBox;
@@ -1086,9 +1197,15 @@
         private MaterialSkin.Controls.MaterialLabel NotepadTitle;
         private MaterialSkin.Controls.MaterialButton EditEntryButton;
         private MaterialSkin.Controls.MaterialLabel DecryptionStatusLabel;
-        private MaterialSkin.Controls.MaterialLabel materialLabel1;
         private MaterialSkin.Controls.MaterialButton ImportEntriesButton;
         private MaterialSkin.Controls.MaterialButton ExportEntriesButton;
+        private MaterialSkin.Controls.MaterialCheckbox DisableNotificationsCheckbox;
+        public Mook.UI.Windows.Forms.LeftMenuNav LeftSettingsNav;
+        private MaterialSkin.Controls.MaterialButton EncryptEntriesButton;
+        private System.Windows.Forms.Label SettingsInfoLabel;
+        private MaterialSkin.Controls.MaterialCheckbox RequirePinToLogin;
+        private MaterialSkin.Controls.MaterialTextBox2 UserPINCodeField;
+        private System.Windows.Forms.Label PasswordStrength;
     }
 }
 
