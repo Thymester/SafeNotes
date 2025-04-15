@@ -77,6 +77,10 @@ public class EventHandlerClass
 
                         if (result == DialogResult.Yes)
                         {
+                            // Set the flag to indicate the restart is for an update
+                            _settings.IsRestartingForUpdate = true;
+                            SettingsManager.SaveSettings(_settings);
+
                             // Check if there are entries to export
                             if (HasEntries())
                             {

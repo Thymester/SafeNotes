@@ -10,6 +10,7 @@ using System.Security;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Linq;
 
 namespace SafeNotes
 {
@@ -20,6 +21,13 @@ namespace SafeNotes
         private async void MainForm_Load(object sender, EventArgs e)
         {
             _settings = SettingsManager.LoadSettings();
+
+            // Reset the IsRestartingForUpdate flag on application start
+            if (_settings.IsRestartingForUpdate)
+            {
+                _settings.IsRestartingForUpdate = false;
+                SettingsManager.SaveSettings(_settings);
+            }
 
             if (_settings.UserPassword == String.Empty)
             {
@@ -248,6 +256,12 @@ namespace SafeNotes
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (_settings.IsRestartingForUpdate)
+            {
+                // Skip saving settings if the application is restarting for an update
+                return;
+            }
+
             if (EntriesEncryptedButtonClicked == false)
             {
                 _settings.EntryText = JournalEntryBox.Text;
@@ -259,8 +273,16 @@ namespace SafeNotes
 
                 try
                 {
-                    EntriesEncryptedButtonClicked = false;
-                    SaveEntries();
+                    if (_settings.IsUserLoggedIn)
+                    {
+                        if (securePassword == null)
+                        {
+                            MessageBox.Show("Secure password is not set. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        SaveEntries();
+                    }
 
                     // Check if decryption is in progress
                     if (DecryptionStatusLabel.Text == "Decrypting...")
@@ -284,25 +306,20 @@ namespace SafeNotes
 
                     if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text) && !shouldExit)
                     {
-                        if (!string.IsNullOrWhiteSpace(NotepadTitle.Text) && NotepadTitle.Text != null)
+                        if (!string.IsNullOrWhiteSpace(NotepadTitle.Text))
                         {
                             DialogResult dialogResult = MessageBox.Show("Do you want to save your notepad before closing the application?", "Save notepad", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             if (dialogResult == DialogResult.Yes)
                             {
                                 e.Cancel = true;
-                                // Ask the user where to save the notepad file before closing the application
-                                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                                saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-                                saveFileDialog.Title = "Save your notepad file";
-                                string fileName = NotepadTitle.Text.Replace("Opened File: ", "");
-                                if (!fileName.EndsWith(".txt"))
+                                SaveFileDialog saveFileDialog = new SaveFileDialog
                                 {
-                                    fileName += ".txt";
-                                }
-                                saveFileDialog.FileName = fileName;
-                                saveFileDialog.DefaultExt = ".txt";
-                                // I want initial directory to be the desktop
-                                saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                                    Title = "Save your notepad file",
+                                    FileName = NotepadTitle.Text.Replace("Opened File: ", "") + ".txt",
+                                    DefaultExt = ".txt",
+                                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                                };
 
                                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                                 {
@@ -313,14 +330,13 @@ namespace SafeNotes
                                 }
                                 else
                                 {
-                                    // User canceled the save operation, clear the notepad and close the application
                                     NotepadTextBox.Text = null;
                                     shouldExit = true;
                                     Close();
                                 }
                                 return;
                             }
-                            if (dialogResult == DialogResult.No)
+                            else if (dialogResult == DialogResult.No)
                             {
                                 NotepadTextBox.Text = null;
                                 shouldExit = true;
@@ -334,27 +350,31 @@ namespace SafeNotes
                         }
                     }
 
-                    if (EntriesListBox.Items.Count != 0)
+                    if (EntriesListBox.Items.Count != 0 && _settings.IsUserLoggedIn)
                     {
                         string[] entries = new string[EntriesListBox.Items.Count];
                         for (int i = 0; i < EntriesListBox.Items.Count; i++)
                         {
-                            string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
+                            var item = EntriesListBox.Items[i];
+                            if (item == null) continue;
+
+                            string entryText = item.ToString().Replace("ListViewItem: {", "").Replace("}", "").Trim();
+                            if (string.IsNullOrWhiteSpace(entryText)) continue;
+
                             entries[i] = EncryptString(entryText, ConvertToUnsecureString(securePassword));
                         }
-                        _settings.Entries = string.Join(",", entries);
+                        _settings.Entries = string.Join(",", entries.Where(entry => !string.IsNullOrWhiteSpace(entry)));
                         SettingsManager.SaveSettings(_settings);
                     }
 
-                    // Check if the application is actually exiting
                     if (e.CloseReason == CloseReason.UserClosing || e.CloseReason == CloseReason.WindowsShutDown)
                     {
-                        // Set the logged-in setting to false
-                        _settings.IsUserLoggedIn = false;
-                        SettingsManager.SaveSettings(_settings);
-
-                        // Clear the password from memory
-                        ClearInMemoryPassword();
+                        if (_settings.IsUserLoggedIn)
+                        {
+                            _settings.IsUserLoggedIn = false;
+                            SettingsManager.SaveSettings(_settings);
+                            ClearInMemoryPassword();
+                        }
                     }
 
                     DecryptionStatusLabel.Visible = false;
@@ -363,16 +383,13 @@ namespace SafeNotes
                 {
                     MessageBox.Show($"An error occurred while closing the application: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            } else
+            }
+            else if (_settings.IsUserLoggedIn)
             {
-                // If the EncryptEntriesButtonClicked is true close the application
-                // Set the logged-in setting to false
                 _settings.IsUserLoggedIn = false;
                 SettingsManager.SaveSettings(_settings);
-                // Clear the password from memory
                 ClearInMemoryPassword();
                 DecryptionStatusLabel.Visible = false;
-                // Close the application
                 Application.Exit();
             }
         }
@@ -381,15 +398,16 @@ namespace SafeNotes
         {
             if (ResetAccountCheckbox.Checked == true)
             {
-                DialogResult ResetAccount = MessageBox.Show("Are you sure you wish to reset all of your accounts data?", "Reset Account", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult ResetAccount = MessageBox.Show("Are you sure you wish to reset all of your account's data?", "Reset Account", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (ResetAccount == DialogResult.Yes)
                 {
+                    // Clear all user data
                     UserPassword.Text = string.Empty;
                     UserConfirmPassword.Text = string.Empty;
 
                     _settings.UserPassword = string.Empty;
                     _settings.Entries = string.Empty;
-                    _settings.YourName = string.Empty;
+                    _settings.YourName = null;
                     _settings.EntryText = string.Empty;
                     _settings.NotepadSaveText = string.Empty;
                     _settings.SaveDate = true;
@@ -399,11 +417,17 @@ namespace SafeNotes
                     _settings.RequirePinCode = false;
                     _settings.PinCode = null;
 
+                    // Reset the IsRestartingForUpdate flag to ensure it doesn't interfere
+                    _settings.IsRestartingForUpdate = false;
+
+                    // Save the updated settings
                     SettingsManager.SaveSettings(_settings);
 
+                    // Clear in-memory secure password
                     securePassword?.Dispose();
                     securePassword = null;
 
+                    // Update UI to reflect reset state
                     UserLoginButton.Text = "Register";
                     UserConfirmPassword.Visible = true;
                     UserPassword.Location = new System.Drawing.Point(300, 100);
@@ -411,7 +435,8 @@ namespace SafeNotes
                     RegenPassButton.Visible = true;
                     UsePassButton.Visible = true;
                     PasswordLengthSlider.Visible = true;
-                    
+
+                    // Restart the application
                     Application.Restart();
                 }
                 else
@@ -665,6 +690,8 @@ namespace SafeNotes
                     //    MessageBox.Show("Your password must be at least 8 characters long and contain special characters.", "Weak Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     //    return;
                     //}
+
+                    PasswordStrength.Visible = false;
 
                     // Checks if any of the supported password managers are installed
                     string[] supportedManagers = { "Bitwarden", "KeePass Password Safe 2", "1Password", "LastPass", "ProtonPass", "NordPass" };
@@ -927,7 +954,7 @@ namespace SafeNotes
 
         private void ExportEntriesButton_Click(object sender, System.EventArgs e)
         {
-            MessageBox.Show("To import the after exporting the entries, you need to have the same password used to log into SafeNotes during this export process to import the exported entries.", "Password Mismatch Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show("To import after exporting the entries, you need to have the same password used to log into SafeNotes during this export process to import the exported entries.", "Password Mismatch Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             // Export the entries to a file.
             // Also ask the user where to export it to.
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -1383,22 +1410,33 @@ namespace SafeNotes
             {
                 // Programmatically switch to the "Journal" tab
                 TabControl.SelectedTab = JournalEntryPage;
+
                 // Get the selected item
                 ListViewItem selectedItem = EntriesListBox.SelectedItems[0];
-                // Populate journalEntryBox with the text of the selected entry (without date and time)
                 string selectedText = selectedItem.Text;
+
+                // Check if the entry contains a date prefix
                 int index = selectedText.IndexOf(" - ");
                 if (index != -1)
                 {
+                    // Extract the text after the date and time
                     JournalEntryBox.Text = selectedText.Substring(index + 3);
+                }
+                else
+                {
+                    // If no date prefix, use the entire text
+                    JournalEntryBox.Text = selectedText;
                 }
 
                 // Set focus to the journalEntryBox
                 JournalEntryBox.Focus();
+
                 // Hide the editEntryButton
                 EditEntryButton.Hide();
+
                 // Disable the tabControl
                 JournalTabSelector.Enabled = false;
+
                 // Change the button text to indicate editing
                 SaveEntryButton.Text = "Save Edit";
                 EditEntryButton.Size = new Size(107, 36);
@@ -1608,6 +1646,11 @@ namespace SafeNotes
 
         private void SaveEntries()
         {
+            if (_settings.Entries == null)
+            {
+                _settings.Entries = string.Empty;
+            }
+
             if (EntriesListBox.Items.Count != 0)
             {
                 string[] entries = new string[EntriesListBox.Items.Count];
@@ -1616,7 +1659,7 @@ namespace SafeNotes
                     string entryText = EntriesListBox.Items[i].ToString().Replace("ListViewItem: {", "").Replace("}", "");
                     entries[i] = EncryptString(entryText.Trim(), ConvertToUnsecureString(securePassword));
                 }
-                _settings.Entries = string.Join(",", entries); // Use comma as a delimiter instead of newline
+                _settings.Entries = string.Join(",", entries);
             }
             else
             {
