@@ -726,8 +726,8 @@ namespace SafeNotes
                     else
                     {
                         MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your password!", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        UserPassword.Text = PasswordGenBox.Text;
-                        UserConfirmPassword.Text = PasswordGenBox.Text;
+                        UserPassword.Text = UserConfirmPassword.Text;
+                        UserConfirmPassword.Text = UserPassword.Text;
                     }
 
                     string hashedPassword = HashPassword(UserPassword.Text);
