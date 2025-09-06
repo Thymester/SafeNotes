@@ -138,10 +138,6 @@ public class EventHandlerClass
                         MessageBox.Show("Error: The downloaded file is not an executable (.exe).", "Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                else if (latestVersion < currentAppVersion)
-                {
-                    MessageBox.Show("You are using a development version of SafeNotes that has not been released yet.", "Pre-release Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
             }
             catch (Exception ex)
             {
@@ -150,3 +146,4 @@ public class EventHandlerClass
         }
     }
 }
+
