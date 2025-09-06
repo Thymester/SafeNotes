@@ -1,3 +1,4 @@
+// File: SafeNotes/EventHandlers.cs
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.IO;
@@ -136,6 +137,10 @@ public class EventHandlerClass
                     {
                         MessageBox.Show("Error: The downloaded file is not an executable (.exe).", "Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                }
+                else if (latestVersion < currentAppVersion)
+                {
+                    MessageBox.Show("You are using a development version of SafeNotes that has not been released yet.", "Pre-release Version", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)

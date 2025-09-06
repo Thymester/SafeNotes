@@ -484,7 +484,7 @@ namespace SafeNotes
                                     // Show a notification that the entry has been edited
                                     Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                                     notiPopup.TitleText = "SafeNotes";
-                                    notiPopup.ContentText = "Entry edited";
+                                    notiPopup.ContentText = "Entry has been edited.";
                                     notiPopup.Popup();
                                 }
                             }
@@ -521,10 +521,10 @@ namespace SafeNotes
 
                             if (DisableNotificationsCheckbox.Checked == false)
                             {
-                                // Show a notification that the entry has been edited
+                                // Show a notification that the entry has been saved
                                 Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                                 notiPopup.TitleText = "SafeNotes";
-                                notiPopup.ContentText = "Entry edited";
+                                notiPopup.ContentText = "Entry has been saved.";
                                 notiPopup.Popup();
                             }
                         }
@@ -535,15 +535,6 @@ namespace SafeNotes
                         JournalEntryBox.Text = "";
                         // Update the entries count label and save entries to settings
                         UpdateEntriesCountAndSaveToFile();
-
-                        if (EntriesListBox.Items.Count > 1)
-                        {
-                            DeleteEntriesButton.Enabled = true;
-                        }
-                        else
-                        {
-                            DeleteEntriesButton.Enabled = false;
-                        }
                     }
                     else
                     {
@@ -579,10 +570,10 @@ namespace SafeNotes
 
                     if (DisableNotificationsCheckbox.Checked == false)
                     {
-                        // Show a notification that the entry has been edited
+                        // Show a notification that the your name has been updated
                         Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                         notiPopup.TitleText = "SafeNotes";
-                        notiPopup.ContentText = "Entry edited";
+                        notiPopup.ContentText = "Your name has been updated.";
                         notiPopup.Popup();
                     }
                 }
@@ -596,6 +587,14 @@ namespace SafeNotes
                 SettingsManager.SaveSettings(_settings);
                 ChangeNameButton.Visible = false;
                 ChangeNameButton.Visible = true;
+            }
+
+            if (YourNameBox.Text == "")
+            {
+                this.Text = "SafeNotes - v" + Application.ProductVersion;
+            } else
+            {
+                this.Text = "SafeNotes - v" + Application.ProductVersion + " / " + YourNameBox.Text;
             }
         }
 
@@ -630,10 +629,10 @@ namespace SafeNotes
 
                     if (DisableNotificationsCheckbox.Checked == false)
                     {
-                        // Show a notification that the entry has been edited
+                        // Show a notification that the entry has been deleted
                         Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                         notiPopup.TitleText = "SafeNotes";
-                        notiPopup.ContentText = "Entry edited";
+                        notiPopup.ContentText = "Entry has been deleted.";
                         notiPopup.Popup();
                     }
                 }
@@ -842,6 +841,15 @@ namespace SafeNotes
                 {
                     MessageBox.Show("The password does not match the record on file...", "Password Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
+                if (ChangeNameButton.Text == "Save name" && _settings.IsUserLoggedIn)
+                {
+                    this.Text = "SafeNotes - v" + Application.ProductVersion;
+                }
+                else if (ChangeNameButton.Text == "Change name" && _settings.IsUserLoggedIn)
+                {
+                    this.Text = "SafeNotes - v" + Application.ProductVersion + " / " + YourNameBox.Text;
+                }
             }
         }
 
@@ -978,10 +986,10 @@ namespace SafeNotes
 
             if (DisableNotificationsCheckbox.Checked == false)
             {
-                // Show a notification that the entry has been edited
+                // Show a notification that the entries were exported successfully
                 Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                 notiPopup.TitleText = "SafeNotes";
-                notiPopup.ContentText = "Entry edited";
+                notiPopup.ContentText = "Entries exported to file.";
                 notiPopup.Popup();
             }
             ExportEntriesButton.Visible = false;
@@ -1019,6 +1027,22 @@ namespace SafeNotes
                 }
                 // Update the savedEntriesCount label
                 SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
+
+                // Show notification if the entries were imported successfully  
+                if (DisableNotificationsCheckbox.Checked == false)
+                {
+                    Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                    notiPopup.TitleText = "SafeNotes";
+                    if (decryptionErrorOccurred)
+                    {
+                        notiPopup.ContentText = "Some entries could not be decrypted. Please ensure you used the correct password.";
+                    }
+                    else
+                    {
+                        notiPopup.ContentText = "Entries imported successfully.";
+                    }
+                    notiPopup.Popup();
+                }
             }
             ImportEntriesButton.Visible = false;
             ImportEntriesButton.Visible = true;
@@ -1040,10 +1064,10 @@ namespace SafeNotes
 
                     if (DisableNotificationsCheckbox.Checked == false)
                     {
-                        // Show a notification that the entry has been edited
+                        // Show a notification that the entry has been deleted
                         Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                         notiPopup.TitleText = "SafeNotes";
-                        notiPopup.ContentText = "Entry edited";
+                        notiPopup.ContentText = "Entry has been deleted.";
                         notiPopup.Popup();
                     }
                 }
@@ -1216,10 +1240,10 @@ namespace SafeNotes
 
                         if (DisableNotificationsCheckbox.Checked == false)
                         {
-                            // Show a notification that the entry has been edited
+                            // Show a notification that the notepad has been saved
                             Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                             notiPopup.TitleText = "SafeNotes";
-                            notiPopup.ContentText = "Entry edited";
+                            notiPopup.ContentText = "Notepad has been saved.";
                             notiPopup.Popup();
                         }
                     }
@@ -1267,10 +1291,10 @@ namespace SafeNotes
 
                         if (DisableNotificationsCheckbox.Checked == false)
                         {
-                            // Show a notification that the entry has been edited
+                            // Show a notification that the notepad has been opened
                             Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                             notiPopup.TitleText = "SafeNotes";
-                            notiPopup.ContentText = "Entry edited";
+                            notiPopup.ContentText = "Notepad has been opened.";
                             notiPopup.Popup();
                         }
                     }
@@ -1297,10 +1321,10 @@ namespace SafeNotes
 
             if (DisableNotificationsCheckbox.Checked == false)
             {
-                // Show a notification that the entry has been edited
+                // Show a notification that the notepad has been cleared
                 Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
                 notiPopup.TitleText = "SafeNotes";
-                notiPopup.ContentText = "Entry edited";
+                notiPopup.ContentText = "Notepad has been cleared.";
                 notiPopup.Popup();
             }
         }
