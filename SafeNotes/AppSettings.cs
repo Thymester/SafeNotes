@@ -1,3 +1,4 @@
+// File: SafeNotes/AppSettings.cs
 public class AppSettings
 {
     public string UserPassword { get; set; } = string.Empty;

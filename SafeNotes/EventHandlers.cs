@@ -1,13 +1,14 @@
 // File: SafeNotes/EventHandlers.cs
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
-using System.IO;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using SafeNotes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 public class EventHandlerClass
 {
@@ -146,4 +147,3 @@ public class EventHandlerClass
         }
     }
 }
-

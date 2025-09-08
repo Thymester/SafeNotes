@@ -1,4 +1,5 @@
-﻿using System;
+﻿// File: SafeNotes/Program.cs
+using System;
 using System.Windows.Forms;
 
 namespace SafeNotes

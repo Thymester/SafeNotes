@@ -1,16 +1,19 @@
 // File: SafeNotes/EventHandlers.cs
 using MaterialSkin;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-using System.Security.Cryptography;
-using System.Security;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Text;
 using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SafeNotes
 {
@@ -89,6 +92,37 @@ namespace SafeNotes
             ApplyDateCheckbox.Checked = _settings.SaveDate;
             DisableNotificationsCheckbox.Checked = _settings.DisableNotifications;
             RequirePinToLogin.Checked = _settings.RequirePinCode;
+
+            // Fetch latest release info to populate ReleaseNotesMultiText
+            try
+            {
+                using (var http = new HttpClient())
+                {
+                    http.DefaultRequestHeaders.UserAgent.ParseAdd("SafeNotesUpdater/1.0");
+                    string repo = "Thymester/SafeNotes";
+
+                    // Get all releases as JSON array
+                    var json = await http.GetStringAsync($"https://api.github.com/repos/{repo}/releases");
+                    var releases = JArray.Parse(json);
+
+                    ReleaseNotesMultiText.Clear();
+
+                    foreach (var release in releases)
+                    {
+                        string latestVersion = release["tag_name"]?.ToString() ?? "Unknown";
+                        string releaseTitle = release["name"]?.ToString() ?? "No title";
+                        string releaseBody = release["body"]?.ToString() ?? "No changelog available";
+
+                        ReleaseNotesMultiText.AppendText(
+                            $"Title: {releaseTitle}\r\nVersion: {latestVersion}\r\n\nChangelog:\r\n{releaseBody}\r\n\r\n------------------------\r\n\r\n"
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ReleaseNotesMultiText.Text = $"Unable to fetch release notes: {ex.Message}";
+            }
         }
 
         private void RequirePenToLogin_CheckedChanged(object sender, EventArgs e)
