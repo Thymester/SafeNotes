@@ -6,7 +6,7 @@ SafeNotes is perfect for anyone looking to keep their notes and journal entries 
 
 ## Features
 
-**For a list of all features, visit [SafeNotes Website](https://safenotes.space/).**
+**For a list of all features, visit [SafeNotes Website](https://safenotes.space/about).**
 
 1. **Automatic Version Control**: SafeNotes automatically checks for updates with every launch. It will then prompt you to update if you are out of date with every launch, and I understand that can be unpleasant, but our goal is for people to update to the newest versions, so that was intended.
 2. **Encryption and Hashing:** SafeNotes will encrypt entries on closure and decrypt entries when the user logs into SafeNotes. All of this secured behind password authentication which is protected via hashing so nothing is ever stored in plain text.
