@@ -130,6 +130,7 @@ public class EventHandlerClass
                                 UseShellExecute = false
                             });
 
+                            _settings.IsUserLoggedIn = false;
                             // Exit the app before the new version runs
                             Application.Exit();
                         }
@@ -142,7 +143,8 @@ public class EventHandlerClass
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error checking for updates: " + ex.Message, "Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Do nothing but log the error for debugging
+                Debug.WriteLine($"Update check failed: {ex.Message}");
             }
         }
     }

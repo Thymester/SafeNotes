@@ -23,4 +23,3 @@ C:\Users\tyler\OneDrive\Desktop\SafeNotes-main\SafeNotes\obj\Release\SafeNotes.c
 C:\Users\tyler\OneDrive\Desktop\SafeNotes-main\SafeNotes\obj\Release\SafeNotes.csproj.Up2Date
 C:\Users\tyler\OneDrive\Desktop\SafeNotes-main\SafeNotes\obj\Release\SafeNotes.exe
 C:\Users\tyler\OneDrive\Desktop\SafeNotes-main\SafeNotes\obj\Release\SafeNotes.pdb
-C:\Users\tyler\OneDrive\Desktop\SafeNotes-main\SafeNotes\obj\Release\SafeNotes.exe.config

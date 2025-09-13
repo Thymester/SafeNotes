@@ -24,6 +24,10 @@ namespace SafeNotes
         private async void MainForm_Load(object sender, EventArgs e)
         {
             _settings = SettingsManager.LoadSettings();
+            shouldExit = false;
+
+            // Sets the minimum size of the form
+            this.MinimumSize = new Size(960, 600);
 
             // Reset the IsRestartingForUpdate flag on application start
             if (_settings.IsRestartingForUpdate)
@@ -93,36 +97,37 @@ namespace SafeNotes
             DisableNotificationsCheckbox.Checked = _settings.DisableNotifications;
             RequirePinToLogin.Checked = _settings.RequirePinCode;
 
-            // Fetch latest release info to populate ReleaseNotesMultiText
-            try
+            // Fetching the release info to populate ReleaseNotesMultiText and uses a thread to not block the UI
+            await Task.Run(async () =>
             {
-                using (var http = new HttpClient())
+                try
                 {
-                    http.DefaultRequestHeaders.UserAgent.ParseAdd("SafeNotesUpdater/1.0");
-                    string repo = "Thymester/SafeNotes";
-
-                    // Get all releases as JSON array
-                    var json = await http.GetStringAsync($"https://api.github.com/repos/{repo}/releases");
-                    var releases = JArray.Parse(json);
-
-                    ReleaseNotesMultiText.Clear();
-
-                    foreach (var release in releases)
+                    using (var http = new HttpClient())
                     {
-                        string latestVersion = release["tag_name"]?.ToString() ?? "Unknown";
-                        string releaseTitle = release["name"]?.ToString() ?? "No title";
-                        string releaseBody = release["body"]?.ToString() ?? "No changelog available";
-
-                        ReleaseNotesMultiText.AppendText(
-                            $"Title: {releaseTitle}\r\nVersion: {latestVersion}\r\n\nChangelog:\r\n{releaseBody}\r\n\r\n------------------------\r\n\r\n"
-                        );
+                        http.DefaultRequestHeaders.UserAgent.ParseAdd("SafeNotesUpdater/1.0");
+                        var json = await http.GetStringAsync("https://api.github.com/repos/Thymester/SafeNotes/releases");
+                        var releases = JArray.Parse(json);
+                        StringBuilder releaseNotesBuilder = new StringBuilder();
+                        foreach (var release in releases)
+                        {
+                            string version = release["tag_name"].ToString();
+                            string body = release["body"].ToString();
+                            body = Regex.Replace(body, @"(^|\s)(#+)(\s|$)", "$1"); // Rmeoves markdown styling
+                            releaseNotesBuilder.AppendLine($"Version {version}:\n{body}\n\n");
+                        }
+                        // Update the ReleaseNotesMultiText on the UI thread
+                        ReleaseNotesMultiText.Invoke((MethodInvoker)(() =>
+                        {
+                            ReleaseNotesMultiText.Text = releaseNotesBuilder.ToString().Trim();
+                        }));
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                ReleaseNotesMultiText.Text = $"Unable to fetch release notes: {ex.Message}";
-            }
+                catch (Exception)
+                {
+                    // Handle exceptions (e.g., network issues) if necessary
+                    ReleaseNotesMultiText.Text = "It seems you are offline or an error has occured and were unable to fetch release notes.";
+                }
+            });
         }
 
         private void RequirePenToLogin_CheckedChanged(object sender, EventArgs e)
@@ -266,6 +271,8 @@ namespace SafeNotes
                     ImportEntriesButton.Enabled = false;
                     ExportEntriesButton.Enabled = false;
                     EncryptEntriesButton.Enabled = false;
+                    ResetAccountCheckbox.Enabled = false;
+                    RequirePinToLogin.Enabled = false;
                     NotepadTextBox.Text = null;
 
                     MessageBox.Show("SafeNotes application entered lockdown mode.\n\nIf you wish to disable Lockdown Mode, you must restart SafeNotes.", "Lockdown Mode", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -282,6 +289,16 @@ namespace SafeNotes
                 EncryptEntriesButton.Visible = false;
                 EncryptEntriesButton.Visible = true;
             }
+        }
+
+        private void SavedEntriesCount_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("You have " + EntriesListBox.Items.Count.ToString() + " saved entries. ", "Saved Entries", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void Notepad_Click(object sender, EventArgs e)
+        {
+            this.ActiveControl = NotepadPage;
         }
 
         private const int MaxEntries = 200;
@@ -312,6 +329,7 @@ namespace SafeNotes
                         if (securePassword == null)
                         {
                             MessageBox.Show("Secure password is not set. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            e.Cancel = true;
                             return;
                         }
 
@@ -338,51 +356,61 @@ namespace SafeNotes
                     DecryptionStatusLabel.Visible = true;
                     Application.DoEvents();
 
+                    // --- Notepad Save/Prompt Logic ---
                     if (!string.IsNullOrWhiteSpace(NotepadTextBox.Text) && !shouldExit)
                     {
-                        if (!string.IsNullOrWhiteSpace(NotepadTitle.Text))
-                        {
-                            DialogResult dialogResult = MessageBox.Show("Do you want to save your notepad before closing the application?", "Save notepad", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                            if (dialogResult == DialogResult.Yes)
-                            {
-                                e.Cancel = true;
-                                SaveFileDialog saveFileDialog = new SaveFileDialog
-                                {
-                                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                                    Title = "Save your notepad file",
-                                    FileName = NotepadTitle.Text.Replace("Opened File: ", "") + ".txt",
-                                    DefaultExt = ".txt",
-                                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-                                };
+                        DialogResult dialogResult = MessageBox.Show(
+                            "Do you want to save your notepad before closing the application?",
+                            "Save notepad",
+                            MessageBoxButtons.YesNoCancel,
+                            MessageBoxIcon.Question);
 
-                                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                                {
-                                    File.WriteAllText(saveFileDialog.FileName, NotepadTextBox.Text);
-                                    NotepadTextBox.Text = null;
-                                    shouldExit = true;
-                                    Close();
-                                }
-                                else
-                                {
-                                    NotepadTextBox.Text = null;
-                                    shouldExit = true;
-                                    Close();
-                                }
-                                return;
-                            }
-                            else if (dialogResult == DialogResult.No)
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            e.Cancel = true;
+                            SaveFileDialog saveFileDialog = new SaveFileDialog
                             {
+                                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                                Title = "Save your notepad file",
+                                FileName = "Notepad",
+                                DefaultExt = ".txt",
+                                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                            };
+
+                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                            {
+                                // Enforce _SafeNotesEncrypted.txt suffix
+                                string baseName = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
+                                string directory = Path.GetDirectoryName(saveFileDialog.FileName);
+                                string enforcedName = baseName + "_SafeNotesEncrypted.txt";
+                                string fullPath = Path.Combine(directory, enforcedName);
+
+                                string password = ConvertToUnsecureString(securePassword);
+                                string encryptedText = EncryptString(NotepadTextBox.Text, password);
+                                File.WriteAllText(fullPath, encryptedText);
+
                                 NotepadTextBox.Text = null;
                                 shouldExit = true;
                                 Close();
-                                return;
                             }
+                            // If user cancels the SaveFileDialog, do not close
+                            return;
                         }
-                        else
+                        else if (dialogResult == DialogResult.No)
                         {
+                            // Discard notepad and close
                             NotepadTextBox.Text = null;
+                            shouldExit = true;
+                            Close();
+                            return;
+                        }
+                        else // Cancel
+                        {
+                            e.Cancel = true;
+                            return;
                         }
                     }
+                    // --- End Notepad Save/Prompt Logic ---
 
                     if (EntriesListBox.Items.Count != 0 && _settings.IsUserLoggedIn)
                     {
@@ -1223,8 +1251,15 @@ namespace SafeNotes
         private void NotepadTextBox_TextChanged(object sender, EventArgs e)
         {
             _settings.NotepadSaveText = NotepadTextBox.Text;
-            // If the notepadTextBox text changes, change the charsInNotepad label to equal the amount of text in the notepadTextBox
-            CharsInNotepad.Text = "Characters: " + NotepadTextBox.Text.Length.ToString();
+
+            // Show encrypted character count
+            string encryptedText = "";
+            if (!string.IsNullOrEmpty(NotepadTextBox.Text) && securePassword != null)
+            {
+                string password = ConvertToUnsecureString(securePassword);
+                encryptedText = EncryptString(NotepadTextBox.Text, password) ?? "";
+            }
+            CharsInNotepad.Text = "Characters: " + encryptedText.Length.ToString();
 
             // Update the columnInNotepad label, if the notepadTextBox.Text is empty, set the columnInNotepad label to 0
             if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
@@ -1233,67 +1268,69 @@ namespace SafeNotes
             }
             else
             {
-                // Update the columnInNotepad label
                 ColumnInNotepad.Text = "Columns: " + NotepadTextBox.Text.Split('\n').Length.ToString();
             }
 
             // If the text is empty, change the title of the app to its default
             if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
             {
-                // Change the title of the form
                 this.Text = "SafeNotes";
-
-                // Add the build version of the application to the title
                 this.Text += " - v" + Application.ProductVersion;
             }
         }
 
         private void SaveNotepadButton_Click(object sender, EventArgs e)
         {
-            // If the notepadSaveText is empty, tell the user they cannot save an empty file
-            if (string.IsNullOrWhiteSpace(_settings.NotepadSaveText))
+            if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
             {
                 MessageBox.Show("You cannot save an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
-                // Ask the user where they want to save the file to 
+                // Encrypt first, then check the encrypted size
+                string password = ConvertToUnsecureString(securePassword);
+                string encryptedText = EncryptString(NotepadTextBox.Text, password);
+
+                if (encryptedText == null)
+                {
+                    MessageBox.Show("An error occurred during encryption. The file was not saved.", "Encryption Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (encryptedText.Length > 32767)
+                {
+                    MessageBox.Show("The encrypted notepad is too large to save. Please reduce the text so the encrypted file is 32,767 characters or less.", "File Too Big", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 SaveFileDialog saveNotepad = new SaveFileDialog();
                 saveNotepad.Filter = "Text File (*.txt)|*.txt";
                 saveNotepad.Title = "Save Notepad";
-                saveNotepad.ShowDialog();
-                // If the user clicks the save button, save the file to the location they chose
-                if (!string.IsNullOrWhiteSpace(saveNotepad.FileName))
-                {
-                    File.WriteAllText(saveNotepad.FileName, _settings.NotepadSaveText);
-                    if (NotepadTitle.Visible == true)
-                    {
-                        NotepadTitle.Text = "Notepad saved...";
-                        NotepadTextBox.Text = "";
-                        NotepadTitle.Visible = false;
+                saveNotepad.FileName = "Notepad";
 
-                        if (DisableNotificationsCheckbox.Checked == false)
-                        {
-                            // Show a notification that the notepad has been saved
-                            Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
-                            notiPopup.TitleText = "SafeNotes";
-                            notiPopup.ContentText = "Notepad has been saved.";
-                            notiPopup.Popup();
-                        }
+                if (saveNotepad.ShowDialog() == DialogResult.OK)
+                {
+                    // Remove extension if user added one, then append enforced suffix
+                    string baseName = Path.GetFileNameWithoutExtension(saveNotepad.FileName);
+                    string directory = Path.GetDirectoryName(saveNotepad.FileName);
+                    string enforcedName = baseName + "_SafeNotesEncrypted.txt";
+                    string fullPath = Path.Combine(directory, enforcedName);
+
+                    File.WriteAllText(fullPath, encryptedText);
+
+                    NotepadTitle.Text = "Notepad saved...";
+                    NotepadTextBox.Text = "";
+                    NotepadTitle.Visible = false;
+
+                    if (DisableNotificationsCheckbox.Checked == false)
+                    {
+                        Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                        notiPopup.TitleText = "SafeNotes";
+                        notiPopup.ContentText = "Notepad has been saved.";
+                        notiPopup.Popup();
                     }
                 }
             }
-        }
-
-        private void Notepad_Click(object sender, EventArgs e)
-        {
-            this.ActiveControl = NotepadPage;
-            
-        }
-
-        private void SavedEntriesCount_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("You have " + EntriesListBox.Items.Count.ToString() + " saved entries. ", "Saved Entries", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void OpenFileButton_Click(object sender, EventArgs e)
@@ -1302,48 +1339,58 @@ namespace SafeNotes
             openNotepad.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openNotepad.Filter = "Text File (*.txt)|*.txt";
             openNotepad.Title = "Open Notepad";
-            openNotepad.ShowDialog();
-            // Change the title of the app on the notepadPage to the name of the file + " - SafeNotes"
-            NotepadTitle.Visible = true;
-            NotepadTitle.Text = "Opened File: " + openNotepad.SafeFileName;
-            // If the user clicks the open button, open the file from the location they chose
-            if (!string.IsNullOrWhiteSpace(openNotepad.FileName))
+            if (openNotepad.ShowDialog() == DialogResult.OK)
             {
-                try
+                NotepadTitle.Visible = true;
+                NotepadTitle.Text = "Opened File: " + openNotepad.SafeFileName;
+                if (!string.IsNullOrWhiteSpace(openNotepad.FileName))
                 {
-                    string fileContent = File.ReadAllText(openNotepad.FileName);
-
-                    // If the file is more than 32767 characters, do not open it and tell the user it is too big
-                    if (fileContent.Length > 32767)
+                    try
                     {
-                        MessageBox.Show("The file you are trying to open is too big, please open a file that is 32767 characters or less.", "File Too Big", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        NotepadTitle.Visible = false;
-                    }
-                    else
-                    {
-                        NotepadTextBox.Text = fileContent;
+                        string fileContent = File.ReadAllText(openNotepad.FileName);
 
-                        if (DisableNotificationsCheckbox.Checked == false)
+                        // If the file is more than 32767 characters, do not open it and tell the user it is too big
+                        if (fileContent.Length > 32767)
                         {
-                            // Show a notification that the notepad has been opened
-                            Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
-                            notiPopup.TitleText = "SafeNotes";
-                            notiPopup.ContentText = "Notepad has been opened.";
-                            notiPopup.Popup();
+                            MessageBox.Show("The file you are trying to open is too big, please open a file that is 32767 characters or less.", "File Too Big", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            NotepadTitle.Visible = false;
+                        }
+                        else
+                        {
+                            // Attempt to decrypt the file content with the user's password
+                            string password = ConvertToUnsecureString(securePassword);
+                            string decryptedText = DecryptString(fileContent, password);
+
+                            if (decryptedText == null)
+                            {
+                                MessageBox.Show("The password does not match or the file is not a valid encrypted notepad.", "Password Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                NotepadTitle.Visible = false;
+                                NotepadTextBox.Text = "";
+                                return;
+                            }
+
+                            NotepadTextBox.Text = decryptedText;
+
+                            if (DisableNotificationsCheckbox.Checked == false)
+                            {
+                                Tulpep.NotificationWindow.PopupNotifier notiPopup = new Tulpep.NotificationWindow.PopupNotifier();
+                                notiPopup.TitleText = "SafeNotes";
+                                notiPopup.ContentText = "Notepad has been opened.";
+                                notiPopup.Popup();
+                            }
+                        }
+
+                        if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
+                        {
+                            MessageBox.Show("You cannot open an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            NotepadTitle.Visible = false;
                         }
                     }
-
-                    // If the file is empty, tell the user they cannot open an empty file
-                    if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
+                    catch (IOException ex)
                     {
-                        MessageBox.Show("You cannot open an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"An error occurred while trying to open the file: {ex.Message}", "Error Opening File", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         NotepadTitle.Visible = false;
                     }
-                }
-                catch (IOException ex)
-                {
-                    MessageBox.Show($"An error occurred while trying to open the file: {ex.Message}", "Error Opening File", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    NotepadTitle.Visible = false;
                 }
             }
         }
