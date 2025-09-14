@@ -1,10 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SafeNotes")]
-[assembly: AssemblyDescription("SafeNotes App")]
+[assembly: AssemblyDescription("SafeNotes - An encrypted and easy-to-use journaling application.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Satyrn Studios")]
 [assembly: AssemblyProduct("SafeNotes")]
 [assembly: AssemblyCopyright("Copyright © 2025")]
 [assembly: AssemblyTrademark("")]
@@ -27,5 +28,6 @@ using System.Runtime.InteropServices;
 // it resets to zero and then increments the Major release. Bug releases are the typical release but can increment Minor releases if they are at 9 and the build is also at 9.
 
 // Set version information for an assembly:
-[assembly: AssemblyVersion("1.5.0")] // MAJOR.MINOR.BUGS.BUILD
-[assembly: AssemblyFileVersion("1.5.0")] // MAJOR.MINOR.BUGS.BUILD
+[assembly: AssemblyVersion("1.5.1")] // MAJOR.MINOR.BUGS.BUILD
+[assembly: AssemblyFileVersion("1.5.1")] // MAJOR.MINOR.BUGS.BUILD
+[assembly: NeutralResourcesLanguage("en-AE")]

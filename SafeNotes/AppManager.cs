@@ -28,6 +28,32 @@ namespace SafeNotes
 
             // Sets the minimum size of the form
             this.MinimumSize = new Size(960, 600);
+            // If the user screen is 1280x720 set the size to 960x600
+            if (Screen.PrimaryScreen.WorkingArea.Width <= 1280 || Screen.PrimaryScreen.WorkingArea.Height <= 720)
+            {
+                this.Size = new Size(960, 600);
+            }
+            else if (Screen.PrimaryScreen.WorkingArea.Width >= 1920 || Screen.PrimaryScreen.WorkingArea.Height >= 1080)
+            {
+                this.Size = new Size(1200, 750);
+            }
+            else if (Screen.PrimaryScreen.WorkingArea.Width >= 2560 || Screen.PrimaryScreen.WorkingArea.Height >= 1440)
+            {
+                this.Size = new Size(1400, 850);
+            }
+            else if (Screen.PrimaryScreen.WorkingArea.Width >= 3840 || Screen.PrimaryScreen.WorkingArea.Height >= 2160)
+            {
+                this.Size = new Size(1600, 950);
+            } else
+            {
+                // set the size 20% larger than 1600, 950
+                this.Size = new Size(1920, 1140);
+            }
+
+            // Start in the middle of the screen (manually with math)
+            this.StartPosition = FormStartPosition.Manual;
+            this.Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2,
+                                      (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2);
 
             // Reset the IsRestartingForUpdate flag on application start
             if (_settings.IsRestartingForUpdate)
@@ -39,11 +65,13 @@ namespace SafeNotes
             if (_settings.UserPassword == String.Empty)
             {
                 PasswordStrength.Visible = true;
+                PasswordLengthDisclaimer.Visible = true;
                 PasswordStrength.Text = "Strength: 0/5\nTime to crack: Unknown";
             }
             else
             {
                 PasswordStrength.Visible = false;
+                PasswordLengthDisclaimer.Visible = false;
             }
 
             NotepadTitle.Text = null;
@@ -130,6 +158,28 @@ namespace SafeNotes
             });
         }
 
+        private void PasswordDisclaimer_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MessageBox.Show("Your password is used to encrypt and decrypt your entries locally on your device. It is not stored or " +
+                "transmitted anywhere online, ensuring that only you have access to your data. Please remember your password, as losing " +
+                "it means losing access to SafeNotes.", "Password Disclaimer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void PinDisclaimer_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MessageBox.Show("Your PIN is an additional layer of security that allows you to help increase SafeNotes security by requiring " +
+                "two forms of verification at login. It is stored securely on your device and is only used for authentication purposes. " +
+                "Please remember your PIN, as it is required for logging in if enabled.", "PIN Disclaimer", MessageBoxButtons.OK, 
+                MessageBoxIcon.Information);
+        }
+
+        private void PasswordLengthDisclaimer_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MessageBox.Show("SafeNotes recommends a password length of at least 14 characters for optimal security. Longer passwords are " +
+                "generally more secure, as they are harder to guess or brute-force.", "Password Length Recommendation",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         private void RequirePenToLogin_CheckedChanged(object sender, EventArgs e)
         {
             if (RequirePinToLogin.Checked == true)
@@ -164,11 +214,6 @@ namespace SafeNotes
         private void UserPassword_TextChanged(object sender, EventArgs e)
         {
             UpdatePasswordStrength(UserPassword.Text);
-        }
-
-        private void PasswordGenBox_TextChanged(object sender, EventArgs e)
-        {
-            UpdatePasswordStrength(PasswordGenBox.Text);
         }
 
         private void UpdatePasswordStrength(string password)
@@ -753,6 +798,7 @@ namespace SafeNotes
                     //}
 
                     PasswordStrength.Visible = false;
+                    PasswordLengthDisclaimer.Visible = false;
 
                     // Checks if any of the supported password managers are installed
                     string[] supportedManagers = { "Bitwarden", "KeePass Password Safe 2", "1Password", "LastPass", "ProtonPass", "NordPass" };
@@ -1153,7 +1199,7 @@ namespace SafeNotes
         {
             if (string.IsNullOrWhiteSpace(PasswordGenBox.Text))
             {
-                MessageBox.Show("There is no password that has been generated, please generate a password first.", "No Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("There is no cryptographically secure password that has been generated, please generate a cryptographically secure password first.", "No Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -1172,7 +1218,7 @@ namespace SafeNotes
 
             if (managerToOpen != null)
             {
-                DialogResult savePassword = MessageBox.Show("Do you want to save your password to " + managerToOpen + "?", "Save Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult savePassword = MessageBox.Show("Do you want to save your cryptographically secure password to " + managerToOpen + "?", "Save Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (savePassword == DialogResult.Yes)
                 {
                     string managerPath = FindManagerPath(managerToOpen);
@@ -1196,7 +1242,7 @@ namespace SafeNotes
             }
             else
             {
-                MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your password!", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your cryptographically secure password!", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 UserPassword.Text = PasswordGenBox.Text;
                 UserConfirmPassword.Text = PasswordGenBox.Text;
             }
