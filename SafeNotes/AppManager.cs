@@ -776,6 +776,9 @@ namespace SafeNotes
 
         private void ResetLoginStatusButton_Click(object sender, EventArgs e)
         {
+            // Set the IsUserLoggedIn setting to false and restart the application
+            _settings.IsUserLoggedIn = false;
+            SettingsManager.SaveSettings(_settings);
             Application.Restart();
         }
 
