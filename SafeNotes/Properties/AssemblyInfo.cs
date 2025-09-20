@@ -28,6 +28,6 @@ using System.Runtime.InteropServices;
 // it resets to zero and then increments the Major release. Bug releases are the typical release but can increment Minor releases if they are at 9 and the build is also at 9.
 
 // Set version information for an assembly:
-[assembly: AssemblyVersion("1.5.1")] // MAJOR.MINOR.BUGS.BUILD
-[assembly: AssemblyFileVersion("1.5.1")] // MAJOR.MINOR.BUGS.BUILD
+[assembly: AssemblyVersion("1.5.1.2")] // MAJOR.MINOR.BUGS.BUILD
+[assembly: AssemblyFileVersion("1.5.1.2")] // MAJOR.MINOR.BUGS.BUILD
 [assembly: NeutralResourcesLanguage("en-AE")]

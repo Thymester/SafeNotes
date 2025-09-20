@@ -19,6 +19,7 @@ namespace SafeNotes
         public string setEntriesShow { get; set; }
         public string setEntriesHide { get; set; }
         public bool firstTimeOpened { get; set; }
+        public bool MinimizeToTray { get; set; }
 
         public static CustomConfig Load()
         {

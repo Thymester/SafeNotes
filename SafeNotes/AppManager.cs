@@ -20,11 +20,24 @@ namespace SafeNotes
     public partial class MainForm : MaterialSkin.Controls.MaterialForm
     {
         private AppSettings _settings;
+        private NotifyIcon notifyIcon;
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
+            InitializeSysTrayIcon();
             _settings = SettingsManager.LoadSettings();
             shouldExit = false;
+
+            if (_settings.IsRestartingForUpdate == true)
+            {
+                _settings.IsRestartingForUpdate = false;
+                SettingsManager.SaveSettings(_settings);
+            }
+
+            if (_settings.PinCode == null && _settings.RequirePinCode == true)
+            {
+                UserPINCodeField.Hint = "Set your PIN...";
+            }
 
             // Sets the minimum size of the form
             this.MinimumSize = new Size(960, 600);
@@ -56,7 +69,7 @@ namespace SafeNotes
                                       (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2);
 
             // Reset the IsRestartingForUpdate flag on application start
-            if (_settings.IsRestartingForUpdate)
+            if (_settings.IsRestartingForUpdate == true)
             {
                 _settings.IsRestartingForUpdate = false;
                 SettingsManager.SaveSettings(_settings);
@@ -124,8 +137,9 @@ namespace SafeNotes
             ApplyDateCheckbox.Checked = _settings.SaveDate;
             DisableNotificationsCheckbox.Checked = _settings.DisableNotifications;
             RequirePinToLogin.Checked = _settings.RequirePinCode;
+            MinToSysTray.Checked = _settings.MinimizeToTray;
 
-            // Fetching the release info to populate ReleaseNotesMultiText and uses a thread to not block the UI
+            // Fetching the release info to popu` ReleaseNotesMultiText and uses a thread to not block the UI
             await Task.Run(async () =>
             {
                 try
@@ -178,6 +192,20 @@ namespace SafeNotes
             MessageBox.Show("SafeNotes recommends a password length of at least 14 characters for optimal security. Longer passwords are " +
                 "generally more secure, as they are harder to guess or brute-force.", "Password Length Recommendation",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void MinToSysTray_CheckedChanged(object sender, EventArgs e)
+        {
+            if (MinToSysTray.Checked == true)
+            {
+                _settings.MinimizeToTray = true;
+                SettingsManager.SaveSettings(_settings);
+            }
+            else if (MinToSysTray.Checked == false)
+            {
+                _settings.MinimizeToTray = false;
+                SettingsManager.SaveSettings(_settings);
+            }
         }
 
         private void RequirePenToLogin_CheckedChanged(object sender, EventArgs e)
@@ -352,7 +380,7 @@ namespace SafeNotes
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_settings.IsRestartingForUpdate)
+            if (_settings.IsRestartingForUpdate == true)
             {
                 // Skip saving settings if the application is restarting for an update
                 return;
@@ -835,13 +863,10 @@ namespace SafeNotes
                     }
                     else
                     {
-                        MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your password!", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your password to gurantee access to SafeNotes.", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         UserPassword.Text = UserConfirmPassword.Text;
                         UserConfirmPassword.Text = UserPassword.Text;
                     }
-
-                    string hashedPassword = HashPassword(UserPassword.Text);
-                    _settings.UserPassword = hashedPassword;
 
                     // Generate a unique salt and store it in setSaltedDecryptionKey
                     byte[] salt = new byte[16];
@@ -850,7 +875,8 @@ namespace SafeNotes
                         rng.GetBytes(salt);
                     }
 
-                    _settings.FirstTimeOpened = false;
+                    string hashedPassword = HashPassword(UserPassword.Text);
+                    _settings.UserPassword = hashedPassword;
                     SettingsManager.SaveSettings(_settings);
                     UserConfirmPassword.Visible = false;
                     UserLoginButton.Text = "Login";
@@ -885,6 +911,8 @@ namespace SafeNotes
                             {
                                 _settings.PinCode = HashPassword(UserPINCodeField.Text);
                                 SettingsManager.SaveSettings(_settings);
+                                MessageBox.Show("Your PIN code has been successfully set and will now be required at login.", "Pin Code Set", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                UserPINCodeField.Hint = "Enter your PIN...";
                             }
                         }
                         else
@@ -907,7 +935,6 @@ namespace SafeNotes
                     LoginTabSelector.Enabled = true;
                     TabControl.TabPages.Remove(LoginPage);
 
-                    _settings.FirstTimeOpened = false;
                     SettingsManager.SaveSettings(_settings);
 
                     // Load the entries from the settings into the entriesListBox
@@ -1013,6 +1040,7 @@ namespace SafeNotes
                 EncryptEntriesButton.Visible = false;
                 SettingsInfoLabel.Visible = false;
                 RequirePinToLogin.Visible = false;
+                MinToSysTray.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[1])
             {
@@ -1021,11 +1049,11 @@ namespace SafeNotes
                 RequirePinToLogin.Visible = true;
                 SettingsInfoLabel.Visible = true;
 
-                SettingsInfoLabel.Text = "Require Login PIN: The PIN is in experimental mode and is not implemented fully, meaning the PIN\nmay not be stored and " +
-                                         "accessed as securely." + "\n\nNOTE: This will not affect the security of your entries or login status as the PIN will be " +
-                                         "required in\nconjunction " + "with your password. Enabling this feature will still come with benefits and strengthen\napp " +
-                                         "security. The only fallback is the PIN will be more easily decrypted/dehashed; knowing this PIN\ndoes not mean access to " +
-                                         "SafeNotes.";
+                SettingsInfoLabel.Text = "Require Login PIN: The login PIN is a second layer of security to help eliminate unwanted access to SafeNotes." +
+                                         "\n\nNOTE: This is only as secure as you make it; the same goes for passwords. To ensure security, use a PIN code\n" + 
+                                         "generator, similar to SafeNotes built-in password generator, and to ensure that it is secure, make it a minimum " + 
+                                         "of\nat least eight numbers long.\n\nRemember to save your PIN and password in a password manager (e.g Bitwarden, " +
+                                         "1Password, ProtonPass, etc.)\nas doing so will ensure you do not lose access to SafeNotes.";
 
                 ApplyDateCheckbox.Visible = false;
                 LightModeCheckbox.Visible = false;
@@ -1033,6 +1061,7 @@ namespace SafeNotes
                 ExportEntriesButton.Visible = false;
                 DisableNotificationsCheckbox.Visible = false;
                 EncryptEntriesButton.Visible = false;
+                MinToSysTray.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[2])
             {
@@ -1054,8 +1083,24 @@ namespace SafeNotes
                 LightModeCheckbox.Visible = false;
                 DisableNotificationsCheckbox.Visible = false;
                 RequirePinToLogin.Visible = false;
+                MinToSysTray.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3])
+            {
+                MinToSysTray.Visible = true;
+
+                ApplyDateCheckbox.Visible = false;
+                ResetAccountCheckbox.Visible = false;
+                ResetLoginStatusButton.Visible = false;
+                ImportEntriesButton.Visible = false;
+                ExportEntriesButton.Visible = false;
+                DisableNotificationsCheckbox.Visible = false;
+                EncryptEntriesButton.Visible = false;
+                SettingsInfoLabel.Visible = false;
+                RequirePinToLogin.Visible = false;
+                LightModeCheckbox.Visible = false;
+            }
+            else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[4])
             {
                 LightModeCheckbox.Visible = true;
 
@@ -1068,6 +1113,7 @@ namespace SafeNotes
                 EncryptEntriesButton.Visible = false;
                 SettingsInfoLabel.Visible = false;
                 RequirePinToLogin.Visible = false;
+                MinToSysTray.Visible = false;
             }
         }
 
@@ -1839,6 +1885,75 @@ namespace SafeNotes
             }
 
             return password.ToString();
+        }
+
+        private ContextMenuStrip trayMenu;
+
+        private void InitializeSysTrayIcon()
+        {
+            SysTrayIcon = new NotifyIcon();
+            SysTrayIcon.Icon = this.Icon;
+            SysTrayIcon.Text = "SafeNotes";
+            SysTrayIcon.Visible = false;
+            SysTrayIcon.DoubleClick += SysTrayIcon_DoubleClick;
+
+            trayMenu = new ContextMenuStrip();
+            var openItem = new ToolStripMenuItem("Open", null, (s, e) => SysTrayIcon_DoubleClick(s, e));
+            var websiteItem = new ToolStripMenuItem("SafeNotes Website", null, (s, e) => Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://safenotes.space",
+                UseShellExecute = true
+            }));
+            var aboutItem = new ToolStripMenuItem("About SafeNotes", null, (s, e) => Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://safenotes.space/about",
+                UseShellExecute = true
+            }));
+            var policyItem = new ToolStripMenuItem("Privacy Policy", null, (s, e) => Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://safenotes.space/privacy",
+                UseShellExecute = true
+            }));
+            var termsItem = new ToolStripMenuItem("Terms of Service", null, (s, e) => Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://safenotes.space/terms",
+                UseShellExecute = true
+            }));
+            var exitItem = new ToolStripMenuItem("Exit", null, (s, e) => Application.Exit());
+            trayMenu.Items.Add(openItem);
+            trayMenu.Items.Add(websiteItem);
+            trayMenu.Items.Add(aboutItem);
+            trayMenu.Items.Add(policyItem);
+            trayMenu.Items.Add(termsItem);
+            trayMenu.Items.Add(exitItem);
+
+            SysTrayIcon.ContextMenuStrip = trayMenu;
+        }
+
+        private void SysTrayIcon_DoubleClick(object sender, EventArgs e)
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            if (_settings != null && _settings.MinimizeToTray)
+            {
+                SysTrayIcon.Visible = true;
+                if (this.WindowState == FormWindowState.Minimized)
+                {
+                    this.Hide();
+                }
+                else if (this.WindowState == FormWindowState.Normal)
+                {
+                    this.Show();
+                }
+            }
+            else
+            {
+                SysTrayIcon.Visible = false;
+            }
         }
     }
 }

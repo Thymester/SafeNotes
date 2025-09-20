@@ -30,10 +30,11 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Account");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Entries");
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Entries");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("App");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Theme");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
             this.PasswordLengthDisclaimer = new System.Windows.Forms.LinkLabel();
@@ -75,6 +76,7 @@
             this.ContentsCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntriesTabSelector = new MaterialSkin.Controls.MaterialTabSelector();
             this.SettingsPage = new System.Windows.Forms.TabPage();
+            this.MinToSysTray = new MaterialSkin.Controls.MaterialCheckbox();
             this.RequirePinToLogin = new MaterialSkin.Controls.MaterialCheckbox();
             this.SettingsInfoLabel = new System.Windows.Forms.Label();
             this.EncryptEntriesButton = new MaterialSkin.Controls.MaterialButton();
@@ -94,6 +96,7 @@
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.CheckTimer = new System.Windows.Forms.Timer(this.components);
             this.LabelVisibilityTimer = new System.Windows.Forms.Timer(this.components);
+            this.SysTrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.TabControl.SuspendLayout();
             this.LoginPage.SuspendLayout();
             this.JournalEntryPage.SuspendLayout();
@@ -191,8 +194,7 @@
             // 
             // UserPINCodeField
             // 
-            this.UserPINCodeField.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.UserPINCodeField.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.UserPINCodeField.AnimateReadOnly = false;
             this.UserPINCodeField.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
@@ -238,8 +240,7 @@
             // 
             // PasswordLengthSlider
             // 
-            this.PasswordLengthSlider.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.PasswordLengthSlider.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PasswordLengthSlider.Depth = 0;
             this.PasswordLengthSlider.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -305,8 +306,7 @@
             // 
             // PasswordGenBox
             // 
-            this.PasswordGenBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.PasswordGenBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PasswordGenBox.AnimateReadOnly = false;
             this.PasswordGenBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
@@ -378,8 +378,7 @@
             // 
             // UserConfirmPassword
             // 
-            this.UserConfirmPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.UserConfirmPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.UserConfirmPassword.AnimateReadOnly = false;
             this.UserConfirmPassword.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
@@ -415,8 +414,7 @@
             // 
             // UserPassword
             // 
-            this.UserPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.UserPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.UserPassword.AnimateReadOnly = false;
             this.UserPassword.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
@@ -904,6 +902,7 @@
             // SettingsPage
             // 
             this.SettingsPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.SettingsPage.Controls.Add(this.MinToSysTray);
             this.SettingsPage.Controls.Add(this.RequirePinToLogin);
             this.SettingsPage.Controls.Add(this.SettingsInfoLabel);
             this.SettingsPage.Controls.Add(this.EncryptEntriesButton);
@@ -925,6 +924,25 @@
             this.SettingsPage.Text = "Settings";
             this.SettingsPage.Click += new System.EventHandler(this.SettingsPage_Click);
             // 
+            // MinToSysTray
+            // 
+            this.MinToSysTray.AutoSize = true;
+            this.MinToSysTray.Depth = 0;
+            this.MinToSysTray.Location = new System.Drawing.Point(124, 41);
+            this.MinToSysTray.Margin = new System.Windows.Forms.Padding(0);
+            this.MinToSysTray.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.MinToSysTray.MouseState = MaterialSkin.MouseState.HOVER;
+            this.MinToSysTray.Name = "MinToSysTray";
+            this.MinToSysTray.ReadOnly = false;
+            this.MinToSysTray.Ripple = true;
+            this.MinToSysTray.Size = new System.Drawing.Size(204, 37);
+            this.MinToSysTray.TabIndex = 24;
+            this.MinToSysTray.Text = "Minimize to system tray";
+            this.ToolTips.SetToolTip(this.MinToSysTray, "You will need a PIN before logging in with your password when logged out.");
+            this.MinToSysTray.UseVisualStyleBackColor = true;
+            this.MinToSysTray.Visible = false;
+            this.MinToSysTray.CheckedChanged += new System.EventHandler(this.MinToSysTray_CheckedChanged);
+            // 
             // RequirePinToLogin
             // 
             this.RequirePinToLogin.AutoSize = true;
@@ -936,9 +954,9 @@
             this.RequirePinToLogin.Name = "RequirePinToLogin";
             this.RequirePinToLogin.ReadOnly = false;
             this.RequirePinToLogin.Ripple = true;
-            this.RequirePinToLogin.Size = new System.Drawing.Size(278, 37);
+            this.RequirePinToLogin.Size = new System.Drawing.Size(174, 37);
             this.RequirePinToLogin.TabIndex = 23;
-            this.RequirePinToLogin.Text = "Require PIN to login - Experimental";
+            this.RequirePinToLogin.Text = "Require PIN to login";
             this.ToolTips.SetToolTip(this.RequirePinToLogin, "You will need a PIN before logging in with your password when logged out.");
             this.RequirePinToLogin.UseVisualStyleBackColor = true;
             this.RequirePinToLogin.Visible = false;
@@ -1058,19 +1076,22 @@
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode5.Name = "generalSetPage";
-            treeNode5.Text = "General";
-            treeNode6.Name = "accountSetPage";
-            treeNode6.Text = "Account";
-            treeNode7.Name = "Node0";
-            treeNode7.Text = "Entries";
-            treeNode8.Name = "themeSetPage";
-            treeNode8.Text = "Theme";
+            treeNode1.Name = "generalSetPage";
+            treeNode1.Text = "General";
+            treeNode2.Name = "accountSetPage";
+            treeNode2.Text = "Account";
+            treeNode3.Name = "Node0";
+            treeNode3.Text = "Entries";
+            treeNode4.Name = "appSetPage";
+            treeNode4.Text = "App";
+            treeNode5.Name = "themeSetPage";
+            treeNode5.Text = "Theme";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode5,
-            treeNode6,
-            treeNode7,
-            treeNode8});
+            treeNode1,
+            treeNode2,
+            treeNode3,
+            treeNode4,
+            treeNode5});
             this.LeftSettingsNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
@@ -1240,6 +1261,12 @@
             this.LabelVisibilityTimer.Interval = 3000;
             this.LabelVisibilityTimer.Tick += new System.EventHandler(this.LabelVisibilityTimer_Tick);
             // 
+            // SysTrayIcon
+            // 
+            this.SysTrayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("SysTrayIcon.Icon")));
+            this.SysTrayIcon.Text = "SafeNotes Tray";
+            this.SysTrayIcon.Visible = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1255,6 +1282,7 @@
             this.Text = "Je ne sais pas...";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.TabControl.ResumeLayout(false);
             this.LoginPage.ResumeLayout(false);
             this.LoginPage.PerformLayout();
@@ -1333,5 +1361,7 @@
         private System.Windows.Forms.LinkLabel PasswordDisclaimer;
         private System.Windows.Forms.LinkLabel PinDisclaimer;
         private System.Windows.Forms.LinkLabel PasswordLengthDisclaimer;
+        private MaterialSkin.Controls.MaterialCheckbox MinToSysTray;
+        private System.Windows.Forms.NotifyIcon SysTrayIcon;
     }
 }
