@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.Timer AutoLockCountdownTimer;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("General");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Account");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Entries");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("App");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Theme");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("General");
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Account");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Entries");
+            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("App");
             this.TabControl = new MaterialSkin.Controls.MaterialTabControl();
             this.LoginPage = new System.Windows.Forms.TabPage();
             this.PasswordLengthDisclaimer = new System.Windows.Forms.LinkLabel();
@@ -76,6 +76,12 @@
             this.ContentsCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.EntriesTabSelector = new MaterialSkin.Controls.MaterialTabSelector();
             this.SettingsPage = new System.Windows.Forms.TabPage();
+            this.TenMinLock = new MaterialSkin.Controls.MaterialCheckbox();
+            this.FiveMinLock = new MaterialSkin.Controls.MaterialCheckbox();
+            this.ThreeMinLock = new MaterialSkin.Controls.MaterialCheckbox();
+            this.TwoMinLock = new MaterialSkin.Controls.MaterialCheckbox();
+            this.OneMinLock = new MaterialSkin.Controls.MaterialCheckbox();
+            this.AutoLockCheckbox = new MaterialSkin.Controls.MaterialCheckbox();
             this.MinToSysTray = new MaterialSkin.Controls.MaterialCheckbox();
             this.RequirePinToLogin = new MaterialSkin.Controls.MaterialCheckbox();
             this.SettingsInfoLabel = new System.Windows.Forms.Label();
@@ -97,6 +103,10 @@
             this.CheckTimer = new System.Windows.Forms.Timer(this.components);
             this.LabelVisibilityTimer = new System.Windows.Forms.Timer(this.components);
             this.SysTrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.AutoLockTimer = new System.Windows.Forms.Timer(this.components);
+            this.CustLockTimers = new MaterialSkin.Controls.MaterialLabel();
+            AutoLockCountdownTimer = new System.Windows.Forms.Timer(this.components);
             this.TabControl.SuspendLayout();
             this.LoginPage.SuspendLayout();
             this.JournalEntryPage.SuspendLayout();
@@ -105,6 +115,11 @@
             this.SettingsPage.SuspendLayout();
             this.ReleaseNotesPage.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // AutoLockCountdownTimer
+            // 
+            AutoLockCountdownTimer.Interval = 500;
+            AutoLockCountdownTimer.Tick += new System.EventHandler(this.AutoLockCountdownTimer_Tick);
             // 
             // TabControl
             // 
@@ -116,13 +131,12 @@
             this.TabControl.Controls.Add(this.ReleaseNotesPage);
             this.TabControl.Depth = 0;
             this.TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TabControl.Location = new System.Drawing.Point(4, 78);
-            this.TabControl.Margin = new System.Windows.Forms.Padding(4);
+            this.TabControl.Location = new System.Drawing.Point(3, 63);
             this.TabControl.MouseState = MaterialSkin.MouseState.HOVER;
             this.TabControl.Multiline = true;
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(1197, 649);
+            this.TabControl.Size = new System.Drawing.Size(1021, 654);
             this.TabControl.TabIndex = 0;
             // 
             // LoginPage
@@ -142,19 +156,19 @@
             this.LoginPage.Controls.Add(this.LoginTabSelector);
             this.LoginPage.Controls.Add(this.UserConfirmPassword);
             this.LoginPage.Controls.Add(this.UserPassword);
-            this.LoginPage.Location = new System.Drawing.Point(4, 25);
-            this.LoginPage.Margin = new System.Windows.Forms.Padding(4);
+            this.LoginPage.Location = new System.Drawing.Point(4, 22);
             this.LoginPage.Name = "LoginPage";
-            this.LoginPage.Size = new System.Drawing.Size(1189, 620);
+            this.LoginPage.Size = new System.Drawing.Size(1013, 628);
             this.LoginPage.TabIndex = 4;
             this.LoginPage.Text = "Login";
             // 
             // PasswordLengthDisclaimer
             // 
             this.PasswordLengthDisclaimer.AutoSize = true;
-            this.PasswordLengthDisclaimer.Location = new System.Drawing.Point(397, 290);
+            this.PasswordLengthDisclaimer.Location = new System.Drawing.Point(298, 236);
+            this.PasswordLengthDisclaimer.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PasswordLengthDisclaimer.Name = "PasswordLengthDisclaimer";
-            this.PasswordLengthDisclaimer.Size = new System.Drawing.Size(177, 16);
+            this.PasswordLengthDisclaimer.Size = new System.Drawing.Size(140, 13);
             this.PasswordLengthDisclaimer.TabIndex = 17;
             this.PasswordLengthDisclaimer.TabStop = true;
             this.PasswordLengthDisclaimer.Text = "Password Length Disclaimer";
@@ -163,9 +177,10 @@
             // PinDisclaimer
             // 
             this.PinDisclaimer.AutoSize = true;
-            this.PinDisclaimer.Location = new System.Drawing.Point(397, 274);
+            this.PinDisclaimer.Location = new System.Drawing.Point(298, 223);
+            this.PinDisclaimer.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PinDisclaimer.Name = "PinDisclaimer";
-            this.PinDisclaimer.Size = new System.Drawing.Size(96, 16);
+            this.PinDisclaimer.Size = new System.Drawing.Size(76, 13);
             this.PinDisclaimer.TabIndex = 16;
             this.PinDisclaimer.TabStop = true;
             this.PinDisclaimer.Text = "PIN Disclaimer";
@@ -174,9 +189,10 @@
             // PasswordDisclaimer
             // 
             this.PasswordDisclaimer.AutoSize = true;
-            this.PasswordDisclaimer.Location = new System.Drawing.Point(396, 254);
+            this.PasswordDisclaimer.Location = new System.Drawing.Point(297, 206);
+            this.PasswordDisclaimer.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PasswordDisclaimer.Name = "PasswordDisclaimer";
-            this.PasswordDisclaimer.Size = new System.Drawing.Size(134, 16);
+            this.PasswordDisclaimer.Size = new System.Drawing.Size(104, 13);
             this.PasswordDisclaimer.TabIndex = 15;
             this.PasswordDisclaimer.TabStop = true;
             this.PasswordDisclaimer.Text = "Password Disclaimer";
@@ -185,10 +201,9 @@
             // PasswordStrength
             // 
             this.PasswordStrength.AutoSize = true;
-            this.PasswordStrength.Location = new System.Drawing.Point(396, 75);
-            this.PasswordStrength.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.PasswordStrength.Location = new System.Drawing.Point(297, 61);
             this.PasswordStrength.Name = "PasswordStrength";
-            this.PasswordStrength.Size = new System.Drawing.Size(58, 16);
+            this.PasswordStrength.Size = new System.Drawing.Size(46, 13);
             this.PasswordStrength.TabIndex = 13;
             this.PasswordStrength.Text = "Placebo";
             // 
@@ -204,8 +219,7 @@
             this.UserPINCodeField.HideSelection = true;
             this.UserPINCodeField.Hint = "Enter your PIN...";
             this.UserPINCodeField.LeadingIcon = null;
-            this.UserPINCodeField.Location = new System.Drawing.Point(400, 185);
-            this.UserPINCodeField.Margin = new System.Windows.Forms.Padding(4);
+            this.UserPINCodeField.Location = new System.Drawing.Point(300, 150);
             this.UserPINCodeField.MaxLength = 32767;
             this.UserPINCodeField.MouseState = MaterialSkin.MouseState.OUT;
             this.UserPINCodeField.Name = "UserPINCodeField";
@@ -217,7 +231,7 @@
             this.UserPINCodeField.SelectionLength = 0;
             this.UserPINCodeField.SelectionStart = 0;
             this.UserPINCodeField.ShortcutsEnabled = true;
-            this.UserPINCodeField.Size = new System.Drawing.Size(406, 48);
+            this.UserPINCodeField.Size = new System.Drawing.Size(427, 48);
             this.UserPINCodeField.TabIndex = 12;
             this.UserPINCodeField.TabStop = false;
             this.UserPINCodeField.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -231,8 +245,7 @@
             this.PasswordCopiedLabel.AutoSize = true;
             this.PasswordCopiedLabel.Depth = 0;
             this.PasswordCopiedLabel.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.PasswordCopiedLabel.Location = new System.Drawing.Point(329, 276);
-            this.PasswordCopiedLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.PasswordCopiedLabel.Location = new System.Drawing.Point(247, 224);
             this.PasswordCopiedLabel.MouseState = MaterialSkin.MouseState.HOVER;
             this.PasswordCopiedLabel.Name = "PasswordCopiedLabel";
             this.PasswordCopiedLabel.Size = new System.Drawing.Size(1, 0);
@@ -244,12 +257,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PasswordLengthSlider.Depth = 0;
             this.PasswordLengthSlider.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.PasswordLengthSlider.Location = new System.Drawing.Point(332, 448);
-            this.PasswordLengthSlider.Margin = new System.Windows.Forms.Padding(4);
+            this.PasswordLengthSlider.Location = new System.Drawing.Point(249, 364);
             this.PasswordLengthSlider.MouseState = MaterialSkin.MouseState.HOVER;
             this.PasswordLengthSlider.Name = "PasswordLengthSlider";
             this.PasswordLengthSlider.RangeMax = 32;
-            this.PasswordLengthSlider.Size = new System.Drawing.Size(539, 40);
+            this.PasswordLengthSlider.Size = new System.Drawing.Size(527, 40);
             this.PasswordLengthSlider.TabIndex = 7;
             this.PasswordLengthSlider.Text = "Password Length";
             this.ToolTips.SetToolTip(this.PasswordLengthSlider, "Changes the amount of characters generated for password.");
@@ -265,8 +277,8 @@
             this.UsePassButton.Depth = 0;
             this.UsePassButton.HighEmphasis = true;
             this.UsePassButton.Icon = null;
-            this.UsePassButton.Location = new System.Drawing.Point(332, 392);
-            this.UsePassButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.UsePassButton.Location = new System.Drawing.Point(249, 318);
+            this.UsePassButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.UsePassButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.UsePassButton.Name = "UsePassButton";
             this.UsePassButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -289,15 +301,15 @@
             this.RegenPassButton.Depth = 0;
             this.RegenPassButton.HighEmphasis = true;
             this.RegenPassButton.Icon = null;
-            this.RegenPassButton.Location = new System.Drawing.Point(776, 392);
-            this.RegenPassButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.RegenPassButton.Location = new System.Drawing.Point(681, 318);
+            this.RegenPassButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.RegenPassButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.RegenPassButton.Name = "RegenPassButton";
             this.RegenPassButton.NoAccentTextColor = System.Drawing.Color.Empty;
             this.RegenPassButton.Size = new System.Drawing.Size(95, 36);
             this.RegenPassButton.TabIndex = 5;
             this.RegenPassButton.Text = "Generate";
-            this.ToolTips.SetToolTip(this.RegenPassButton, "Regenerates a new password");
+            this.ToolTips.SetToolTip(this.RegenPassButton, "Generate a cryptographically secure password");
             this.RegenPassButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.RegenPassButton.UseAccentColor = false;
             this.RegenPassButton.UseVisualStyleBackColor = true;
@@ -315,8 +327,7 @@
             this.PasswordGenBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.PasswordGenBox.HideSelection = true;
             this.PasswordGenBox.LeadingIcon = null;
-            this.PasswordGenBox.Location = new System.Drawing.Point(332, 322);
-            this.PasswordGenBox.Margin = new System.Windows.Forms.Padding(4);
+            this.PasswordGenBox.Location = new System.Drawing.Point(249, 262);
             this.PasswordGenBox.MaxLength = 32767;
             this.PasswordGenBox.MouseState = MaterialSkin.MouseState.OUT;
             this.PasswordGenBox.Name = "PasswordGenBox";
@@ -328,7 +339,7 @@
             this.PasswordGenBox.SelectionLength = 0;
             this.PasswordGenBox.SelectionStart = 0;
             this.PasswordGenBox.ShortcutsEnabled = true;
-            this.PasswordGenBox.Size = new System.Drawing.Size(539, 48);
+            this.PasswordGenBox.Size = new System.Drawing.Size(527, 48);
             this.PasswordGenBox.TabIndex = 4;
             this.PasswordGenBox.TabStop = false;
             this.PasswordGenBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -347,8 +358,8 @@
             this.UserLoginButton.Depth = 0;
             this.UserLoginButton.HighEmphasis = true;
             this.UserLoginButton.Icon = null;
-            this.UserLoginButton.Location = new System.Drawing.Point(718, 254);
-            this.UserLoginButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.UserLoginButton.Location = new System.Drawing.Point(639, 206);
+            this.UserLoginButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.UserLoginButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.UserLoginButton.Name = "UserLoginButton";
             this.UserLoginButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -368,11 +379,10 @@
             this.LoginTabSelector.CharacterCasing = MaterialSkin.Controls.MaterialTabSelector.CustomCharacterCasing.Normal;
             this.LoginTabSelector.Depth = 0;
             this.LoginTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.LoginTabSelector.Location = new System.Drawing.Point(4, 4);
-            this.LoginTabSelector.Margin = new System.Windows.Forms.Padding(4);
+            this.LoginTabSelector.Location = new System.Drawing.Point(3, 3);
             this.LoginTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.LoginTabSelector.Name = "LoginTabSelector";
-            this.LoginTabSelector.Size = new System.Drawing.Size(1179, 30);
+            this.LoginTabSelector.Size = new System.Drawing.Size(1007, 24);
             this.LoginTabSelector.TabIndex = 2;
             this.LoginTabSelector.Text = "TabSelect1";
             // 
@@ -389,8 +399,7 @@
             this.UserConfirmPassword.HideSelection = true;
             this.UserConfirmPassword.Hint = "Confirm password...";
             this.UserConfirmPassword.LeadingIcon = null;
-            this.UserConfirmPassword.Location = new System.Drawing.Point(400, 185);
-            this.UserConfirmPassword.Margin = new System.Windows.Forms.Padding(4);
+            this.UserConfirmPassword.Location = new System.Drawing.Point(300, 150);
             this.UserConfirmPassword.MaxLength = 32767;
             this.UserConfirmPassword.MouseState = MaterialSkin.MouseState.OUT;
             this.UserConfirmPassword.Name = "UserConfirmPassword";
@@ -402,7 +411,7 @@
             this.UserConfirmPassword.SelectionLength = 0;
             this.UserConfirmPassword.SelectionStart = 0;
             this.UserConfirmPassword.ShortcutsEnabled = true;
-            this.UserConfirmPassword.Size = new System.Drawing.Size(406, 48);
+            this.UserConfirmPassword.Size = new System.Drawing.Size(427, 48);
             this.UserConfirmPassword.TabIndex = 1;
             this.UserConfirmPassword.TabStop = false;
             this.UserConfirmPassword.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -425,8 +434,7 @@
             this.UserPassword.HideSelection = true;
             this.UserPassword.Hint = "Password...";
             this.UserPassword.LeadingIcon = null;
-            this.UserPassword.Location = new System.Drawing.Point(400, 118);
-            this.UserPassword.Margin = new System.Windows.Forms.Padding(4);
+            this.UserPassword.Location = new System.Drawing.Point(300, 96);
             this.UserPassword.MaxLength = 32767;
             this.UserPassword.MouseState = MaterialSkin.MouseState.OUT;
             this.UserPassword.Name = "UserPassword";
@@ -438,7 +446,7 @@
             this.UserPassword.SelectionLength = 0;
             this.UserPassword.SelectionStart = 0;
             this.UserPassword.ShortcutsEnabled = true;
-            this.UserPassword.Size = new System.Drawing.Size(406, 48);
+            this.UserPassword.Size = new System.Drawing.Size(427, 48);
             this.UserPassword.TabIndex = 0;
             this.UserPassword.TabStop = false;
             this.UserPassword.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -458,11 +466,10 @@
             this.JournalEntryPage.Controls.Add(this.SaveEntryButton);
             this.JournalEntryPage.Controls.Add(this.JournalEntryBox);
             this.JournalEntryPage.Controls.Add(this.JournalTabSelector);
-            this.JournalEntryPage.Location = new System.Drawing.Point(4, 25);
-            this.JournalEntryPage.Margin = new System.Windows.Forms.Padding(4);
+            this.JournalEntryPage.Location = new System.Drawing.Point(4, 22);
             this.JournalEntryPage.Name = "JournalEntryPage";
-            this.JournalEntryPage.Padding = new System.Windows.Forms.Padding(4);
-            this.JournalEntryPage.Size = new System.Drawing.Size(1189, 620);
+            this.JournalEntryPage.Padding = new System.Windows.Forms.Padding(3);
+            this.JournalEntryPage.Size = new System.Drawing.Size(1013, 628);
             this.JournalEntryPage.TabIndex = 0;
             this.JournalEntryPage.Text = "Journal";
             this.JournalEntryPage.Click += new System.EventHandler(this.JournalEntryPage_Click);
@@ -472,11 +479,10 @@
             this.DecryptionStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.DecryptionStatusLabel.Depth = 0;
             this.DecryptionStatusLabel.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.DecryptionStatusLabel.Location = new System.Drawing.Point(393, 578);
-            this.DecryptionStatusLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.DecryptionStatusLabel.Location = new System.Drawing.Point(297, 595);
             this.DecryptionStatusLabel.MouseState = MaterialSkin.MouseState.HOVER;
             this.DecryptionStatusLabel.Name = "DecryptionStatusLabel";
-            this.DecryptionStatusLabel.Size = new System.Drawing.Size(227, 23);
+            this.DecryptionStatusLabel.Size = new System.Drawing.Size(170, 19);
             this.DecryptionStatusLabel.TabIndex = 9;
             this.DecryptionStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -485,11 +491,10 @@
             this.SavedEntriesCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.SavedEntriesCount.Depth = 0;
             this.SavedEntriesCount.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.SavedEntriesCount.Location = new System.Drawing.Point(802, 567);
-            this.SavedEntriesCount.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.SavedEntriesCount.Location = new System.Drawing.Point(724, 595);
             this.SavedEntriesCount.MouseState = MaterialSkin.MouseState.HOVER;
             this.SavedEntriesCount.Name = "SavedEntriesCount";
-            this.SavedEntriesCount.Size = new System.Drawing.Size(227, 23);
+            this.SavedEntriesCount.Size = new System.Drawing.Size(170, 19);
             this.SavedEntriesCount.TabIndex = 8;
             this.SavedEntriesCount.Text = "Saved entries: 0";
             this.SavedEntriesCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -503,8 +508,8 @@
             this.ChangeNameButton.Depth = 0;
             this.ChangeNameButton.HighEmphasis = true;
             this.ChangeNameButton.Icon = null;
-            this.ChangeNameButton.Location = new System.Drawing.Point(217, 575);
-            this.ChangeNameButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.ChangeNameButton.Location = new System.Drawing.Point(163, 587);
+            this.ChangeNameButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ChangeNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ChangeNameButton.Name = "ChangeNameButton";
             this.ChangeNameButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -525,14 +530,13 @@
             this.YourNameBox.Font = new System.Drawing.Font("Roboto", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.YourNameBox.Hint = "Your name...";
             this.YourNameBox.LeadingIcon = null;
-            this.YourNameBox.Location = new System.Drawing.Point(8, 567);
-            this.YourNameBox.Margin = new System.Windows.Forms.Padding(4);
+            this.YourNameBox.Location = new System.Drawing.Point(6, 588);
             this.YourNameBox.MaxLength = 50;
             this.YourNameBox.MouseState = MaterialSkin.MouseState.OUT;
             this.YourNameBox.Multiline = false;
             this.YourNameBox.Name = "YourNameBox";
             this.YourNameBox.ReadOnly = true;
-            this.YourNameBox.Size = new System.Drawing.Size(200, 36);
+            this.YourNameBox.Size = new System.Drawing.Size(150, 36);
             this.YourNameBox.TabIndex = 5;
             this.YourNameBox.Text = "";
             this.YourNameBox.TrailingIcon = null;
@@ -546,8 +550,8 @@
             this.SaveEntryButton.Depth = 0;
             this.SaveEntryButton.HighEmphasis = true;
             this.SaveEntryButton.Icon = null;
-            this.SaveEntryButton.Location = new System.Drawing.Point(1073, 573);
-            this.SaveEntryButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.SaveEntryButton.Location = new System.Drawing.Point(901, 586);
+            this.SaveEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.SaveEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.SaveEntryButton.Name = "SaveEntryButton";
             this.SaveEntryButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -573,7 +577,7 @@
             this.JournalEntryBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.JournalEntryBox.HideSelection = true;
             this.JournalEntryBox.Hint = "Your journal...";
-            this.JournalEntryBox.Location = new System.Drawing.Point(4, 38);
+            this.JournalEntryBox.Location = new System.Drawing.Point(3, 31);
             this.JournalEntryBox.Margin = new System.Windows.Forms.Padding(2);
             this.JournalEntryBox.MaxLength = 32767;
             this.JournalEntryBox.MouseState = MaterialSkin.MouseState.OUT;
@@ -585,7 +589,7 @@
             this.JournalEntryBox.SelectionLength = 0;
             this.JournalEntryBox.SelectionStart = 0;
             this.JournalEntryBox.ShortcutsEnabled = true;
-            this.JournalEntryBox.Size = new System.Drawing.Size(1176, 523);
+            this.JournalEntryBox.Size = new System.Drawing.Size(1005, 552);
             this.JournalEntryBox.TabIndex = 1;
             this.JournalEntryBox.TabStop = false;
             this.JournalEntryBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -600,11 +604,10 @@
             this.JournalTabSelector.CharacterCasing = MaterialSkin.Controls.MaterialTabSelector.CustomCharacterCasing.Normal;
             this.JournalTabSelector.Depth = 0;
             this.JournalTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.JournalTabSelector.Location = new System.Drawing.Point(4, 4);
-            this.JournalTabSelector.Margin = new System.Windows.Forms.Padding(4);
+            this.JournalTabSelector.Location = new System.Drawing.Point(3, 3);
             this.JournalTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.JournalTabSelector.Name = "JournalTabSelector";
-            this.JournalTabSelector.Size = new System.Drawing.Size(1181, 30);
+            this.JournalTabSelector.Size = new System.Drawing.Size(1009, 24);
             this.JournalTabSelector.TabIndex = 0;
             // 
             // NotepadPage
@@ -618,10 +621,9 @@
             this.NotepadPage.Controls.Add(this.SaveNotepadButton);
             this.NotepadPage.Controls.Add(this.NotepadTabSelector);
             this.NotepadPage.Controls.Add(this.NotepadTextBox);
-            this.NotepadPage.Location = new System.Drawing.Point(4, 25);
-            this.NotepadPage.Margin = new System.Windows.Forms.Padding(4);
+            this.NotepadPage.Location = new System.Drawing.Point(4, 22);
             this.NotepadPage.Name = "NotepadPage";
-            this.NotepadPage.Size = new System.Drawing.Size(1189, 620);
+            this.NotepadPage.Size = new System.Drawing.Size(1013, 628);
             this.NotepadPage.TabIndex = 5;
             this.NotepadPage.Text = "Notepad";
             this.NotepadPage.Click += new System.EventHandler(this.Notepad_Click);
@@ -631,11 +633,10 @@
             this.NotepadTitle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.NotepadTitle.Depth = 0;
             this.NotepadTitle.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.NotepadTitle.Location = new System.Drawing.Point(196, 565);
-            this.NotepadTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.NotepadTitle.Location = new System.Drawing.Point(147, 585);
             this.NotepadTitle.MouseState = MaterialSkin.MouseState.HOVER;
             this.NotepadTitle.Name = "NotepadTitle";
-            this.NotepadTitle.Size = new System.Drawing.Size(419, 44);
+            this.NotepadTitle.Size = new System.Drawing.Size(314, 36);
             this.NotepadTitle.TabIndex = 9;
             this.NotepadTitle.Text = "Notepad Title";
             this.NotepadTitle.Visible = false;
@@ -646,11 +647,10 @@
             this.ColumnInNotepad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.ColumnInNotepad.Depth = 0;
             this.ColumnInNotepad.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.ColumnInNotepad.Location = new System.Drawing.Point(711, 588);
-            this.ColumnInNotepad.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.ColumnInNotepad.Location = new System.Drawing.Point(656, 604);
             this.ColumnInNotepad.MouseState = MaterialSkin.MouseState.HOVER;
             this.ColumnInNotepad.Name = "ColumnInNotepad";
-            this.ColumnInNotepad.Size = new System.Drawing.Size(156, 23);
+            this.ColumnInNotepad.Size = new System.Drawing.Size(117, 19);
             this.ColumnInNotepad.TabIndex = 8;
             this.ColumnInNotepad.Text = "Columns: 10923";
             this.ColumnInNotepad.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -661,11 +661,10 @@
             this.CharsInNotepad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.CharsInNotepad.Depth = 0;
             this.CharsInNotepad.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.CharsInNotepad.Location = new System.Drawing.Point(693, 565);
-            this.CharsInNotepad.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.CharsInNotepad.Location = new System.Drawing.Point(643, 585);
             this.CharsInNotepad.MouseState = MaterialSkin.MouseState.HOVER;
             this.CharsInNotepad.Name = "CharsInNotepad";
-            this.CharsInNotepad.Size = new System.Drawing.Size(173, 23);
+            this.CharsInNotepad.Size = new System.Drawing.Size(130, 19);
             this.CharsInNotepad.TabIndex = 7;
             this.CharsInNotepad.Text = "Characters: 32767";
             this.CharsInNotepad.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -679,8 +678,8 @@
             this.ClearNotepadButton.Depth = 0;
             this.ClearNotepadButton.HighEmphasis = true;
             this.ClearNotepadButton.Icon = null;
-            this.ClearNotepadButton.Location = new System.Drawing.Point(4, 573);
-            this.ClearNotepadButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.ClearNotepadButton.Location = new System.Drawing.Point(3, 585);
+            this.ClearNotepadButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ClearNotepadButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ClearNotepadButton.Name = "ClearNotepadButton";
             this.ClearNotepadButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -700,8 +699,8 @@
             this.OpenFileButton.Depth = 0;
             this.OpenFileButton.HighEmphasis = true;
             this.OpenFileButton.Icon = null;
-            this.OpenFileButton.Location = new System.Drawing.Point(907, 573);
-            this.OpenFileButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.OpenFileButton.Location = new System.Drawing.Point(780, 585);
+            this.OpenFileButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.OpenFileButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.OpenFileButton.Name = "OpenFileButton";
             this.OpenFileButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -721,8 +720,8 @@
             this.SaveNotepadButton.Depth = 0;
             this.SaveNotepadButton.HighEmphasis = true;
             this.SaveNotepadButton.Icon = null;
-            this.SaveNotepadButton.Location = new System.Drawing.Point(1054, 573);
-            this.SaveNotepadButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.SaveNotepadButton.Location = new System.Drawing.Point(881, 585);
+            this.SaveNotepadButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.SaveNotepadButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.SaveNotepadButton.Name = "SaveNotepadButton";
             this.SaveNotepadButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -742,11 +741,10 @@
             this.NotepadTabSelector.CharacterCasing = MaterialSkin.Controls.MaterialTabSelector.CustomCharacterCasing.Normal;
             this.NotepadTabSelector.Depth = 0;
             this.NotepadTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.NotepadTabSelector.Location = new System.Drawing.Point(4, 4);
-            this.NotepadTabSelector.Margin = new System.Windows.Forms.Padding(4);
+            this.NotepadTabSelector.Location = new System.Drawing.Point(3, 3);
             this.NotepadTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.NotepadTabSelector.Name = "NotepadTabSelector";
-            this.NotepadTabSelector.Size = new System.Drawing.Size(1178, 30);
+            this.NotepadTabSelector.Size = new System.Drawing.Size(1007, 24);
             this.NotepadTabSelector.TabIndex = 3;
             this.NotepadTabSelector.Text = "TabSelect1";
             // 
@@ -763,7 +761,7 @@
             this.NotepadTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.NotepadTextBox.HideSelection = true;
             this.NotepadTextBox.Hint = "Aa...";
-            this.NotepadTextBox.Location = new System.Drawing.Point(4, 38);
+            this.NotepadTextBox.Location = new System.Drawing.Point(3, 31);
             this.NotepadTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.NotepadTextBox.MaxLength = 32767;
             this.NotepadTextBox.MouseState = MaterialSkin.MouseState.OUT;
@@ -775,7 +773,7 @@
             this.NotepadTextBox.SelectionLength = 0;
             this.NotepadTextBox.SelectionStart = 0;
             this.NotepadTextBox.ShortcutsEnabled = true;
-            this.NotepadTextBox.Size = new System.Drawing.Size(1178, 526);
+            this.NotepadTextBox.Size = new System.Drawing.Size(1007, 553);
             this.NotepadTextBox.TabIndex = 2;
             this.NotepadTextBox.TabStop = false;
             this.NotepadTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -790,10 +788,9 @@
             this.JournalEntriesPage.Controls.Add(this.DeleteEntriesButton);
             this.JournalEntriesPage.Controls.Add(this.EntriesListBox);
             this.JournalEntriesPage.Controls.Add(this.EntriesTabSelector);
-            this.JournalEntriesPage.Location = new System.Drawing.Point(4, 25);
-            this.JournalEntriesPage.Margin = new System.Windows.Forms.Padding(4);
+            this.JournalEntriesPage.Location = new System.Drawing.Point(4, 22);
             this.JournalEntriesPage.Name = "JournalEntriesPage";
-            this.JournalEntriesPage.Size = new System.Drawing.Size(1189, 620);
+            this.JournalEntriesPage.Size = new System.Drawing.Size(1013, 628);
             this.JournalEntriesPage.TabIndex = 2;
             this.JournalEntriesPage.Text = "Journal Entries";
             // 
@@ -806,8 +803,8 @@
             this.EditEntryButton.Depth = 0;
             this.EditEntryButton.HighEmphasis = true;
             this.EditEntryButton.Icon = null;
-            this.EditEntryButton.Location = new System.Drawing.Point(5, 572);
-            this.EditEntryButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.EditEntryButton.Location = new System.Drawing.Point(4, 586);
+            this.EditEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.EditEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.EditEntryButton.Name = "EditEntryButton";
             this.EditEntryButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -830,8 +827,8 @@
             this.DeleteEntriesButton.Depth = 0;
             this.DeleteEntriesButton.HighEmphasis = true;
             this.DeleteEntriesButton.Icon = null;
-            this.DeleteEntriesButton.Location = new System.Drawing.Point(1045, 572);
-            this.DeleteEntriesButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.DeleteEntriesButton.Location = new System.Drawing.Point(873, 586);
+            this.DeleteEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.DeleteEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.DeleteEntriesButton.Name = "DeleteEntriesButton";
             this.DeleteEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -859,14 +856,13 @@
             this.EntriesListBox.Depth = 0;
             this.EntriesListBox.FullRowSelect = true;
             this.EntriesListBox.HideSelection = false;
-            this.EntriesListBox.Location = new System.Drawing.Point(4, 41);
-            this.EntriesListBox.Margin = new System.Windows.Forms.Padding(4);
-            this.EntriesListBox.MinimumSize = new System.Drawing.Size(267, 123);
+            this.EntriesListBox.Location = new System.Drawing.Point(3, 33);
+            this.EntriesListBox.MinimumSize = new System.Drawing.Size(200, 100);
             this.EntriesListBox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.EntriesListBox.MouseState = MaterialSkin.MouseState.OUT;
             this.EntriesListBox.Name = "EntriesListBox";
             this.EntriesListBox.OwnerDraw = true;
-            this.EntriesListBox.Size = new System.Drawing.Size(1179, 513);
+            this.EntriesListBox.Size = new System.Drawing.Size(1006, 544);
             this.EntriesListBox.TabIndex = 2;
             this.EntriesListBox.UseCompatibleStateImageBehavior = false;
             this.EntriesListBox.View = System.Windows.Forms.View.Details;
@@ -892,16 +888,22 @@
             this.EntriesTabSelector.CharacterCasing = MaterialSkin.Controls.MaterialTabSelector.CustomCharacterCasing.Normal;
             this.EntriesTabSelector.Depth = 0;
             this.EntriesTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.EntriesTabSelector.Location = new System.Drawing.Point(4, 4);
-            this.EntriesTabSelector.Margin = new System.Windows.Forms.Padding(4);
+            this.EntriesTabSelector.Location = new System.Drawing.Point(3, 3);
             this.EntriesTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.EntriesTabSelector.Name = "EntriesTabSelector";
-            this.EntriesTabSelector.Size = new System.Drawing.Size(1179, 30);
+            this.EntriesTabSelector.Size = new System.Drawing.Size(1007, 24);
             this.EntriesTabSelector.TabIndex = 1;
             // 
             // SettingsPage
             // 
             this.SettingsPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.SettingsPage.Controls.Add(this.CustLockTimers);
+            this.SettingsPage.Controls.Add(this.TenMinLock);
+            this.SettingsPage.Controls.Add(this.FiveMinLock);
+            this.SettingsPage.Controls.Add(this.ThreeMinLock);
+            this.SettingsPage.Controls.Add(this.TwoMinLock);
+            this.SettingsPage.Controls.Add(this.OneMinLock);
+            this.SettingsPage.Controls.Add(this.AutoLockCheckbox);
             this.SettingsPage.Controls.Add(this.MinToSysTray);
             this.SettingsPage.Controls.Add(this.RequirePinToLogin);
             this.SettingsPage.Controls.Add(this.SettingsInfoLabel);
@@ -915,20 +917,133 @@
             this.SettingsPage.Controls.Add(this.ApplyDateCheckbox);
             this.SettingsPage.Controls.Add(this.LightModeCheckbox);
             this.SettingsPage.Controls.Add(this.SettingsTabSelector);
-            this.SettingsPage.Location = new System.Drawing.Point(4, 25);
-            this.SettingsPage.Margin = new System.Windows.Forms.Padding(4);
+            this.SettingsPage.Location = new System.Drawing.Point(4, 22);
             this.SettingsPage.Name = "SettingsPage";
-            this.SettingsPage.Padding = new System.Windows.Forms.Padding(4);
-            this.SettingsPage.Size = new System.Drawing.Size(1189, 620);
+            this.SettingsPage.Padding = new System.Windows.Forms.Padding(3);
+            this.SettingsPage.Size = new System.Drawing.Size(1013, 628);
             this.SettingsPage.TabIndex = 3;
             this.SettingsPage.Text = "Settings";
             this.SettingsPage.Click += new System.EventHandler(this.SettingsPage_Click);
+            // 
+            // TenMinLock
+            // 
+            this.TenMinLock.AutoSize = true;
+            this.TenMinLock.Depth = 0;
+            this.TenMinLock.Location = new System.Drawing.Point(93, 339);
+            this.TenMinLock.Margin = new System.Windows.Forms.Padding(0);
+            this.TenMinLock.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.TenMinLock.MouseState = MaterialSkin.MouseState.HOVER;
+            this.TenMinLock.Name = "TenMinLock";
+            this.TenMinLock.ReadOnly = false;
+            this.TenMinLock.Ripple = true;
+            this.TenMinLock.Size = new System.Drawing.Size(139, 37);
+            this.TenMinLock.TabIndex = 30;
+            this.TenMinLock.Text = "10 minute lock";
+            this.ToolTips.SetToolTip(this.TenMinLock, "You will need a PIN before logging in with your password when logged out.");
+            this.TenMinLock.UseVisualStyleBackColor = true;
+            this.TenMinLock.Visible = false;
+            this.TenMinLock.CheckedChanged += new System.EventHandler(this.TenMinLock_CheckedChanged);
+            // 
+            // FiveMinLock
+            // 
+            this.FiveMinLock.AutoSize = true;
+            this.FiveMinLock.Depth = 0;
+            this.FiveMinLock.Location = new System.Drawing.Point(93, 302);
+            this.FiveMinLock.Margin = new System.Windows.Forms.Padding(0);
+            this.FiveMinLock.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.FiveMinLock.MouseState = MaterialSkin.MouseState.HOVER;
+            this.FiveMinLock.Name = "FiveMinLock";
+            this.FiveMinLock.ReadOnly = false;
+            this.FiveMinLock.Ripple = true;
+            this.FiveMinLock.Size = new System.Drawing.Size(130, 37);
+            this.FiveMinLock.TabIndex = 29;
+            this.FiveMinLock.Text = "5 minute lock";
+            this.ToolTips.SetToolTip(this.FiveMinLock, "You will need a PIN before logging in with your password when logged out.");
+            this.FiveMinLock.UseVisualStyleBackColor = true;
+            this.FiveMinLock.Visible = false;
+            this.FiveMinLock.CheckedChanged += new System.EventHandler(this.FiveMinLock_CheckedChanged);
+            // 
+            // ThreeMinLock
+            // 
+            this.ThreeMinLock.AutoSize = true;
+            this.ThreeMinLock.Depth = 0;
+            this.ThreeMinLock.Location = new System.Drawing.Point(93, 265);
+            this.ThreeMinLock.Margin = new System.Windows.Forms.Padding(0);
+            this.ThreeMinLock.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.ThreeMinLock.MouseState = MaterialSkin.MouseState.HOVER;
+            this.ThreeMinLock.Name = "ThreeMinLock";
+            this.ThreeMinLock.ReadOnly = false;
+            this.ThreeMinLock.Ripple = true;
+            this.ThreeMinLock.Size = new System.Drawing.Size(130, 37);
+            this.ThreeMinLock.TabIndex = 28;
+            this.ThreeMinLock.Text = "3 minute lock";
+            this.ToolTips.SetToolTip(this.ThreeMinLock, "You will need a PIN before logging in with your password when logged out.");
+            this.ThreeMinLock.UseVisualStyleBackColor = true;
+            this.ThreeMinLock.Visible = false;
+            this.ThreeMinLock.CheckedChanged += new System.EventHandler(this.ThreeMinLock_CheckedChanged);
+            // 
+            // TwoMinLock
+            // 
+            this.TwoMinLock.AutoSize = true;
+            this.TwoMinLock.Depth = 0;
+            this.TwoMinLock.Location = new System.Drawing.Point(93, 228);
+            this.TwoMinLock.Margin = new System.Windows.Forms.Padding(0);
+            this.TwoMinLock.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.TwoMinLock.MouseState = MaterialSkin.MouseState.HOVER;
+            this.TwoMinLock.Name = "TwoMinLock";
+            this.TwoMinLock.ReadOnly = false;
+            this.TwoMinLock.Ripple = true;
+            this.TwoMinLock.Size = new System.Drawing.Size(130, 37);
+            this.TwoMinLock.TabIndex = 27;
+            this.TwoMinLock.Text = "2 minute lock";
+            this.ToolTips.SetToolTip(this.TwoMinLock, "You will need a PIN before logging in with your password when logged out.");
+            this.TwoMinLock.UseVisualStyleBackColor = true;
+            this.TwoMinLock.Visible = false;
+            this.TwoMinLock.CheckedChanged += new System.EventHandler(this.TwoMinLock_CheckedChanged);
+            // 
+            // OneMinLock
+            // 
+            this.OneMinLock.AutoSize = true;
+            this.OneMinLock.Depth = 0;
+            this.OneMinLock.Location = new System.Drawing.Point(93, 191);
+            this.OneMinLock.Margin = new System.Windows.Forms.Padding(0);
+            this.OneMinLock.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.OneMinLock.MouseState = MaterialSkin.MouseState.HOVER;
+            this.OneMinLock.Name = "OneMinLock";
+            this.OneMinLock.ReadOnly = false;
+            this.OneMinLock.Ripple = true;
+            this.OneMinLock.Size = new System.Drawing.Size(130, 37);
+            this.OneMinLock.TabIndex = 26;
+            this.OneMinLock.Text = "1 minute lock";
+            this.ToolTips.SetToolTip(this.OneMinLock, "You will need a PIN before logging in with your password when logged out.");
+            this.OneMinLock.UseVisualStyleBackColor = true;
+            this.OneMinLock.Visible = false;
+            this.OneMinLock.CheckedChanged += new System.EventHandler(this.OneMinLock_CheckedChanged);
+            // 
+            // AutoLockCheckbox
+            // 
+            this.AutoLockCheckbox.AutoSize = true;
+            this.AutoLockCheckbox.Depth = 0;
+            this.AutoLockCheckbox.Location = new System.Drawing.Point(93, 107);
+            this.AutoLockCheckbox.Margin = new System.Windows.Forms.Padding(0);
+            this.AutoLockCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.AutoLockCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
+            this.AutoLockCheckbox.Name = "AutoLockCheckbox";
+            this.AutoLockCheckbox.ReadOnly = false;
+            this.AutoLockCheckbox.Ripple = true;
+            this.AutoLockCheckbox.Size = new System.Drawing.Size(244, 37);
+            this.AutoLockCheckbox.TabIndex = 25;
+            this.AutoLockCheckbox.Text = "Automatically lock SafeNotes";
+            this.ToolTips.SetToolTip(this.AutoLockCheckbox, "You will need a PIN before logging in with your password when logged out.");
+            this.AutoLockCheckbox.UseVisualStyleBackColor = true;
+            this.AutoLockCheckbox.Visible = false;
+            this.AutoLockCheckbox.CheckedChanged += new System.EventHandler(this.AutoLockCheckbox_CheckedChanged);
             // 
             // MinToSysTray
             // 
             this.MinToSysTray.AutoSize = true;
             this.MinToSysTray.Depth = 0;
-            this.MinToSysTray.Location = new System.Drawing.Point(124, 41);
+            this.MinToSysTray.Location = new System.Drawing.Point(93, 33);
             this.MinToSysTray.Margin = new System.Windows.Forms.Padding(0);
             this.MinToSysTray.MouseLocation = new System.Drawing.Point(-1, -1);
             this.MinToSysTray.MouseState = MaterialSkin.MouseState.HOVER;
@@ -947,7 +1062,7 @@
             // 
             this.RequirePinToLogin.AutoSize = true;
             this.RequirePinToLogin.Depth = 0;
-            this.RequirePinToLogin.Location = new System.Drawing.Point(124, 86);
+            this.RequirePinToLogin.Location = new System.Drawing.Point(93, 70);
             this.RequirePinToLogin.Margin = new System.Windows.Forms.Padding(0);
             this.RequirePinToLogin.MouseLocation = new System.Drawing.Point(-1, -1);
             this.RequirePinToLogin.MouseState = MaterialSkin.MouseState.HOVER;
@@ -966,10 +1081,9 @@
             // 
             this.SettingsInfoLabel.AutoSize = true;
             this.SettingsInfoLabel.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.SettingsInfoLabel.Location = new System.Drawing.Point(125, 219);
-            this.SettingsInfoLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.SettingsInfoLabel.Location = new System.Drawing.Point(94, 178);
             this.SettingsInfoLabel.Name = "SettingsInfoLabel";
-            this.SettingsInfoLabel.Size = new System.Drawing.Size(58, 16);
+            this.SettingsInfoLabel.Size = new System.Drawing.Size(46, 13);
             this.SettingsInfoLabel.TabIndex = 22;
             this.SettingsInfoLabel.Text = "Placebo";
             // 
@@ -980,8 +1094,8 @@
             this.EncryptEntriesButton.Depth = 0;
             this.EncryptEntriesButton.HighEmphasis = true;
             this.EncryptEntriesButton.Icon = null;
-            this.EncryptEntriesButton.Location = new System.Drawing.Point(124, 162);
-            this.EncryptEntriesButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.EncryptEntriesButton.Location = new System.Drawing.Point(93, 132);
+            this.EncryptEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.EncryptEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.EncryptEntriesButton.Name = "EncryptEntriesButton";
             this.EncryptEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -999,7 +1113,7 @@
             // 
             this.DisableNotificationsCheckbox.AutoSize = true;
             this.DisableNotificationsCheckbox.Depth = 0;
-            this.DisableNotificationsCheckbox.Location = new System.Drawing.Point(124, 86);
+            this.DisableNotificationsCheckbox.Location = new System.Drawing.Point(93, 70);
             this.DisableNotificationsCheckbox.Margin = new System.Windows.Forms.Padding(0);
             this.DisableNotificationsCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.DisableNotificationsCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
@@ -1020,8 +1134,8 @@
             this.ImportEntriesButton.Depth = 0;
             this.ImportEntriesButton.HighEmphasis = true;
             this.ImportEntriesButton.Icon = null;
-            this.ImportEntriesButton.Location = new System.Drawing.Point(125, 103);
-            this.ImportEntriesButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.ImportEntriesButton.Location = new System.Drawing.Point(94, 84);
+            this.ImportEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ImportEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ImportEntriesButton.Name = "ImportEntriesButton";
             this.ImportEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -1042,8 +1156,8 @@
             this.ExportEntriesButton.Depth = 0;
             this.ExportEntriesButton.HighEmphasis = true;
             this.ExportEntriesButton.Icon = null;
-            this.ExportEntriesButton.Location = new System.Drawing.Point(124, 44);
-            this.ExportEntriesButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.ExportEntriesButton.Location = new System.Drawing.Point(93, 36);
+            this.ExportEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ExportEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ExportEntriesButton.Name = "ExportEntriesButton";
             this.ExportEntriesButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -1068,30 +1182,26 @@
             this.LeftSettingsNav.HideSelection = false;
             this.LeftSettingsNav.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(76)))), ((int)(((byte)(76)))));
             this.LeftSettingsNav.ItemHeight = 36;
-            this.LeftSettingsNav.Location = new System.Drawing.Point(4, 34);
-            this.LeftSettingsNav.Margin = new System.Windows.Forms.Padding(4);
+            this.LeftSettingsNav.Location = new System.Drawing.Point(3, 27);
             this.LeftSettingsNav.Name = "LeftSettingsNav";
             this.LeftSettingsNav.NodeBackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
             this.LeftSettingsNav.NodeDownPic = ((System.Drawing.Image)(resources.GetObject("LeftSettingsNav.NodeDownPic")));
             this.LeftSettingsNav.NodeForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.LeftSettingsNav.NodeHeight = 36;
             this.LeftSettingsNav.NodeIsShowSplitLine = true;
-            treeNode1.Name = "generalSetPage";
-            treeNode1.Text = "General";
-            treeNode2.Name = "accountSetPage";
-            treeNode2.Text = "Account";
-            treeNode3.Name = "Node0";
-            treeNode3.Text = "Entries";
-            treeNode4.Name = "appSetPage";
-            treeNode4.Text = "App";
-            treeNode5.Name = "themeSetPage";
-            treeNode5.Text = "Theme";
+            treeNode9.Name = "generalSetPage";
+            treeNode9.Text = "General";
+            treeNode10.Name = "accountSetPage";
+            treeNode10.Text = "Account";
+            treeNode11.Name = "Node0";
+            treeNode11.Text = "Entries";
+            treeNode12.Name = "appSetPage";
+            treeNode12.Text = "App";
             this.LeftSettingsNav.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3,
-            treeNode4,
-            treeNode5});
+            treeNode9,
+            treeNode10,
+            treeNode11,
+            treeNode12});
             this.LeftSettingsNav.NodeSelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.LeftSettingsNav.NodeSplitLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(66)))), ((int)(((byte)(66)))));
@@ -1100,7 +1210,7 @@
             this.LeftSettingsNav.ShowLines = false;
             this.LeftSettingsNav.ShowPlusMinus = false;
             this.LeftSettingsNav.ShowRootLines = false;
-            this.LeftSettingsNav.Size = new System.Drawing.Size(109, 582);
+            this.LeftSettingsNav.Size = new System.Drawing.Size(82, 598);
             this.LeftSettingsNav.TabIndex = 17;
             this.LeftSettingsNav.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.LeftMenuNav_AfterSelect);
             // 
@@ -1108,7 +1218,7 @@
             // 
             this.ResetAccountCheckbox.AutoSize = true;
             this.ResetAccountCheckbox.Depth = 0;
-            this.ResetAccountCheckbox.Location = new System.Drawing.Point(124, 41);
+            this.ResetAccountCheckbox.Location = new System.Drawing.Point(93, 33);
             this.ResetAccountCheckbox.Margin = new System.Windows.Forms.Padding(0);
             this.ResetAccountCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.ResetAccountCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
@@ -1130,8 +1240,8 @@
             this.ResetLoginStatusButton.Depth = 0;
             this.ResetLoginStatusButton.HighEmphasis = true;
             this.ResetLoginStatusButton.Icon = null;
-            this.ResetLoginStatusButton.Location = new System.Drawing.Point(124, 139);
-            this.ResetLoginStatusButton.Margin = new System.Windows.Forms.Padding(5, 7, 5, 7);
+            this.ResetLoginStatusButton.Location = new System.Drawing.Point(93, 113);
+            this.ResetLoginStatusButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ResetLoginStatusButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ResetLoginStatusButton.Name = "ResetLoginStatusButton";
             this.ResetLoginStatusButton.NoAccentTextColor = System.Drawing.Color.Empty;
@@ -1149,7 +1259,7 @@
             // 
             this.ApplyDateCheckbox.AutoSize = true;
             this.ApplyDateCheckbox.Depth = 0;
-            this.ApplyDateCheckbox.Location = new System.Drawing.Point(124, 41);
+            this.ApplyDateCheckbox.Location = new System.Drawing.Point(93, 33);
             this.ApplyDateCheckbox.Margin = new System.Windows.Forms.Padding(0);
             this.ApplyDateCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.ApplyDateCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
@@ -1168,7 +1278,7 @@
             // 
             this.LightModeCheckbox.AutoSize = true;
             this.LightModeCheckbox.Depth = 0;
-            this.LightModeCheckbox.Location = new System.Drawing.Point(124, 41);
+            this.LightModeCheckbox.Location = new System.Drawing.Point(93, 70);
             this.LightModeCheckbox.Margin = new System.Windows.Forms.Padding(0);
             this.LightModeCheckbox.MouseLocation = new System.Drawing.Point(-1, -1);
             this.LightModeCheckbox.MouseState = MaterialSkin.MouseState.HOVER;
@@ -1190,11 +1300,10 @@
             this.SettingsTabSelector.Depth = 0;
             this.SettingsTabSelector.Dock = System.Windows.Forms.DockStyle.Top;
             this.SettingsTabSelector.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.SettingsTabSelector.Location = new System.Drawing.Point(4, 4);
-            this.SettingsTabSelector.Margin = new System.Windows.Forms.Padding(4);
+            this.SettingsTabSelector.Location = new System.Drawing.Point(3, 3);
             this.SettingsTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.SettingsTabSelector.Name = "SettingsTabSelector";
-            this.SettingsTabSelector.Size = new System.Drawing.Size(1181, 30);
+            this.SettingsTabSelector.Size = new System.Drawing.Size(1007, 24);
             this.SettingsTabSelector.TabIndex = 2;
             this.SettingsTabSelector.Text = "MaterialTabSelector2";
             // 
@@ -1203,10 +1312,10 @@
             this.ReleaseNotesPage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.ReleaseNotesPage.Controls.Add(this.ReleaseNotesMultiText);
             this.ReleaseNotesPage.Controls.Add(this.materialTabSelector1);
-            this.ReleaseNotesPage.Location = new System.Drawing.Point(4, 25);
-            this.ReleaseNotesPage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ReleaseNotesPage.Location = new System.Drawing.Point(4, 22);
+            this.ReleaseNotesPage.Margin = new System.Windows.Forms.Padding(2);
             this.ReleaseNotesPage.Name = "ReleaseNotesPage";
-            this.ReleaseNotesPage.Size = new System.Drawing.Size(1189, 620);
+            this.ReleaseNotesPage.Size = new System.Drawing.Size(1013, 628);
             this.ReleaseNotesPage.TabIndex = 6;
             this.ReleaseNotesPage.Text = "Release Notes";
             // 
@@ -1220,12 +1329,12 @@
             this.ReleaseNotesMultiText.Depth = 0;
             this.ReleaseNotesMultiText.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.ReleaseNotesMultiText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.ReleaseNotesMultiText.Location = new System.Drawing.Point(4, 40);
-            this.ReleaseNotesMultiText.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ReleaseNotesMultiText.Location = new System.Drawing.Point(3, 32);
+            this.ReleaseNotesMultiText.Margin = new System.Windows.Forms.Padding(2);
             this.ReleaseNotesMultiText.MouseState = MaterialSkin.MouseState.HOVER;
             this.ReleaseNotesMultiText.Name = "ReleaseNotesMultiText";
             this.ReleaseNotesMultiText.ReadOnly = true;
-            this.ReleaseNotesMultiText.Size = new System.Drawing.Size(1183, 580);
+            this.ReleaseNotesMultiText.Size = new System.Drawing.Size(1008, 597);
             this.ReleaseNotesMultiText.TabIndex = 4;
             this.ReleaseNotesMultiText.Text = "";
             // 
@@ -1237,11 +1346,10 @@
             this.materialTabSelector1.CharacterCasing = MaterialSkin.Controls.MaterialTabSelector.CustomCharacterCasing.Normal;
             this.materialTabSelector1.Depth = 0;
             this.materialTabSelector1.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.materialTabSelector1.Location = new System.Drawing.Point(4, 4);
-            this.materialTabSelector1.Margin = new System.Windows.Forms.Padding(4);
+            this.materialTabSelector1.Location = new System.Drawing.Point(3, 3);
             this.materialTabSelector1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialTabSelector1.Name = "materialTabSelector1";
-            this.materialTabSelector1.Size = new System.Drawing.Size(1183, 30);
+            this.materialTabSelector1.Size = new System.Drawing.Size(1010, 24);
             this.materialTabSelector1.TabIndex = 3;
             this.materialTabSelector1.Text = "ReleaseNotesTabSelector";
             // 
@@ -1267,17 +1375,33 @@
             this.SysTrayIcon.Text = "SafeNotes Tray";
             this.SysTrayIcon.Visible = true;
             // 
+            // AutoLockTimer
+            // 
+            this.AutoLockTimer.Interval = 300000;
+            this.AutoLockTimer.Tick += new System.EventHandler(this.AutoLockTimer_Tick);
+            // 
+            // CustLockTimers
+            // 
+            this.CustLockTimers.AutoSize = true;
+            this.CustLockTimers.Depth = 0;
+            this.CustLockTimers.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.CustLockTimers.Location = new System.Drawing.Point(94, 155);
+            this.CustLockTimers.MouseState = MaterialSkin.MouseState.HOVER;
+            this.CustLockTimers.Name = "CustLockTimers";
+            this.CustLockTimers.Size = new System.Drawing.Size(147, 19);
+            this.CustLockTimers.TabIndex = 32;
+            this.CustLockTimers.Text = "Custom Lock Timers";
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.ClientSize = new System.Drawing.Size(1205, 731);
+            this.ClientSize = new System.Drawing.Size(1027, 720);
             this.Controls.Add(this.TabControl);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
-            this.Padding = new System.Windows.Forms.Padding(4, 78, 4, 4);
+            this.Padding = new System.Windows.Forms.Padding(3, 63, 3, 3);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Je ne sais pas...";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -1363,5 +1487,14 @@
         private System.Windows.Forms.LinkLabel PasswordLengthDisclaimer;
         private MaterialSkin.Controls.MaterialCheckbox MinToSysTray;
         private System.Windows.Forms.NotifyIcon SysTrayIcon;
+        private MaterialSkin.Controls.MaterialCheckbox AutoLockCheckbox;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer AutoLockTimer;
+        private MaterialSkin.Controls.MaterialCheckbox OneMinLock;
+        private MaterialSkin.Controls.MaterialCheckbox TwoMinLock;
+        private MaterialSkin.Controls.MaterialCheckbox TenMinLock;
+        private MaterialSkin.Controls.MaterialCheckbox FiveMinLock;
+        private MaterialSkin.Controls.MaterialCheckbox ThreeMinLock;
+        private MaterialSkin.Controls.MaterialLabel CustLockTimers;
     }
 }

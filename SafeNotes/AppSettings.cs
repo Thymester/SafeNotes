@@ -15,4 +15,10 @@ public class AppSettings
     public string Entries { get; set; } = string.Empty;
     public bool IsRestartingForUpdate { get; set; } = false;
     public bool MinimizeToTray { get; set; } = false;
+    public bool AutoLockSetting { get; set; } = false;
+    public bool OneMinLockSetting { get; set; } = false;
+    public bool TwoMinLockSetting { get; set; } = false;
+    public bool ThreeMinLockSetting { get; set; } = false;
+    public bool FiveMinLockSetting { get; set; } = false;
+    public bool TenMinLockSetting { get; set; } = false;
 }

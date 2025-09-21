@@ -1,5 +1,6 @@
 // File: SafeNotes/EventHandlers.cs
 using MaterialSkin;
+using Mook.UI.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
@@ -20,13 +21,59 @@ namespace SafeNotes
     public partial class MainForm : MaterialSkin.Controls.MaterialForm
     {
         private AppSettings _settings;
-        private NotifyIcon notifyIcon;
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
             InitializeSysTrayIcon();
+
+            this.Activated += MainForm_Activated;
+            this.Deactivate += MainForm_Deactivate;
+            this.Resize += MainForm_Resize;
+
             _settings = SettingsManager.LoadSettings();
             shouldExit = false;
+
+            OneMinLock.CheckedChanged -= OneMinLock_CheckedChanged;
+            TwoMinLock.CheckedChanged -= TwoMinLock_CheckedChanged;
+            ThreeMinLock.CheckedChanged -= ThreeMinLock_CheckedChanged;
+            FiveMinLock.CheckedChanged -= FiveMinLock_CheckedChanged;
+            TenMinLock.CheckedChanged -= TenMinLock_CheckedChanged;
+
+            OneMinLock.CheckedChanged += OneMinLock_CheckedChanged;
+            TwoMinLock.CheckedChanged += TwoMinLock_CheckedChanged;
+            ThreeMinLock.CheckedChanged += ThreeMinLock_CheckedChanged;
+            FiveMinLock.CheckedChanged += FiveMinLock_CheckedChanged;
+            TenMinLock.CheckedChanged += TenMinLock_CheckedChanged;
+
+            _lockCheckboxGuard = true;
+            OneMinLock.Checked = _settings.OneMinLockSetting;
+            TwoMinLock.Checked = _settings.TwoMinLockSetting;
+            ThreeMinLock.Checked = _settings.ThreeMinLockSetting;
+            FiveMinLock.Checked = _settings.FiveMinLockSetting;
+            TenMinLock.Checked = _settings.TenMinLockSetting;
+            _lockCheckboxGuard = false;
+
+            if (AutoLockCheckbox.Checked)
+            {
+                if (OneMinLock.Checked)
+                    autoLockSecondsRemaining = 60;
+                else if (TwoMinLock.Checked)
+                    autoLockSecondsRemaining = 120;
+                else if (ThreeMinLock.Checked)
+                    autoLockSecondsRemaining = 180;
+                else if (FiveMinLock.Checked)
+                    autoLockSecondsRemaining = 300;
+                else if (TenMinLock.Checked)
+                    autoLockSecondsRemaining = 600;
+                else
+                    autoLockSecondsRemaining = 300;
+            }
+            else
+            {
+                autoLockSecondsRemaining = 0;
+            }
+
+            SetAppTitle();
 
             if (_settings.IsRestartingForUpdate == true)
             {
@@ -90,7 +137,6 @@ namespace SafeNotes
             NotepadTitle.Text = null;
             LeftSettingsNav.SelectedNode = LeftSettingsNav.Nodes[0];
 
-            this.Text = "SafeNotes - v" + Application.ProductVersion;
             LoginTabSelector.Visible = false;
 
             if (!_settings.IsUserLoggedIn)
@@ -138,6 +184,14 @@ namespace SafeNotes
             DisableNotificationsCheckbox.Checked = _settings.DisableNotifications;
             RequirePinToLogin.Checked = _settings.RequirePinCode;
             MinToSysTray.Checked = _settings.MinimizeToTray;
+            AutoLockCheckbox.Checked = _settings.AutoLockSetting;
+            _lockCheckboxGuard = true;
+            OneMinLock.Checked = _settings.OneMinLockSetting;
+            TwoMinLock.Checked = _settings.TwoMinLockSetting;
+            ThreeMinLock.Checked = _settings.ThreeMinLockSetting;
+            FiveMinLock.Checked = _settings.FiveMinLockSetting;
+            TenMinLock.Checked = _settings.TenMinLockSetting;
+            _lockCheckboxGuard = false;
 
             // Fetching the release info to popu` ReleaseNotesMultiText and uses a thread to not block the UI
             await Task.Run(async () =>
@@ -170,6 +224,30 @@ namespace SafeNotes
                     ReleaseNotesMultiText.Text = "It seems you are offline or an error has occured and were unable to fetch release notes.";
                 }
             });
+        }
+
+        private void SetAppTitle()
+        {
+            string namePart = !string.IsNullOrWhiteSpace(_settings?.YourName) ? $" / {_settings.YourName}" : "";
+            string autoLockPart = "";
+
+            if (AutoLockCheckbox.Checked && autoLockSecondsRemaining > 0)
+            {
+                int m = autoLockSecondsRemaining / 60;
+                int s = autoLockSecondsRemaining % 60;
+                if ((Form.ActiveForm == this || this.ContainsFocus) && this.WindowState == FormWindowState.Normal)
+                {
+                    autoLockPart = $" (Auto-lock paused at {m:D2}:{s:D2})";
+                }
+                else
+                {
+                    autoLockPart = $" (Auto-lock in {m:D2}:{s:D2})";
+                }
+            }
+
+            this.Text = $"SafeNotes - v{Application.ProductVersion}{namePart}{autoLockPart}";
+            if (SysTrayIcon != null)
+                SysTrayIcon.Text = this.Text;
         }
 
         private void PasswordDisclaimer_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -726,10 +804,10 @@ namespace SafeNotes
 
             if (YourNameBox.Text == "")
             {
-                this.Text = "SafeNotes - v" + Application.ProductVersion;
+                SetAppTitle();
             } else
             {
-                this.Text = "SafeNotes - v" + Application.ProductVersion + " / " + YourNameBox.Text;
+                SetAppTitle();
             }
         }
 
@@ -810,184 +888,151 @@ namespace SafeNotes
             Application.Restart();
         }
 
+        private int autoLockSecondsRemaining;
+
+        private void UpdateAutoLockTitle()
+        {
+            if (autoLockSecondsRemaining > 0)
+            {
+                int minutes = autoLockSecondsRemaining / 60;
+                int seconds = autoLockSecondsRemaining % 60;
+                
+                if (!string.IsNullOrWhiteSpace(YourNameBox.Text))
+                {
+                    SetAppTitle();
+                }
+                else
+                {
+                    SetAppTitle();
+                }
+            }
+            else
+            {
+                SetAppTitle();
+            }
+        }
+
         private void UserLoginButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(UserPassword.Text) && string.IsNullOrWhiteSpace(UserConfirmPassword.Text))
+            // Registration logic
+            if (UserLoginButton.Text == "Register")
             {
-                MessageBox.Show("Please enter a password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else if (UserLoginButton.Text == "Register")
-            {
-                if (UserPassword.Text == UserConfirmPassword.Text)
+                if (string.IsNullOrWhiteSpace(UserPassword.Text) || string.IsNullOrWhiteSpace(UserConfirmPassword.Text))
                 {
-                    // Check if the password is strong enough
-                    // Must be 8 characters long and contain special characters
-                    //if (UserPassword.Text.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(UserPassword.Text, @"[!@#$%^&*(),.?""{}|<>]"))
-                    //{
-                    //    MessageBox.Show("Your password must be at least 8 characters long and contain special characters.", "Weak Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    //    return;
-                    //}
-
-                    PasswordStrength.Visible = false;
-                    PasswordLengthDisclaimer.Visible = false;
-
-                    // Checks if any of the supported password managers are installed
-                    string[] supportedManagers = { "Bitwarden", "KeePass Password Safe 2", "1Password", "LastPass", "ProtonPass", "NordPass" };
-                    string managerToOpen = null;
-                    foreach (string manager in supportedManagers)
-                    {
-                        string path = FindManagerPath(manager);
-                        if (!string.IsNullOrEmpty(path))
-                        {
-                            managerToOpen = manager;
-                            break;
-                        }
-                    }
-
-                    if (managerToOpen != null)
-                    {
-                        DialogResult savePassword = MessageBox.Show("Do you want to save your password to " + managerToOpen + "?", "Save Password", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (savePassword == DialogResult.Yes)
-                        {
-                            string managerPath = FindManagerPath(managerToOpen);
-                            if (managerPath != null)
-                            {
-                                string args = GetManagerArgs(managerToOpen);
-                                if (!string.IsNullOrEmpty(args))
-                                {
-                                    Process.Start(managerPath, args);
-                                    Clipboard.SetText(UserPassword.Text);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("None of the supported password managers are installed.\n\nRemember to save your password to gurantee access to SafeNotes.", "Password Manager Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        UserPassword.Text = UserConfirmPassword.Text;
-                        UserConfirmPassword.Text = UserPassword.Text;
-                    }
-
-                    // Generate a unique salt and store it in setSaltedDecryptionKey
-                    byte[] salt = new byte[16];
-                    using (var rng = new RNGCryptoServiceProvider())
-                    {
-                        rng.GetBytes(salt);
-                    }
-
-                    string hashedPassword = HashPassword(UserPassword.Text);
-                    _settings.UserPassword = hashedPassword;
-                    SettingsManager.SaveSettings(_settings);
-                    UserConfirmPassword.Visible = false;
-                    UserLoginButton.Text = "Login";
-                    UserPassword.Location = new System.Drawing.Point(300, 150);
+                    MessageBox.Show("Please enter and confirm your password.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
-                else
+                if (UserPassword.Text != UserConfirmPassword.Text)
                 {
-                    MessageBox.Show("The passwords do not match.", "Mismatched passwords", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Passwords do not match.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
+
+                // Save password
+                string hashedPassword = HashPassword(UserPassword.Text);
+                _settings.UserPassword = hashedPassword;
+                SettingsManager.SaveSettings(_settings);
+
+                UserConfirmPassword.Visible = false;
+                UserLoginButton.Text = "Login";
+                UserPassword.Location = new System.Drawing.Point(300, 150);
+                PasswordStrength.Visible = false;
+                PasswordLengthDisclaimer.Visible = false;
+                SetAppTitle();
+                return;
             }
-            else if (UserLoginButton.Text == "Login")
+
+            // Login logic
+            if (UserLoginButton.Text == "Login")
             {
+                if (string.IsNullOrWhiteSpace(UserPassword.Text))
+                {
+                    MessageBox.Show("Please enter your password.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 string storedHash = _settings.UserPassword;
-                if (VerifyPassword(UserPassword.Text, storedHash))
+                if (!VerifyPassword(UserPassword.Text, storedHash))
                 {
-                    if (_settings.RequirePinCode)
+                    MessageBox.Show("Incorrect password.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // PIN logic
+                if (_settings.RequirePinCode)
+                {
+                    if (string.IsNullOrWhiteSpace(_settings.PinCode))
                     {
-                        if (string.IsNullOrWhiteSpace(_settings.PinCode))
+                        if (string.IsNullOrWhiteSpace(UserPINCodeField.Text))
                         {
-                            // Set the pin code if it is empty
-                            if (string.IsNullOrWhiteSpace(UserPINCodeField.Text))
-                            {
-                                MessageBox.Show("Please enter a pin code.", "Pin Code Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                return;
-                            }
-                            else if (!System.Text.RegularExpressions.Regex.IsMatch(UserPINCodeField.Text, @"^\d{4,}$"))
-                            {
-                                MessageBox.Show("Pin code must be numerical and at least 4 digits long.", "Invalid Pin Code", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                return;
-                            }
-                            else
-                            {
-                                _settings.PinCode = HashPassword(UserPINCodeField.Text);
-                                SettingsManager.SaveSettings(_settings);
-                                MessageBox.Show("Your PIN code has been successfully set and will now be required at login.", "Pin Code Set", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                UserPINCodeField.Hint = "Enter your PIN...";
-                            }
+                            MessageBox.Show("Please enter a PIN code.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
                         }
-                        else
+                        if (!Regex.IsMatch(UserPINCodeField.Text, @"^\d{4,}$"))
                         {
-                            if (string.IsNullOrWhiteSpace(UserPINCodeField.Text) || !VerifyPassword(UserPINCodeField.Text, _settings.PinCode))
-                            {
-                                MessageBox.Show("Invalid pin code.", "Pin Code Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
+                            MessageBox.Show("PIN code must be at least 4 digits.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
                         }
-                    }
-
-                    // Use the entered password for decryption
-                    securePassword = ConvertToSecureString(UserPassword.Text);
-
-                    // Show that the user is logged in and make the entriesListBox visible
-                    _settings.IsUserLoggedIn = true;
-                    EntriesListBox.Visible = true;
-                    UserLoginButton.Enabled = false;
-                    LoginTabSelector.Enabled = true;
-                    TabControl.TabPages.Remove(LoginPage);
-
-                    SettingsManager.SaveSettings(_settings);
-
-                    // Load the entries from the settings into the entriesListBox
-                    if (!string.IsNullOrWhiteSpace(_settings.Entries))
-                    {
-                        string[] entries = _settings.Entries.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string entry in entries)
-                        {
-                            string decryptedText = DecryptString(entry, ConvertToUnsecureString(securePassword));
-                            if (decryptedText != null)
-                            {
-                                EntriesListBox.Items.Add(decryptedText);
-                            }
-                        }
-                    }
-
-                    if (EntriesListBox.Items.Count > 1)
-                    {
-                        DeleteEntriesButton.Visible = true;
-                    }
-
-                    // Update the savedEntriesCount label
-                    SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count.ToString();
-                    // Update the charsInNotepad label
-                    CharsInNotepad.Text = "Characters: " + NotepadTextBox.Text.Length.ToString();
-
-                    // Update the columnInNotepad label, if the notepadTextBox.Text is empty, set the columnInNotepad label to 0
-                    if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
-                    {
-                        ColumnInNotepad.Text = "Columns: 0";
+                        _settings.PinCode = HashPassword(UserPINCodeField.Text);
+                        SettingsManager.SaveSettings(_settings);
                     }
                     else
                     {
-                        // Update the columnInNotepad label
-                        ColumnInNotepad.Text = "Columns: " + NotepadTextBox.Text.Split('\n').Length.ToString();
+                        if (string.IsNullOrWhiteSpace(UserPINCodeField.Text) || !VerifyPassword(UserPINCodeField.Text, _settings.PinCode))
+                        {
+                            MessageBox.Show("Incorrect PIN code.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
                     }
-
-                    // Clear the password from the TextBox
-                    UserPassword.Text = string.Empty;
-                }
-                else
-                {
-                    MessageBox.Show("The password does not match the record on file...", "Password Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                if (ChangeNameButton.Text == "Save name" && _settings.IsUserLoggedIn)
+                // Set login state
+                securePassword = ConvertToSecureString(UserPassword.Text);
+                _settings.IsUserLoggedIn = true;
+                SettingsManager.SaveSettings(_settings);
+
+                EntriesListBox.Visible = true;
+                UserLoginButton.Enabled = false;
+                LoginTabSelector.Enabled = true;
+                TabControl.TabPages.Remove(LoginPage);
+
+                // Load entries
+                EntriesListBox.Items.Clear();
+                if (!string.IsNullOrWhiteSpace(_settings.Entries))
                 {
-                    this.Text = "SafeNotes - v" + Application.ProductVersion;
+                    string[] entries = _settings.Entries.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string entry in entries)
+                    {
+                        string decryptedText = DecryptString(entry, ConvertToUnsecureString(securePassword));
+                        if (decryptedText != null)
+                            EntriesListBox.Items.Add(decryptedText);
+                    }
                 }
-                else if (ChangeNameButton.Text == "Change name" && _settings.IsUserLoggedIn)
+
+                DeleteEntriesButton.Visible = EntriesListBox.Items.Count > 1;
+                SavedEntriesCount.Text = "Saved entries: " + EntriesListBox.Items.Count;
+                CharsInNotepad.Text = "Characters: " + NotepadTextBox.Text.Length;
+                ColumnInNotepad.Text = string.IsNullOrWhiteSpace(NotepadTextBox.Text)
+                    ? "Columns: 0"
+                    : "Columns: " + NotepadTextBox.Text.Split('\n').Length.ToString();
+
+                UserPassword.Text = string.Empty;
+
+                // Auto-lock timer setup
+                if (AutoLockCheckbox.Checked)
                 {
-                    this.Text = "SafeNotes - v" + Application.ProductVersion + " / " + YourNameBox.Text;
+                    int selectedSeconds = 300;
+                    if (OneMinLock.Checked) selectedSeconds = 60;
+                    else if (TwoMinLock.Checked) selectedSeconds = 120;
+                    else if (ThreeMinLock.Checked) selectedSeconds = 180;
+                    else if (FiveMinLock.Checked) selectedSeconds = 300;
+                    else if (TenMinLock.Checked) selectedSeconds = 600;
+                    autoLockSecondsRemaining = selectedSeconds;
+                    AutoLockTimer.Enabled = false;
+                    UpdateAutoLockTitle();
                 }
+
+                SetAppTitle();
             }
         }
 
@@ -1024,23 +1069,388 @@ namespace SafeNotes
             ToolTips.Show(UserConfirmPassword.HelperText, UserConfirmPassword);
         }
 
+        private void MainForm_Activated(object sender, EventArgs e)
+        {
+            // Stop auto-lock countdown when app is in focus
+            if (AutoLockCountdownTimer != null)
+                AutoLockCountdownTimer.Stop();
+
+            // Indicate timer is paused in the app title
+            if (autoLockSecondsRemaining > 0 && AutoLockCheckbox.Checked && _settings.IsUserLoggedIn)
+            {
+                int minutes = autoLockSecondsRemaining / 60;
+                int seconds = autoLockSecondsRemaining % 60;
+                
+                if (!string.IsNullOrWhiteSpace(YourNameBox.Text))
+                {
+                    SetAppTitle();
+                } else
+                {
+                    SetAppTitle();
+                }
+            }
+            else
+            {
+                SetAppTitle();
+            }
+
+            if (SysTrayIcon != null)
+                SysTrayIcon.Text = this.Text;
+        }
+
+        private void MainForm_Deactivate(object sender, EventArgs e)
+        {
+            if (AutoLockCheckbox.Checked && _settings.IsUserLoggedIn)
+            {
+                int selectedSeconds = 300;
+                if (OneMinLock.Checked)
+                    selectedSeconds = 60;
+                else if (TwoMinLock.Checked)
+                    selectedSeconds = 120;
+                else if (ThreeMinLock.Checked)
+                    selectedSeconds = 180;
+                else if (FiveMinLock.Checked)
+                    selectedSeconds = 300;
+                else if (TenMinLock.Checked)
+                    selectedSeconds = 600;
+
+                autoLockSecondsRemaining = selectedSeconds;
+
+                if (AutoLockCountdownTimer == null)
+                {
+                    AutoLockCountdownTimer = new Timer();
+                    AutoLockCountdownTimer.Tick += AutoLockCountdownTimer_Tick;
+                }
+                AutoLockCountdownTimer.Interval = 1000;
+                AutoLockCountdownTimer.Stop();
+                AutoLockCountdownTimer.Start();
+                UpdateAutoLockTitle();
+                if (SysTrayIcon != null)
+                    SysTrayIcon.Text = $"SafeNotes - v{Application.ProductVersion} (Auto-lock in {selectedSeconds / 60:D2}:00)";
+            }
+            else
+            {
+                // Ensure timer is stopped if not logged in
+                if (AutoLockCountdownTimer != null)
+                    AutoLockCountdownTimer.Stop();
+            }
+        }
+
+        private Timer AutoLockCountdownTimer;
+
+        private void AutoLockCountdownTimer_Tick(object sender, EventArgs e)
+        {
+            // Only run countdown if logged in
+            if (!_settings.IsUserLoggedIn)
+            {
+                AutoLockCountdownTimer.Stop();
+                autoLockSecondsRemaining = 0;
+                UpdateAutoLockTitle();
+                return;
+            }
+
+            if (autoLockSecondsRemaining > 0)
+            {
+                autoLockSecondsRemaining--;
+                UpdateAutoLockTitle();
+
+                // Update tray icon text with countdown
+                if (SysTrayIcon != null)
+                {
+                    int minutes = autoLockSecondsRemaining / 60;
+                    int seconds = autoLockSecondsRemaining % 60;
+                    SysTrayIcon.Text = $"SafeNotes - v{Application.ProductVersion} (Auto-lock in {minutes:D2}:{seconds:D2})";
+                }
+
+                if (autoLockSecondsRemaining == 0)
+                {
+                    AutoLockCountdownTimer.Stop();
+                    // Directly call the logout logic
+                    AutoLockTimer_Tick(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        private void RestartAutoLockCountdownIfNeeded()
+        {
+            if (AutoLockCheckbox.Checked && _settings.IsUserLoggedIn && !(Form.ActiveForm == this || this.ContainsFocus) && this.WindowState == FormWindowState.Normal)
+            {
+                if (AutoLockCountdownTimer == null)
+                {
+                    AutoLockCountdownTimer = new Timer();
+                    AutoLockCountdownTimer.Tick += AutoLockCountdownTimer_Tick;
+                }
+                AutoLockCountdownTimer.Interval = 1000;
+                AutoLockCountdownTimer.Stop();
+                AutoLockCountdownTimer.Start();
+            }
+        }
+
+        private bool _lockCheckboxGuard = false;
+
+        private void OneMinLock_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_lockCheckboxGuard) return;
+            if (OneMinLock.Checked == true)
+            {
+                _lockCheckboxGuard = true;
+                TwoMinLock.Checked = false;
+                ThreeMinLock.Checked = false;
+                FiveMinLock.Checked = false;
+                TenMinLock.Checked = false;
+                _settings.OneMinLockSetting = true;
+                _settings.TwoMinLockSetting = false;
+                _settings.ThreeMinLockSetting = false;
+                _settings.FiveMinLockSetting = false;
+                _settings.TenMinLockSetting = false;
+                SettingsManager.SaveSettings(_settings);
+                autoLockSecondsRemaining = 60;
+                UpdateAutoLockTitle();
+                RestartAutoLockCountdownIfNeeded();
+                _lockCheckboxGuard = false;
+            }
+            else if (OneMinLock.Checked == false && !TwoMinLock.Checked && !ThreeMinLock.Checked && !FiveMinLock.Checked && !TenMinLock.Checked)
+            {
+                // Prevent unchecking all checkboxes
+                _lockCheckboxGuard = true;
+                OneMinLock.Checked = true;
+                _lockCheckboxGuard = false;
+            }
+        }
+
+        private void TwoMinLock_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_lockCheckboxGuard) return;
+            if (TwoMinLock.Checked == true)
+            {
+                _lockCheckboxGuard = true;
+                OneMinLock.Checked = false;
+                ThreeMinLock.Checked = false;
+                FiveMinLock.Checked = false;
+                TenMinLock.Checked = false;
+                _settings.OneMinLockSetting = false;
+                _settings.TwoMinLockSetting = true;
+                _settings.ThreeMinLockSetting = false;
+                _settings.FiveMinLockSetting = false;
+                _settings.TenMinLockSetting = false;
+                SettingsManager.SaveSettings(_settings);
+                autoLockSecondsRemaining = 120;
+                UpdateAutoLockTitle();
+                RestartAutoLockCountdownIfNeeded();
+                _lockCheckboxGuard = false;
+            }
+            else if (TwoMinLock.Checked == false && !OneMinLock.Checked && !ThreeMinLock.Checked && !FiveMinLock.Checked && !TenMinLock.Checked)
+            {
+                // Prevent unchecking all checkboxes
+                _lockCheckboxGuard = true;
+                TwoMinLock.Checked = true;
+                _lockCheckboxGuard = false;
+            }
+        }
+
+        private void ThreeMinLock_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_lockCheckboxGuard) return;
+            if (ThreeMinLock.Checked == true)
+            {
+                _lockCheckboxGuard = true;
+                OneMinLock.Checked = false;
+                TwoMinLock.Checked = false;
+                FiveMinLock.Checked = false;
+                TenMinLock.Checked = false;
+                _settings.OneMinLockSetting = false;
+                _settings.TwoMinLockSetting = false;
+                _settings.ThreeMinLockSetting = true;
+                _settings.FiveMinLockSetting = false;
+                _settings.TenMinLockSetting = false;
+                SettingsManager.SaveSettings(_settings);
+                autoLockSecondsRemaining = 180;
+                UpdateAutoLockTitle();
+                RestartAutoLockCountdownIfNeeded();
+                _lockCheckboxGuard = false;
+            }
+            else if (ThreeMinLock.Checked == false && !OneMinLock.Checked && !TwoMinLock.Checked && !FiveMinLock.Checked && !TenMinLock.Checked)
+            {
+                // Prevent unchecking all checkboxes
+                _lockCheckboxGuard = true;
+                ThreeMinLock.Checked = true;
+                _lockCheckboxGuard = false;
+            }
+        }
+
+        private void FiveMinLock_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_lockCheckboxGuard) return;
+            if (FiveMinLock.Checked == true)
+            {
+                _lockCheckboxGuard = true;
+                OneMinLock.Checked = false;
+                TwoMinLock.Checked = false;
+                ThreeMinLock.Checked = false;
+                TenMinLock.Checked = false;
+                _settings.OneMinLockSetting = false;
+                _settings.TwoMinLockSetting = false;
+                _settings.ThreeMinLockSetting = false;
+                _settings.FiveMinLockSetting = true;
+                _settings.TenMinLockSetting = false;
+                SettingsManager.SaveSettings(_settings);
+                autoLockSecondsRemaining = 300;
+                UpdateAutoLockTitle();
+                RestartAutoLockCountdownIfNeeded();
+                _lockCheckboxGuard = false;
+            }
+            else if (FiveMinLock.Checked == false && !OneMinLock.Checked && !TwoMinLock.Checked && !ThreeMinLock.Checked && !TenMinLock.Checked)
+            {
+                // Prevent unchecking all checkboxes
+                _lockCheckboxGuard = true;
+                FiveMinLock.Checked = true;
+                _lockCheckboxGuard = false;
+            }
+        }
+
+        private void TenMinLock_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_lockCheckboxGuard) return;
+            if (TenMinLock.Checked == true)
+            {
+                _lockCheckboxGuard = true;
+                OneMinLock.Checked = false;
+                TwoMinLock.Checked = false;
+                ThreeMinLock.Checked = false;
+                FiveMinLock.Checked = false;
+                _settings.OneMinLockSetting = false;
+                _settings.TwoMinLockSetting = false;
+                _settings.ThreeMinLockSetting = false;
+                _settings.FiveMinLockSetting = false;
+                _settings.TenMinLockSetting = true;
+                SettingsManager.SaveSettings(_settings);
+                autoLockSecondsRemaining = 600;
+                UpdateAutoLockTitle();
+                RestartAutoLockCountdownIfNeeded();
+                _lockCheckboxGuard = false;
+            }
+            else if (TenMinLock.Checked == false && !OneMinLock.Checked && !TwoMinLock.Checked && !ThreeMinLock.Checked && !FiveMinLock.Checked)
+            {
+                // Prevent unchecking all checkboxes
+                _lockCheckboxGuard = true;
+                TenMinLock.Checked = true;
+                _lockCheckboxGuard = false;
+            }
+        }
+
+        private void AutoLockTimer_Tick(object sender, EventArgs e)
+        {
+            // Log the user out and reset UI
+            if (_settings.IsUserLoggedIn)
+            {
+                _settings.IsUserLoggedIn = false;
+                SettingsManager.SaveSettings(_settings);
+
+                if (securePassword != null && EntriesListBox.Items.Count > 0)
+                {
+                    SaveEntries();
+                }
+
+                ClearInMemoryPassword();
+
+                // Show login page, focus, enable login button, disable navigation
+                if (!TabControl.TabPages.Contains(LoginPage))
+                    TabControl.TabPages.Add(LoginPage);
+                TabControl.SelectedTab = LoginPage;
+                LoginTabSelector.Enabled = false;
+                UserLoginButton.Enabled = true;
+                UserLoginButton.Focus();
+
+                // Stop the auto-lock timer
+                AutoLockTimer.Enabled = false;
+
+                // Clear entries for security
+                EntriesListBox.Items.Clear();
+                SavedEntriesCount.Text = "Saved entries: 0";
+            }
+            else
+            {
+                AutoLockTimer.Enabled = false;
+            }
+        }
+
+        private void AutoLockCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            _settings.AutoLockSetting = AutoLockCheckbox.Checked;
+            SettingsManager.SaveSettings(_settings);
+
+            if (AutoLockCheckbox.Checked && _settings.IsUserLoggedIn)
+            {
+                // Set 5 min as default if none selected
+                if (!OneMinLock.Checked && !TwoMinLock.Checked && !ThreeMinLock.Checked && !FiveMinLock.Checked && !TenMinLock.Checked)
+                {
+                    FiveMinLock.Checked = true;
+                }
+
+                int selectedSeconds = 300; // Default 5 min
+                if (OneMinLock.Checked)
+                    selectedSeconds = 60;
+                else if (TwoMinLock.Checked)
+                    selectedSeconds = 120;
+                else if (ThreeMinLock.Checked)
+                    selectedSeconds = 180;
+                else if (FiveMinLock.Checked)
+                    selectedSeconds = 300;
+                else if (TenMinLock.Checked)
+                    selectedSeconds = 600;
+
+                autoLockSecondsRemaining = selectedSeconds;
+
+                if (AutoLockCountdownTimer == null)
+                {
+                    AutoLockCountdownTimer = new Timer();
+                    AutoLockCountdownTimer.Tick += AutoLockCountdownTimer_Tick;
+                }
+                AutoLockCountdownTimer.Interval = 1000; // Always 1 second tick for countdown
+
+                AutoLockCountdownTimer.Stop();
+                AutoLockTimer.Enabled = false;
+                UpdateAutoLockTitle();
+
+                // Only start the timer if the app is NOT in focus
+                if (!(Form.ActiveForm == this || this.ContainsFocus) || this.WindowState != FormWindowState.Normal)
+                {
+                    AutoLockCountdownTimer.Start();
+                }
+            }
+            else
+            {
+                if (AutoLockCountdownTimer != null)
+                    AutoLockCountdownTimer.Stop();
+                AutoLockTimer.Enabled = false;
+                autoLockSecondsRemaining = 0;
+                UpdateAutoLockTitle();
+            }
+        }
+
         private void LeftMenuNav_AfterSelect(object sender, TreeViewEventArgs e)
         {
             // If the user clicks on the themeSetPage in the leftMenuNav, hide applyDateToEntryCheckbox, resetAccountOnCloseCheckbox and resetLoginStatusButton
             if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[0])
             {
                 ApplyDateCheckbox.Visible = true;
-                DisableNotificationsCheckbox.Visible = true;
+                LightModeCheckbox.Visible = true;
 
-                LightModeCheckbox.Visible = false;
                 ResetAccountCheckbox.Visible = false;
                 ResetLoginStatusButton.Visible = false;
                 ImportEntriesButton.Visible = false;
                 ExportEntriesButton.Visible = false;
                 EncryptEntriesButton.Visible = false;
+                DisableNotificationsCheckbox.Visible = false;
                 SettingsInfoLabel.Visible = false;
                 RequirePinToLogin.Visible = false;
                 MinToSysTray.Visible = false;
+                AutoLockCheckbox.Visible = false;
+                OneMinLock.Visible = false;
+                TwoMinLock.Visible = false;
+                ThreeMinLock.Visible = false;
+                FiveMinLock.Visible = false;
+                TenMinLock.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[1])
             {
@@ -1062,6 +1472,12 @@ namespace SafeNotes
                 DisableNotificationsCheckbox.Visible = false;
                 EncryptEntriesButton.Visible = false;
                 MinToSysTray.Visible = false;
+                AutoLockCheckbox.Visible = false;
+                OneMinLock.Visible = false;
+                TwoMinLock.Visible = false;
+                ThreeMinLock.Visible = false;
+                FiveMinLock.Visible = false;
+                TenMinLock.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[2])
             {
@@ -1084,36 +1500,28 @@ namespace SafeNotes
                 DisableNotificationsCheckbox.Visible = false;
                 RequirePinToLogin.Visible = false;
                 MinToSysTray.Visible = false;
+                AutoLockCheckbox.Visible = false;
+                OneMinLock.Visible = false;
+                TwoMinLock.Visible = false;
+                ThreeMinLock.Visible = false;
+                FiveMinLock.Visible = false;
+                TenMinLock.Visible = false;
             }
             else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3])
             {
                 MinToSysTray.Visible = true;
+                DisableNotificationsCheckbox.Visible = true;
+                AutoLockCheckbox.Visible = true;
 
                 ApplyDateCheckbox.Visible = false;
                 ResetAccountCheckbox.Visible = false;
                 ResetLoginStatusButton.Visible = false;
                 ImportEntriesButton.Visible = false;
                 ExportEntriesButton.Visible = false;
-                DisableNotificationsCheckbox.Visible = false;
                 EncryptEntriesButton.Visible = false;
                 SettingsInfoLabel.Visible = false;
                 RequirePinToLogin.Visible = false;
                 LightModeCheckbox.Visible = false;
-            }
-            else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[4])
-            {
-                LightModeCheckbox.Visible = true;
-
-                ApplyDateCheckbox.Visible = false;
-                ResetAccountCheckbox.Visible = false;
-                ResetLoginStatusButton.Visible = false;
-                ImportEntriesButton.Visible = false;
-                ExportEntriesButton.Visible = false;
-                DisableNotificationsCheckbox.Visible = false;
-                EncryptEntriesButton.Visible = false;
-                SettingsInfoLabel.Visible = false;
-                RequirePinToLogin.Visible = false;
-                MinToSysTray.Visible = false;
             }
         }
 
@@ -1324,6 +1732,25 @@ namespace SafeNotes
                 UsePassButton.Visible = true;
                 PasswordLengthSlider.Visible = true;
             }
+
+            if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3] && AutoLockCheckbox.Checked)
+            {
+                CustLockTimers.Visible = true;
+                OneMinLock.Visible = true;
+                TwoMinLock.Visible = true;
+                ThreeMinLock.Visible = true;
+                FiveMinLock.Visible = true;
+                TenMinLock.Visible = true;
+            }
+            else
+            {
+                CustLockTimers.Visible = false;
+                OneMinLock.Visible = false;
+                TwoMinLock.Visible = false;
+                ThreeMinLock.Visible = false;
+                FiveMinLock.Visible = false;
+                TenMinLock.Visible = false;
+            }
         }
 
         private void PasswordGenBox_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -1369,8 +1796,14 @@ namespace SafeNotes
             // If the text is empty, change the title of the app to its default
             if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
             {
-                this.Text = "SafeNotes";
-                this.Text += " - v" + Application.ProductVersion;
+                if (!string.IsNullOrWhiteSpace(YourNameBox.Text))
+                {
+                    SetAppTitle();
+                }
+                else
+                {
+                    SetAppTitle();
+                }
             }
         }
 
@@ -1542,7 +1975,7 @@ namespace SafeNotes
                     {
                         MessageBox.Show("The file you are trying to open is too big, please open a file that is less than 32768 characters.", "File Too Big", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         // Change the title of the form
-                        this.Text = "SafeNotes";
+                        SetAppTitle();
 
                         // Add the build version of the application to the title
                         this.Text += " - v" + Application.ProductVersion;
@@ -1558,11 +1991,11 @@ namespace SafeNotes
                     if (string.IsNullOrWhiteSpace(NotepadTextBox.Text))
                     {
                         MessageBox.Show("You cannot open an empty file.", "Empty File", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        // Change the title of the form
-                        this.Text = "SafeNotes";
+                        // Change the title of the form along with the name in the YourName.Text
+                        SetAppTitle();
 
                         // Add the build version of the application to the title
-                        this.Text += " - v" + Application.ProductVersion;
+                        SetAppTitle();
                     }
                 }
             }
@@ -1891,9 +2324,16 @@ namespace SafeNotes
 
         private void InitializeSysTrayIcon()
         {
+            if (SysTrayIcon != null)
+            {
+                SysTrayIcon.Visible = false;
+                SysTrayIcon.Dispose();
+                SysTrayIcon = null;
+            }
+
             SysTrayIcon = new NotifyIcon();
             SysTrayIcon.Icon = this.Icon;
-            SysTrayIcon.Text = "SafeNotes";
+            SysTrayIcon.Text = "SafeNotes " + ProductVersion;
             SysTrayIcon.Visible = false;
             SysTrayIcon.DoubleClick += SysTrayIcon_DoubleClick;
 
@@ -1936,6 +2376,7 @@ namespace SafeNotes
             this.WindowState = FormWindowState.Normal;
         }
 
+        // If MainForm_Resize is not implemented, ensure it exists:
         private void MainForm_Resize(object sender, EventArgs e)
         {
             if (_settings != null && _settings.MinimizeToTray)
