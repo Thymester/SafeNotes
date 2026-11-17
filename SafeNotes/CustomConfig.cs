@@ -21,6 +21,7 @@ namespace SafeNotes
         public bool RequirePinCode { get; set; } = false;
         public string PinCode { get; set; } = string.Empty;
         public string Entries { get; set; } = string.Empty;
+        public string TodoBoardData { get; set; } = string.Empty;
         public bool IsRestartingForUpdate { get; set; } = false;
         public bool MinimizeToTray { get; set; } = false;
         public bool AutoLockSetting { get; set; } = false;

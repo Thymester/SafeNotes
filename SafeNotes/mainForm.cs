@@ -4,11 +4,12 @@ using MaterialSkin.Controls;
 
 namespace SafeNotes
 {
-    public partial class mainForm : MaterialForm
+    public partial class MainForm : MaterialForm
     {
-        public mainForm()
+        public MainForm()
         {
             InitializeComponent();
+            InitializeSettingsControls();
 
             // Sets the default theme to dark, the theme will not be set if the lightModeCheckbox is checked
             var materialSkinManager = MaterialSkinManager.Instance;

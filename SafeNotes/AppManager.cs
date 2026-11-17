@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TabControl = System.Windows.Forms.TabControl;
 
 namespace SafeNotes
 {
@@ -135,7 +136,10 @@ namespace SafeNotes
             }
 
             NotepadTitle.Text = null;
-            LeftSettingsNav.SelectedNode = LeftSettingsNav.Nodes[0];
+            if (LeftSettingsNav.Nodes.Count > 0)
+                LeftSettingsNav.SelectedNode = LeftSettingsNav.Nodes[0];
+
+            InitializeTodoBoard();
 
             LoginTabSelector.Visible = false;
 
@@ -425,6 +429,9 @@ namespace SafeNotes
                     ResetAccountCheckbox.Enabled = false;
                     RequirePinToLogin.Enabled = false;
                     NotepadTextBox.Text = null;
+                    SaveTodoBoard();
+                    TodoBoardCtrl?.LoadBoard(new TodoBoard());
+                    if (TodoBoardCtrl != null) TodoBoardCtrl.Enabled = false;
 
                     MessageBox.Show("SafeNotes application entered lockdown mode.\n\nIf you wish to disable Lockdown Mode, you must restart SafeNotes.", "Lockdown Mode", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -541,6 +548,9 @@ namespace SafeNotes
                                 File.WriteAllText(fullPath, encryptedText);
 
                                 NotepadTextBox.Text = null;
+                    SaveTodoBoard();
+                    TodoBoardCtrl?.LoadBoard(new TodoBoard());
+                    if (TodoBoardCtrl != null) TodoBoardCtrl.Enabled = false;
                                 shouldExit = true;
                                 Close();
                             }
@@ -551,6 +561,9 @@ namespace SafeNotes
                         {
                             // Discard notepad and close
                             NotepadTextBox.Text = null;
+                    SaveTodoBoard();
+                    TodoBoardCtrl?.LoadBoard(new TodoBoard());
+                    if (TodoBoardCtrl != null) TodoBoardCtrl.Enabled = false;
                             shouldExit = true;
                             Close();
                             return;
@@ -584,6 +597,7 @@ namespace SafeNotes
                     {
                         if (_settings.IsUserLoggedIn)
                         {
+                            SaveTodoBoard();
                             _settings.IsUserLoggedIn = false;
                             SettingsManager.SaveSettings(_settings);
                             ClearInMemoryPassword();
@@ -616,6 +630,7 @@ namespace SafeNotes
                 {
                     // Clear all user data
                     UserPassword.Text = string.Empty;
+                LoadTodoBoardData();
                     UserConfirmPassword.Text = string.Empty;
 
                     _settings.UserPassword = string.Empty;
@@ -867,6 +882,7 @@ namespace SafeNotes
                 _settings.LightMode = false;
             }
             SettingsManager.SaveSettings(_settings);
+            UpdateTodoBoardTheme();
         }
 
         private void ApplyDateCheckbox_CheckedChanged(object sender, EventArgs e)
@@ -1017,6 +1033,7 @@ namespace SafeNotes
                     : "Columns: " + NotepadTextBox.Text.Split('\n').Length.ToString();
 
                 UserPassword.Text = string.Empty;
+                LoadTodoBoardData();
 
                 // Auto-lock timer setup
                 if (AutoLockCheckbox.Checked)
@@ -1346,10 +1363,13 @@ namespace SafeNotes
                 _settings.IsUserLoggedIn = false;
                 SettingsManager.SaveSettings(_settings);
 
-                if (securePassword != null && EntriesListBox.Items.Count > 0)
+                if (securePassword != null)
                 {
-                    SaveEntries();
+                    if (EntriesListBox.Items.Count > 0)
+                        SaveEntries();
+                    SaveTodoBoard();
                 }
+                TodoBoardCtrl?.LoadBoard(new TodoBoard());
 
                 ClearInMemoryPassword();
 
@@ -1430,99 +1450,8 @@ namespace SafeNotes
 
         private void LeftMenuNav_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            // If the user clicks on the themeSetPage in the leftMenuNav, hide applyDateToEntryCheckbox, resetAccountOnCloseCheckbox and resetLoginStatusButton
-            if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[0])
-            {
-                ApplyDateCheckbox.Visible = true;
-                LightModeCheckbox.Visible = true;
-
-                ResetAccountCheckbox.Visible = false;
-                ResetLoginStatusButton.Visible = false;
-                ImportEntriesButton.Visible = false;
-                ExportEntriesButton.Visible = false;
-                EncryptEntriesButton.Visible = false;
-                DisableNotificationsCheckbox.Visible = false;
-                SettingsInfoLabel.Visible = false;
-                RequirePinToLogin.Visible = false;
-                MinToSysTray.Visible = false;
-                AutoLockCheckbox.Visible = false;
-                OneMinLock.Visible = false;
-                TwoMinLock.Visible = false;
-                ThreeMinLock.Visible = false;
-                FiveMinLock.Visible = false;
-                TenMinLock.Visible = false;
-            }
-            else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[1])
-            {
-                ResetAccountCheckbox.Visible = true;
-                ResetLoginStatusButton.Visible = true;
-                RequirePinToLogin.Visible = true;
-                SettingsInfoLabel.Visible = true;
-
-                SettingsInfoLabel.Text = "Require Login PIN: The login PIN is a second layer of security to help eliminate unwanted access to SafeNotes." +
-                                         "\n\nNOTE: This is only as secure as you make it; the same goes for passwords. To ensure security, use a PIN code\n" + 
-                                         "generator, similar to SafeNotes built-in password generator, and to ensure that it is secure, make it a minimum " + 
-                                         "of\nat least eight numbers long.\n\nRemember to save your PIN and password in a password manager (e.g Bitwarden, " +
-                                         "1Password, ProtonPass, etc.)\nas doing so will ensure you do not lose access to SafeNotes.";
-
-                ApplyDateCheckbox.Visible = false;
-                LightModeCheckbox.Visible = false;
-                ImportEntriesButton.Visible = false;
-                ExportEntriesButton.Visible = false;
-                DisableNotificationsCheckbox.Visible = false;
-                EncryptEntriesButton.Visible = false;
-                MinToSysTray.Visible = false;
-                AutoLockCheckbox.Visible = false;
-                OneMinLock.Visible = false;
-                TwoMinLock.Visible = false;
-                ThreeMinLock.Visible = false;
-                FiveMinLock.Visible = false;
-                TenMinLock.Visible = false;
-            }
-            else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[2])
-            {
-                ImportEntriesButton.Visible = true;
-                ExportEntriesButton.Visible = true;
-                EncryptEntriesButton.Visible = true;
-                SettingsInfoLabel.Visible = true;
-
-                SettingsInfoLabel.Text = "" +
-                                             "Export Entries: This will export your encrypted entries into an entries.txt file for safe backups to\nuse later.\n\n" +
-                                             "Import Entries: This will import your previously exported entries; however, you must use the same\npassword used " +
-                                             "during exportation.\n\n" +
-                                             "Encrypted Entries Button: SafeNotes will automatically encrypt your entries and remove all entries\nfrom your " +
-                                             "EntriesListBox, activating Lockdown Mode.";
-
-                ResetAccountCheckbox.Visible = false;
-                ResetLoginStatusButton.Visible = false;
-                ApplyDateCheckbox.Visible = false;
-                LightModeCheckbox.Visible = false;
-                DisableNotificationsCheckbox.Visible = false;
-                RequirePinToLogin.Visible = false;
-                MinToSysTray.Visible = false;
-                AutoLockCheckbox.Visible = false;
-                OneMinLock.Visible = false;
-                TwoMinLock.Visible = false;
-                ThreeMinLock.Visible = false;
-                FiveMinLock.Visible = false;
-                TenMinLock.Visible = false;
-            }
-            else if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3])
-            {
-                MinToSysTray.Visible = true;
-                DisableNotificationsCheckbox.Visible = true;
-                AutoLockCheckbox.Visible = true;
-
-                ApplyDateCheckbox.Visible = false;
-                ResetAccountCheckbox.Visible = false;
-                ResetLoginStatusButton.Visible = false;
-                ImportEntriesButton.Visible = false;
-                ExportEntriesButton.Visible = false;
-                EncryptEntriesButton.Visible = false;
-                SettingsInfoLabel.Visible = false;
-                RequirePinToLogin.Visible = false;
-                LightModeCheckbox.Visible = false;
-            }
+            int index = (LeftSettingsNav.SelectedNode != null) ? LeftSettingsNav.SelectedNode.Index : 0;
+            SelectSettingsSubPage(index);
         }
 
         private void ExportEntriesButton_Click(object sender, System.EventArgs e)
@@ -1707,6 +1636,8 @@ namespace SafeNotes
 
         private void CheckTimer_Tick(object sender, EventArgs e)
         {
+            if (_settings == null) return;
+
             // If the entriesListBox does not have any items, disable the deleteEntriesButton
             if (EntriesListBox.Items.Count <= 1)
             {
@@ -1733,7 +1664,7 @@ namespace SafeNotes
                 PasswordLengthSlider.Visible = true;
             }
 
-            if (LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3] && AutoLockCheckbox.Checked)
+            if (LeftSettingsNav.Nodes.Count > 3 && LeftSettingsNav.SelectedNode == LeftSettingsNav.Nodes[3] && AutoLockCheckbox.Checked)
             {
                 CustLockTimers.Visible = true;
                 OneMinLock.Visible = true;

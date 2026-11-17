@@ -22,14 +22,16 @@ SafeNotes is perfect for anyone looking to keep their notes and journal entries 
 12. **Light Mode**: Switch to light mode for a different visual experience, catering to your preferences.
 13. **Reset Account Info/Password**: Easily reset your account information or password if needed, ensuring continued access to your notes.
 14. **Reset Login Status**: Reset your login status to ensure security if you suspect unauthorized access to your account.
+15. **Customizable Trello-Style To-Do Board**: A horizontal Kanban tracker with customizable workflow columns ("Planned", "In Progress", "Complete", etc.), drag-and-drop cards, one-click quick-move controls, priority tags, due dates, customizable templates for everyday people and developers, real-time search, progress tracking, and full AES-256 encryption.
 
 ## Usage
 
 1. **Login**: Enter your password to access your notes.
 2. **Journal**: Record your thoughts, ideas, and experiences in the journal.
 3. **Notepad**: Use the notepad for quick notes and file saving.
-4. **Settings**: Customize your SafeNotes experience, including dark or light mode preferences.
-5. **Password Management**: Update your password or reset account information as needed.
+4. **To-Do Board**: Organize, track, and move your tasks across customizable horizontal columns with drag-and-drop, priority badges, and templates.
+5. **Settings**: Customize your SafeNotes experience, including dark or light mode preferences.
+6. **Password Management**: Update your password or reset account information as needed.
 
 ## Contributing
 
@@ -66,6 +68,9 @@ This page documents the main UI elements, variable names, and their purpose/loca
 | **DecryptionStatusLabel**  | Label              | Status label shown during encryption/decryption actions.                                                      | `AppManager.cs`                    |
 | **LoginTabSelector**       | TabControl/Tab     | Login/registration tab; controls visibility depending on login state.                                         | `AppManager.cs`                    |
 | **LoginPage**              | TabPage            | Login/register interface.                                                                                     | `AppManager.cs`                    |
+| **TodoBoardPage**          | TabPage            | Hosts the Trello-style horizontal Kanban To-Do Board.                                                         | `MainForm.Designer.cs`             |
+| **TodoTabSelector**        | TabControl/Tab     | Tab selector navigation bar for the To-Do Board page.                                                         | `MainForm.Designer.cs`             |
+| **TodoBoardCtrl**          | TodoBoardControl   | Interactive horizontal Kanban board with columns, drag-and-drop cards, search, and progress tracking.          | `TodoBoardControl.cs`              |
 
 ---
 
