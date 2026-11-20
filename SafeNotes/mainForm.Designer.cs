@@ -153,7 +153,6 @@ namespace SafeNotes
             this.PasswordLengthSlider.Size = new System.Drawing.Size(596, 40);
             this.PasswordLengthSlider.TabIndex = 7;
             this.PasswordLengthSlider.Text = "Password Length";
-            this.ToolTips.SetToolTip(this.PasswordLengthSlider, "Changes the amount of characters generated for password.");
             this.PasswordLengthSlider.Value = 16;
             this.PasswordLengthSlider.Visible = false;
             // 
@@ -174,7 +173,6 @@ namespace SafeNotes
             this.UsePassButton.Size = new System.Drawing.Size(131, 36);
             this.UsePassButton.TabIndex = 6;
             this.UsePassButton.Text = "Use Password";
-            this.ToolTips.SetToolTip(this.UsePassButton, "Copies the password for use");
             this.UsePassButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.UsePassButton.UseAccentColor = false;
             this.UsePassButton.UseVisualStyleBackColor = true;
@@ -198,7 +196,6 @@ namespace SafeNotes
             this.RegenPassButton.Size = new System.Drawing.Size(95, 36);
             this.RegenPassButton.TabIndex = 5;
             this.RegenPassButton.Text = "Generate";
-            this.ToolTips.SetToolTip(this.RegenPassButton, "Regenerates a new password");
             this.RegenPassButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.RegenPassButton.UseAccentColor = false;
             this.RegenPassButton.UseVisualStyleBackColor = true;
@@ -358,7 +355,7 @@ namespace SafeNotes
             this.JournalEntryPage.Location = new System.Drawing.Point(4, 22);
             this.JournalEntryPage.Name = "JournalEntryPage";
             this.JournalEntryPage.Padding = new System.Windows.Forms.Padding(3);
-            this.JournalEntryPage.Size = new System.Drawing.Size(836, 438);
+            this.JournalEntryPage.Size = new System.Drawing.Size(1081, 573);
             this.JournalEntryPage.TabIndex = 0;
             this.JournalEntryPage.Text = "Journal";
             this.JournalEntryPage.Click += new System.EventHandler(this.JournalEntryPage_Click);
@@ -368,7 +365,7 @@ namespace SafeNotes
             this.SavedEntriesCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.SavedEntriesCount.Depth = 0;
             this.SavedEntriesCount.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.SavedEntriesCount.Location = new System.Drawing.Point(549, 397);
+            this.SavedEntriesCount.Location = new System.Drawing.Point(790, 539);
             this.SavedEntriesCount.MouseState = MaterialSkin.MouseState.HOVER;
             this.SavedEntriesCount.Name = "SavedEntriesCount";
             this.SavedEntriesCount.Size = new System.Drawing.Size(170, 19);
@@ -385,7 +382,7 @@ namespace SafeNotes
             this.ChangeNameButton.Depth = 0;
             this.ChangeNameButton.HighEmphasis = true;
             this.ChangeNameButton.Icon = null;
-            this.ChangeNameButton.Location = new System.Drawing.Point(160, 396);
+            this.ChangeNameButton.Location = new System.Drawing.Point(163, 531);
             this.ChangeNameButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ChangeNameButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ChangeNameButton.Name = "ChangeNameButton";
@@ -407,7 +404,7 @@ namespace SafeNotes
             this.YourNameBox.Font = new System.Drawing.Font("Roboto", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.YourNameBox.Hint = "Your name...";
             this.YourNameBox.LeadingIcon = null;
-            this.YourNameBox.Location = new System.Drawing.Point(3, 396);
+            this.YourNameBox.Location = new System.Drawing.Point(6, 531);
             this.YourNameBox.MaxLength = 50;
             this.YourNameBox.MouseState = MaterialSkin.MouseState.OUT;
             this.YourNameBox.Multiline = false;
@@ -427,7 +424,7 @@ namespace SafeNotes
             this.SaveEntryButton.Depth = 0;
             this.SaveEntryButton.HighEmphasis = true;
             this.SaveEntryButton.Icon = null;
-            this.SaveEntryButton.Location = new System.Drawing.Point(726, 396);
+            this.SaveEntryButton.Location = new System.Drawing.Point(967, 531);
             this.SaveEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.SaveEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.SaveEntryButton.Name = "SaveEntryButton";
@@ -435,7 +432,6 @@ namespace SafeNotes
             this.SaveEntryButton.Size = new System.Drawing.Size(107, 36);
             this.SaveEntryButton.TabIndex = 2;
             this.SaveEntryButton.Text = "Save Entry";
-            this.ToolTips.SetToolTip(this.SaveEntryButton, "Saves your entry into your Journal");
             this.SaveEntryButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.SaveEntryButton.UseAccentColor = false;
             this.SaveEntryButton.UseVisualStyleBackColor = true;
@@ -466,7 +462,7 @@ namespace SafeNotes
             this.JournalEntryBox.SelectionLength = 0;
             this.JournalEntryBox.SelectionStart = 0;
             this.JournalEntryBox.ShortcutsEnabled = true;
-            this.JournalEntryBox.Size = new System.Drawing.Size(830, 358);
+            this.JournalEntryBox.Size = new System.Drawing.Size(1078, 496);
             this.JournalEntryBox.TabIndex = 1;
             this.JournalEntryBox.TabStop = false;
             this.JournalEntryBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -483,7 +479,7 @@ namespace SafeNotes
             this.JournalTabSelector.Location = new System.Drawing.Point(3, 3);
             this.JournalTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.JournalTabSelector.Name = "JournalTabSelector";
-            this.JournalTabSelector.Size = new System.Drawing.Size(830, 24);
+            this.JournalTabSelector.Size = new System.Drawing.Size(1075, 25);
             this.JournalTabSelector.TabIndex = 0;
             this.JournalTabSelector.Text = "materialTabSelector1";
             // 
@@ -500,7 +496,7 @@ namespace SafeNotes
             this.NotepadPage.Controls.Add(this.NotepadTextBox);
             this.NotepadPage.Location = new System.Drawing.Point(4, 22);
             this.NotepadPage.Name = "NotepadPage";
-            this.NotepadPage.Size = new System.Drawing.Size(836, 438);
+            this.NotepadPage.Size = new System.Drawing.Size(1081, 573);
             this.NotepadPage.TabIndex = 5;
             this.NotepadPage.Text = "Notepad";
             this.NotepadPage.Click += new System.EventHandler(this.Notepad_Click);
@@ -510,7 +506,7 @@ namespace SafeNotes
             this.NotepadTitle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.NotepadTitle.Depth = 0;
             this.NotepadTitle.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.NotepadTitle.Location = new System.Drawing.Point(147, 396);
+            this.NotepadTitle.Location = new System.Drawing.Point(148, 531);
             this.NotepadTitle.MouseState = MaterialSkin.MouseState.HOVER;
             this.NotepadTitle.Name = "NotepadTitle";
             this.NotepadTitle.Size = new System.Drawing.Size(314, 36);
@@ -524,7 +520,7 @@ namespace SafeNotes
             this.ColumnInNotepad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.ColumnInNotepad.Depth = 0;
             this.ColumnInNotepad.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.ColumnInNotepad.Location = new System.Drawing.Point(480, 415);
+            this.ColumnInNotepad.Location = new System.Drawing.Point(721, 550);
             this.ColumnInNotepad.MouseState = MaterialSkin.MouseState.HOVER;
             this.ColumnInNotepad.Name = "ColumnInNotepad";
             this.ColumnInNotepad.Size = new System.Drawing.Size(117, 19);
@@ -538,7 +534,7 @@ namespace SafeNotes
             this.CharsInNotepad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.CharsInNotepad.Depth = 0;
             this.CharsInNotepad.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.CharsInNotepad.Location = new System.Drawing.Point(467, 396);
+            this.CharsInNotepad.Location = new System.Drawing.Point(712, 531);
             this.CharsInNotepad.MouseState = MaterialSkin.MouseState.HOVER;
             this.CharsInNotepad.Name = "CharsInNotepad";
             this.CharsInNotepad.Size = new System.Drawing.Size(130, 19);
@@ -555,7 +551,7 @@ namespace SafeNotes
             this.ClearNotepadButton.Depth = 0;
             this.ClearNotepadButton.HighEmphasis = true;
             this.ClearNotepadButton.Icon = null;
-            this.ClearNotepadButton.Location = new System.Drawing.Point(3, 396);
+            this.ClearNotepadButton.Location = new System.Drawing.Point(4, 531);
             this.ClearNotepadButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.ClearNotepadButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.ClearNotepadButton.Name = "ClearNotepadButton";
@@ -576,7 +572,7 @@ namespace SafeNotes
             this.OpenFileButton.Depth = 0;
             this.OpenFileButton.HighEmphasis = true;
             this.OpenFileButton.Icon = null;
-            this.OpenFileButton.Location = new System.Drawing.Point(604, 396);
+            this.OpenFileButton.Location = new System.Drawing.Point(849, 532);
             this.OpenFileButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.OpenFileButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.OpenFileButton.Name = "OpenFileButton";
@@ -597,7 +593,7 @@ namespace SafeNotes
             this.SaveNotepadButton.Depth = 0;
             this.SaveNotepadButton.HighEmphasis = true;
             this.SaveNotepadButton.Icon = null;
-            this.SaveNotepadButton.Location = new System.Drawing.Point(705, 396);
+            this.SaveNotepadButton.Location = new System.Drawing.Point(949, 532);
             this.SaveNotepadButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.SaveNotepadButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.SaveNotepadButton.Name = "SaveNotepadButton";
@@ -621,7 +617,7 @@ namespace SafeNotes
             this.MaterialTabSelector1.Location = new System.Drawing.Point(3, 3);
             this.MaterialTabSelector1.MouseState = MaterialSkin.MouseState.HOVER;
             this.MaterialTabSelector1.Name = "MaterialTabSelector1";
-            this.MaterialTabSelector1.Size = new System.Drawing.Size(830, 24);
+            this.MaterialTabSelector1.Size = new System.Drawing.Size(1075, 25);
             this.MaterialTabSelector1.TabIndex = 3;
             this.MaterialTabSelector1.Text = "tabSelect1";
             // 
@@ -650,7 +646,7 @@ namespace SafeNotes
             this.NotepadTextBox.SelectionLength = 0;
             this.NotepadTextBox.SelectionStart = 0;
             this.NotepadTextBox.ShortcutsEnabled = true;
-            this.NotepadTextBox.Size = new System.Drawing.Size(830, 364);
+            this.NotepadTextBox.Size = new System.Drawing.Size(1078, 499);
             this.NotepadTextBox.TabIndex = 2;
             this.NotepadTextBox.TabStop = false;
             this.NotepadTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -667,7 +663,7 @@ namespace SafeNotes
             this.JournalEntriesPage.Controls.Add(this.TabSelect3);
             this.JournalEntriesPage.Location = new System.Drawing.Point(4, 22);
             this.JournalEntriesPage.Name = "JournalEntriesPage";
-            this.JournalEntriesPage.Size = new System.Drawing.Size(836, 438);
+            this.JournalEntriesPage.Size = new System.Drawing.Size(1081, 573);
             this.JournalEntriesPage.TabIndex = 2;
             this.JournalEntriesPage.Text = "Journal Entries";
             // 
@@ -680,7 +676,7 @@ namespace SafeNotes
             this.EditEntryButton.Depth = 0;
             this.EditEntryButton.HighEmphasis = true;
             this.EditEntryButton.Icon = null;
-            this.EditEntryButton.Location = new System.Drawing.Point(4, 396);
+            this.EditEntryButton.Location = new System.Drawing.Point(4, 531);
             this.EditEntryButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.EditEntryButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.EditEntryButton.Name = "EditEntryButton";
@@ -688,7 +684,6 @@ namespace SafeNotes
             this.EditEntryButton.Size = new System.Drawing.Size(102, 36);
             this.EditEntryButton.TabIndex = 4;
             this.EditEntryButton.Text = "Edit entry";
-            this.ToolTips.SetToolTip(this.EditEntryButton, "Edits the selected entry.");
             this.EditEntryButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.EditEntryButton.UseAccentColor = false;
             this.EditEntryButton.UseVisualStyleBackColor = true;
@@ -704,7 +699,7 @@ namespace SafeNotes
             this.DeleteEntriesButton.Depth = 0;
             this.DeleteEntriesButton.HighEmphasis = true;
             this.DeleteEntriesButton.Icon = null;
-            this.DeleteEntriesButton.Location = new System.Drawing.Point(696, 396);
+            this.DeleteEntriesButton.Location = new System.Drawing.Point(941, 531);
             this.DeleteEntriesButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.DeleteEntriesButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.DeleteEntriesButton.Name = "DeleteEntriesButton";
@@ -712,7 +707,6 @@ namespace SafeNotes
             this.DeleteEntriesButton.Size = new System.Drawing.Size(136, 36);
             this.DeleteEntriesButton.TabIndex = 3;
             this.DeleteEntriesButton.Text = "Delete entries";
-            this.ToolTips.SetToolTip(this.DeleteEntriesButton, "Deletes all entered entries");
             this.DeleteEntriesButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.DeleteEntriesButton.UseAccentColor = false;
             this.DeleteEntriesButton.UseVisualStyleBackColor = true;
@@ -739,7 +733,7 @@ namespace SafeNotes
             this.EntriesListBox.MouseState = MaterialSkin.MouseState.OUT;
             this.EntriesListBox.Name = "EntriesListBox";
             this.EntriesListBox.OwnerDraw = true;
-            this.EntriesListBox.Size = new System.Drawing.Size(830, 354);
+            this.EntriesListBox.Size = new System.Drawing.Size(1075, 489);
             this.EntriesListBox.TabIndex = 2;
             this.EntriesListBox.UseCompatibleStateImageBehavior = false;
             this.EntriesListBox.View = System.Windows.Forms.View.Details;
@@ -768,7 +762,7 @@ namespace SafeNotes
             this.TabSelect3.Location = new System.Drawing.Point(3, 3);
             this.TabSelect3.MouseState = MaterialSkin.MouseState.HOVER;
             this.TabSelect3.Name = "TabSelect3";
-            this.TabSelect3.Size = new System.Drawing.Size(830, 24);
+            this.TabSelect3.Size = new System.Drawing.Size(1075, 25);
             this.TabSelect3.TabIndex = 1;
             // 
             // TodoBoardPage
@@ -779,7 +773,7 @@ namespace SafeNotes
             this.TodoBoardPage.Location = new System.Drawing.Point(4, 22);
             this.TodoBoardPage.Name = "TodoBoardPage";
             this.TodoBoardPage.Padding = new System.Windows.Forms.Padding(3);
-            this.TodoBoardPage.Size = new System.Drawing.Size(836, 438);
+            this.TodoBoardPage.Size = new System.Drawing.Size(1081, 573);
             this.TodoBoardPage.TabIndex = 4;
             this.TodoBoardPage.Text = "To-Do Board";
             // 
@@ -790,9 +784,9 @@ namespace SafeNotes
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TodoBoardCtrl.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.TodoBoardCtrl.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.TodoBoardCtrl.Location = new System.Drawing.Point(3, 31);
+            this.TodoBoardCtrl.Location = new System.Drawing.Point(-1, 31);
             this.TodoBoardCtrl.Name = "TodoBoardCtrl";
-            this.TodoBoardCtrl.Size = new System.Drawing.Size(830, 404);
+            this.TodoBoardCtrl.Size = new System.Drawing.Size(1083, 536);
             this.TodoBoardCtrl.TabIndex = 1;
             // 
             // TodoTabSelector
@@ -805,7 +799,7 @@ namespace SafeNotes
             this.TodoTabSelector.Location = new System.Drawing.Point(3, 3);
             this.TodoTabSelector.MouseState = MaterialSkin.MouseState.HOVER;
             this.TodoTabSelector.Name = "TodoTabSelector";
-            this.TodoTabSelector.Size = new System.Drawing.Size(830, 24);
+            this.TodoTabSelector.Size = new System.Drawing.Size(1075, 25);
             this.TodoTabSelector.TabIndex = 0;
             this.TodoTabSelector.Text = "todoTabSelector";
             // 
@@ -834,7 +828,7 @@ namespace SafeNotes
             this.LeftMenuNav.HideSelection = false;
             this.LeftMenuNav.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(52)))), ((int)(((byte)(58)))));
             this.LeftMenuNav.ItemHeight = 40;
-            this.LeftMenuNav.Location = new System.Drawing.Point(3, 27);
+            this.LeftMenuNav.Location = new System.Drawing.Point(3, 28);
             this.LeftMenuNav.Name = "LeftMenuNav";
             this.LeftMenuNav.NodeBackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(36)))), ((int)(((byte)(39)))));
             this.LeftMenuNav.NodeDownPic = ((System.Drawing.Image)(resources.GetObject("LeftMenuNav.NodeDownPic")));
@@ -862,7 +856,7 @@ namespace SafeNotes
             this.LeftMenuNav.ShowLines = false;
             this.LeftMenuNav.ShowPlusMinus = false;
             this.LeftMenuNav.ShowRootLines = false;
-            this.LeftMenuNav.Size = new System.Drawing.Size(130, 543);
+            this.LeftMenuNav.Size = new System.Drawing.Size(130, 542);
             this.LeftMenuNav.TabIndex = 17;
             this.LeftMenuNav.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.LeftMenuNav_AfterSelect);
             // 
@@ -876,7 +870,7 @@ namespace SafeNotes
             this.TabSelect4.Location = new System.Drawing.Point(3, 3);
             this.TabSelect4.MouseState = MaterialSkin.MouseState.HOVER;
             this.TabSelect4.Name = "TabSelect4";
-            this.TabSelect4.Size = new System.Drawing.Size(1075, 24);
+            this.TabSelect4.Size = new System.Drawing.Size(1075, 25);
             this.TabSelect4.TabIndex = 2;
             this.TabSelect4.Text = "materialTabSelector2";
             // 
@@ -894,7 +888,6 @@ namespace SafeNotes
             this.ResetAccountCheckbox.Size = new System.Drawing.Size(198, 37);
             this.ResetAccountCheckbox.TabIndex = 16;
             this.ResetAccountCheckbox.Text = "Reset account on close";
-            this.ToolTips.SetToolTip(this.ResetAccountCheckbox, "Wipes all account data when you close SafeNotes.");
             this.ResetAccountCheckbox.UseVisualStyleBackColor = true;
             this.ResetAccountCheckbox.Visible = false;
             // 
@@ -913,7 +906,6 @@ namespace SafeNotes
             this.ResetLoginStatusButton.Size = new System.Drawing.Size(170, 36);
             this.ResetLoginStatusButton.TabIndex = 15;
             this.ResetLoginStatusButton.Text = "Reset login status";
-            this.ToolTips.SetToolTip(this.ResetLoginStatusButton, "Logs you out of SafeNotes.");
             this.ResetLoginStatusButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.ResetLoginStatusButton.UseAccentColor = false;
             this.ResetLoginStatusButton.UseVisualStyleBackColor = true;
@@ -934,7 +926,6 @@ namespace SafeNotes
             this.ApplyDateCheckbox.Size = new System.Drawing.Size(167, 37);
             this.ApplyDateCheckbox.TabIndex = 14;
             this.ApplyDateCheckbox.Text = "Apply date to entry";
-            this.ToolTips.SetToolTip(this.ApplyDateCheckbox, "Applies the date the entry was made in the Entries tab.");
             this.ApplyDateCheckbox.UseVisualStyleBackColor = true;
             this.ApplyDateCheckbox.Visible = false;
             this.ApplyDateCheckbox.CheckedChanged += new System.EventHandler(this.ApplyDateCheckbox_CheckedChanged);
@@ -953,7 +944,6 @@ namespace SafeNotes
             this.LightModeCheckbox.Size = new System.Drawing.Size(115, 37);
             this.LightModeCheckbox.TabIndex = 12;
             this.LightModeCheckbox.Text = "Light Mode";
-            this.ToolTips.SetToolTip(this.LightModeCheckbox, "Burns your eyes...");
             this.LightModeCheckbox.UseVisualStyleBackColor = true;
             this.LightModeCheckbox.Visible = false;
             this.LightModeCheckbox.CheckedChanged += new System.EventHandler(this.LightModeCheckbox_CheckedChanged);
